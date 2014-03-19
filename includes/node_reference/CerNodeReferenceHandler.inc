@@ -42,7 +42,7 @@ class CerNodeReferenceHandler extends CerFieldHandler {
   }
   
   public function add($node) {
-    if ($this->validate($entity)) {
+    if ($this->validate($node)) {
       $this->items[] = array('nid' => $node->nid);
       $this->write();
     }
