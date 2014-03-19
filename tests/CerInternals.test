@@ -1,0 +1,126 @@
+<?php
+
+class CerInternals extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return [
+      'name' =>
+        'Internals',
+      'group' =>
+        'CER',
+      'description' =>
+        'Tests the core CER handler.',
+    ];
+  }
+
+  public function setUp() {
+    parent::setUp('ctools', 'entity', 'field_collection', 'entityreference', 'cer');
+
+    field_create_field([
+      'type' =>
+        'entityreference',
+      'field_name' =>
+        'field_ref',
+      'cardinality' =>
+        1,
+      'settings' => [
+        'target_type' => 'node',
+      ],
+    ]);
+
+    field_create_instance([
+      'entity_type' =>
+        'node',
+      'bundle' =>
+        'page',
+      'field_name' =>
+        'field_ref',
+    ]);
+    
+    field_create_field([
+      'type' =>
+        'field_collection',
+      'field_name' =>
+        'field_collection',
+      'cardinality' =>
+        1,
+    ]);
+    
+    field_create_instance([
+      'entity_type' =>
+        'node',
+      'bundle' =>
+        'article',
+      'field_name' =>
+        'field_collection',
+    ]);
+
+    field_create_instance([
+      'entity_type' =>
+        'field_collection_item',
+      'bundle' =>
+        'field_collection',
+      'field_name' =>
+        'field_ref',
+    ]);
+    
+    $left = new CerFieldChain();
+    $left->addField(new CerEntityReferenceField('node', 'page', 'field_ref'));
+    
+    $right = new CerFieldChain();
+    $right->addField(new CerEntityReferenceField('field_collection_item', 'field_collection', 'field_ref'));
+    $right->addField(new CerFieldCollectionField('node', 'article', 'field_collection'));
+    
+    $preset = new CerPreset();
+    $preset->left($left);
+    $preset->right($right);
+    $preset->write();
+  }
+
+  public function test() {
+    // Create a new left entity that references an existing right entity.
+    $right = $this->drupalCreateNode(['type' => 'article']);
+    $left = new EntityDrupalWrapper('node', entity_create('node', ['type' => 'page']));
+    $left->field_ref->set( $right );
+    $this->reload( $left->save() );
+    $right = new EntityDrupalWrapper('node', node_load($right->nid));
+    $this->assertEqual($left->getIdentifier(), $right->field_collection->field_ref->getIdentifier(), 'Created a new left entity referencing a pre-existing right entity.');
+
+    // Create a left and right entities that don't reference each other, then update
+    // the left entity to reference the right entity.
+    $left = $this->drupalCreateNode(['type' => 'page']);
+    $right = $this->drupalCreateNode(['type' => 'article']);
+    $left = new EntityDrupalWrapper('node', $left);
+    $left->field_ref->set( $right );
+    $this->reload( $left->save() );
+    $right = new EntityDrupalWrapper('node', node_load($right->nid));
+    $this->assertEqual($left->getIdentifier(), $right->field_collection->field_ref->getIdentifier(), 'Referenced pre-existing right entity on pre-existing left entity.');
+    
+    // Dereference the left entity from the right entity.
+    $right->field_collection->field_ref->set(NULL);
+    $right->save();
+    $this->reload( $left );
+    $this->assertNull($left->field_ref->value(), "Cleared right entity's reference to left entity.");
+
+    // Reference the right entity from the left entity, then delete the right entity.
+    $left->field_ref->set( $right->raw() );
+    $left->save();
+    $right->delete();
+    $this->reload( $left );
+    $this->assertNull($left->field_ref->value(), 'Re-referenced right entity from left entity, then deleted right entity.');
+  }
+
+  protected function debug($object) {
+    $this->pass('<pre>' . print_r($object, TRUE) . '</pre>');
+  }
+
+  protected function reload(EntityDrupalWrapper $entity) {
+    $id = $entity->getIdentifier();
+
+    $entities = entity_load($entity->type(), [ $id ]);
+    if (isset($entities[$id])) {
+      $entity->set( $entities[$id] );
+    }
+  }
+
+}
