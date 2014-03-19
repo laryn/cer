@@ -9,33 +9,137 @@
  * Implements hook_schema().
  */
 function cer_schema() {
+  $schema = array();
+
   $schema['cer'] = array(
     'description' => t('Saves the content types and entity reference fields for which the corresponding entity reference is enabled'),
     'fields' => array(
-      'entity_types_content_fields' => array('type' => 'varchar', 'length' => 200, 'not null' => TRUE, 'default' => ''),
-      'enabled' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-    ),
-    'primary key' => array('entity_types_content_fields'),
-    'export' => array(
-      'key' => 'entity_types_content_fields',
-      'status' => 'enabled',
-      'primary key' => 'entity_types_content_fields',
-      'key name' => 'Corresponding entity reference',
-      'identifier' => 'cnr_obj',
-      'api' => array(
-        'api' => 'default_cer_presets',
-        'owner' => 'cer',
-        'minimum_version' => 1,
-        'current_version' => 1,
+      'id' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'initial' => '',
+      ),
+      'a' => array(
+        'type' => 'text',
+        'size' => 'tiny',
+      ),
+      'a_chain' => array(
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'b' => array(
+        'type' => 'text',
+        'size' => 'tiny',
+      ),
+      'b_chain' => array(
+        'type' => 'text',
+        'serialize' => TRUE,
+      ),
+      'bidirectional' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'default' => 1,
+        'unsigned' => TRUE,
+      ),
+      'enabled' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'default' => 1,
+        'unsigned' => TRUE,
       ),
     ),
+    'primary key' => array('id'),
   );
+
   return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function cer_install() {
+  if (module_exists('corresponding_node_references')) {
+    _cer_hijack_cnr();
+  }
+}
+
+function _cer_hijack_cnr() {
+  $result = db_select('corresponding_node_references')->fields('corresponding_node_references')->condition('enabled', 1)->execute();
+  
+  foreach ($result as $row) {
+    $keys = explode('*', $row->node_types_content_fields);
+
+    $left = new CerFieldChain();
+    $left->addField(new CerNodeReferenceField($keys[0], $keys[1], $keys[2]));
+
+    $right = new CerFieldChain();
+    $right->addField(new CerNodeReferenceField($keys[3], $keys[4], $keys[5]));
+    
+    $preset = new CerPreset();
+    $preset->left($left);
+    $preset->right($right);
+
+    $preset->write($row->enabled);
+  }
+
+  module_disable(array('corresponding_node_references'));
 }
 
 /**
  * Rename table to shorten module name.
  */
 function cer_update_7001() {
-  db_rename_table('corresponding_entity_references', 'cer');
+  if (db_table_exists('corresponding_entity_references')) {
+    db_rename_table('corresponding_entity_references', 'cer');
+  }
+}
+
+/**
+ * Rebuilds the CER table and all active presets.
+ */
+function cer_update_7002() {
+  $tables = cer_schema();
+  $table = $tables['cer'];
+
+  // Drop the old primary key, 'entity_types_content_fields'. After the presets are
+  // rewritten, 'id' will be the new primary key.
+  db_drop_primary_key('cer');
+
+  // Create the new fields
+  foreach ($table['fields'] as $id => $spec) {
+    if (! db_field_exists('cer', $id)) {
+      db_add_field('cer', $id, $spec);
+    }
+  }
+
+  $result = db_select('cer')->fields('cer', array('entity_types_content_fields', 'enabled'))->execute();
+
+  foreach ($result as $row) {
+    $keys = explode('*', $row->entity_types_content_fields);
+
+    $left = new CerFieldChain();
+    $left->addField(new CerEntityReferenceField($keys[0], $keys[1], $keys[2]));
+
+    $right = new CerFieldChain();
+    $right->addField(new CerEntityReferenceField($keys[3], $keys[4], $keys[5]));
+
+    $preset = new CerPreset();
+    $preset->left($left);
+    $preset->right($right);
+
+    $preset->write($row->enabled);
+  }
+
+  // The old presets will have an empty 'id' field, so delete them all before
+  // creating the primary key.
+  db_delete('cer')->condition('id', '')->execute();
+  
+  db_add_primary_key('cer', $table['primary key']);
+
+  db_drop_field('cer', 'entity_types_content_fields');
+
+  if (module_exists('corresponding_node_references')) {
+    _cer_hijack_cnr();
+  }
 }

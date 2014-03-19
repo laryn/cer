@@ -1,103 +1,224 @@
 <?php
 
-/**
- * @file
- * Administrative functionality, separated for performance purposes.
- */
+function cer_preset_list() {
+  $table = array(
+    '#theme' => 'table',
+    '#header' => array(
+      t('Left Field'),
+      t('Right Field'),
+      t('Bidirectional'),
+      t('Operations'),
+    ),
+  );
 
-/**
- * The settings form.
- */
-function cer_settings_form($form = array(), &$form_state) {
-  $channels = array();
+  foreach (cer_preset_load() as $preset) {
+    $operations = array(
+      'links' => array(
+        'toggle' => array(
+          'title' => ($preset->enabled ? t('Disable') : t('Enable')),
+          'href' => "admin/config/content/cer/presets/toggle/{$preset->id}",
+        ),
+        'delete' => array(
+          'title' => t('Delete'),
+          'href' => "admin/config/content/cer/presets/delete/{$preset->id}",
+        ),
+      ),
+    );
+  
+    $table['#rows'][] = array(
+      sprintf('<strong>%s</strong>: %s', $preset->left()->end()->fieldTypeInfo('label'), $preset->left()->getLabel()),
+      sprintf('<strong>%s</strong>: %s', $preset->right()->end()->fieldTypeInfo('label'), $preset->right()->getLabel()),
+      ($preset->bidirectional ? '&#10003;' : ''),
+      theme('links__ctools_dropbutton', $operations),
+    );
+  }
 
-  foreach (_cer_get_fields() as $field) {
-    foreach ($field['bundles'] as $entity_type => $bundles) {
-      foreach ($bundles as $bundle) {
-        $instance = field_info_instance($entity_type, $field['field_name'], $bundle);
-        $channels = array_merge($channels, _cer_find_channels($instance));
-       }
-     }
-   }
+  return (isset($table['#rows']) ? $table : t('No presets have been created yet.'));
+}
 
-  if (empty($channels)) {
-    drupal_set_message(t('There are no entity reference fields that can correspond.'), 'warning');
+function cer_add_preset(array $form, array &$form_state) {
+  drupal_set_title(t('Add a CER preset'));
+
+  if (!module_exists('hierarchical_select')) {
+    drupal_set_message(t('You must install the <a href="http://www.drupal.org/project/hierarchical_select">Hierarchical Select</a> module in order to create CER presets.'), 'error');
+    return $form;
+  }
+
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
+  $form['actions']['cancel'] = array(
+    '#type' => 'submit',
+    '#value' => t('Cancel'),
+    '#submit' => array(
+      '_cer_add_preset_cancel',
+    ),
+    '#weight' => 5,
+  );
+
+  $left = CerFieldHierarchy::get('cer_left');
+
+  if (sizeof($left) == 0) {
+    foreach (cer_collect_fields() as $chain) {
+      $left->addChain($chain);
+    }
+  }
+
+  if (sizeof($left) > 0) {
+    $form['left'] = $left->getHierarchicalSelect(array('save_lineage' => TRUE));
+    $form['left']['#required'] = TRUE;
+    $form['left']['#title'] = t('Choose a field...');
   }
   else {
-    $mapping = array();
-    foreach ($channels as $count => $key) {
-      $formatted_key = str_replace(' ', '*', $key);
-
-      $mapping[$count] = $formatted_key;
-
-      $form['values']["enabled_{$count}"] = array(
-        '#type' => 'checkbox',
-        '#default_value' => cer_preset_enabled($formatted_key),
-        '#title' => filter_xss(theme('cer_label', array('key' => $key))),
-      );
-    }
-
-    // We are using a hidden field to submit the configuration because on
-    // some systems the checkbox name length is limited, and using
-    // the key would cause the length to be too long. (Issue #558612)
-    $form['mapping'] = array(
-      '#type' => 'hidden',
-      '#value' => serialize($mapping),
-    );
-
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Save'),
-    );
+    drupal_set_message(t('There are no reference fields available.'), 'warning');
+    return $form;
   }
 
+  if (isset($form_state['storage']['cer']['left'])) {
+    $left = $form_state['storage']['cer']['left'];
+
+    $right = CerFieldHierarchy::get('cer_right');
+    foreach (cer_collect_fields() as $chain) {
+      if ($left->canReference($chain) && $chain->canReference($left)) {
+        $right->addChain($chain);
+      }
+    }
+
+    if (sizeof($right) > 0) {
+      $form['left'] = array(
+        '#type' => 'markup',
+        '#markup' => sprintf('%s', $left->getLabel()),
+      );
+
+      $form['right'] = $right->getHierarchicalSelect(array('save_lineage' => TRUE));
+      $form['right']['#title'] = t('Choose a corresponding field...');
+      
+      $form['advanced'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Advanced'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+      $form['advanced']['enabled'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enabled'),
+        '#default_value' => TRUE,
+      );
+      $form['advanced']['bidirectional'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Bidirectional'),
+        '#default_value' => TRUE,
+        '#description' => t('If checked, a change to either field will trigger a reaction on the other field. Otherwise, only a change to the first field will trigger a reaction on the other field.'),
+      );
+
+      $form['actions']['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Save Preset'),
+      );
+    }
+    else {
+      drupal_set_message(t('There are no fields which can correspond with !left.', array('!left' => $left->getLabel())), 'warning');
+    }
+  }
+  else {
+    $form['actions']['continue'] = array(
+      '#type' => 'submit',
+      '#value' => t('Continue'),
+      '#submit' => array(
+        '_cer_add_preset_continue',
+      ),
+    );
+  }
 
   return $form;
 }
 
-/**
- * Submit function for settings form.
- */
-function cer_settings_form_submit($form, $form_state) {
-  ctools_include('export');
-  $query_values = array();
+function _cer_add_preset_continue(array $form, array &$form_state) {
+  $form_state['storage']['cer']['left'] = CerFieldHierarchy::get('cer_left')->getChain(end($form_state['values']['left']));  
+  $form_state['rebuild'] = TRUE;
+}
 
-  $mapping = unserialize($form_state['values']['mapping']);
+function _cer_add_preset_cancel(array $form, array &$form_state) {
+  CerFieldHierarchy::get('cer_left')->clean();
+  CerFieldHierarchy::get('cer_right')->clean();
 
-  foreach ($form_state['values'] as $key => $value) {
-    $keys = explode('_', $key);
-    if ($keys[0] == 'enabled') {
-      $query_values[$mapping[$keys[1]]] = $value;
+  $form_state['redirect'] = 'admin/config/content/cer';
+}
+
+function cer_add_preset_submit(array $form, array &$form_state) {
+  $preset = new CerPreset();
+
+  $preset->left($form_state['storage']['cer']['left']);
+  $preset->right(CerFieldHierarchy::get('cer_right')->getChain(end($form_state['values']['right'])));
+
+  $preset->enabled = $form_state['values']['enabled'];
+  $preset->bidirectional = $form_state['values']['bidirectional'];
+
+  if ($preset->write()) {
+    drupal_set_message(t('The preset was saved successfully.'));
+  }
+  else {
+    drupal_set_message(t('An error occurred while trying to save the preset.'), 'error');
+  }
+
+  _cer_add_preset_cancel($form, $form_state);
+}
+
+function cer_preset_toggle(CerPreset $preset) {
+  $preset->toggle();
+  drupal_goto('admin/config/content/cer');
+}
+
+function cer_delete_preset(array $form, array &$form_state, CerPreset $preset) {
+  $question = t('<i>!left</i> will no longer correspond with <i>!right</i>.', array(
+    '!left' => $preset->left()->getLabel(),
+    '!right' => $preset->right()->getLabel(),
+  ));
+
+  return confirm_form($form, t('Are you sure you want to delete this preset?'), 'admin/config/content/cer', $question, t('Delete'));
+}
+
+function cer_delete_preset_submit(array $form, array &$form_state) {
+  $form_state['build_info']['args'][0]->delete();
+
+  drupal_set_message(t('The preset was deleted.'));
+  $form_state['redirect'] = 'admin/config/content/cer';
+}
+
+function cer_collect_fields() {
+  $chains = array();
+
+  $fields = module_invoke_all('cer_fields');
+  drupal_alter('cer_fields', $fields);
+
+  foreach ($fields as $field) {
+    setType($field, 'array');
+    $field += array(
+      'get parents' => TRUE,
+    );
+
+    $chain = new CerFieldChain();
+    $wrapper = new $field['class']($field['entity_type'], $field['bundle'], $field['field_name']);
+
+    if ($field['get parents']) {
+      $chain->addField($wrapper, $chains);
+    }
+    else {
+      $chain->addField($wrapper);
     }
   }
 
-  // load all existing presets
-  $presets = ctools_export_crud_load_all('cer');
+  return $chains;
+}
 
-  foreach ($query_values as $key => $value) {
-    // get preset object (create new one if it doesn't exist already).
-    $preset = empty($presets[$key]) ? ctools_export_crud_new('cer') : $presets[$key];
-
-    // set and save value
-    if (empty($preset->entity_types_content_fields)) {
-      $preset->entity_types_content_fields = $key;
-    }
-    $preset->enabled = $value;
-    ctools_export_crud_save('cer', $preset);
-
-    // remove from list of presets, so we know which ones are still used
-    if (isset($presets[$key])) {
-      unset($presets[$key]);
-    }
-  }
-
-  drupal_set_message(t('The configuration has been saved.'));
+function _cer_collect_fields_of_type($field_type, $class) {
+  return db_query("SELECT fci.entity_type, fci.bundle, fci.field_name, :class AS class FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.type = :type", array(':class' => $class, ':type' => $field_type))->fetchAll();
 }
 
 /**
  * Allows batch updating of existing entities.
  */
-function cer_update_form($form = array(), &$form_state) {
+function cer_bulk_update_form(array $form, array &$form_state) {
   $form['type'] = array(
     '#type' => 'select',
     '#title' => t('Entity type'),
@@ -121,142 +242,26 @@ function cer_update_form($form = array(), &$form_state) {
  * The update form.
  * Allows updating of current entitys.
  */
-function cer_update_form_submit($form, &$form_state) {
+function cer_bulk_update_form_submit($form, &$form_state) {
   $batch = array(
     'finished' => 'cer_batch_update_existing_finished',
     'title' => t('Processing'),
     'init_message' => t('Preparing to update corresponding entity references for existing entities...'),
     'progress_message' => t('Processing entities...'),
     'error_message' => t('Corresponding entity references - existing entity update has encountered an error.'),
+    'operations' => array(),
   );
 
   $entity_type = $form_state['values']['type'];
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', $entity_type);
   $result = $query->execute();
+
   if (isset($result[$entity_type])) {
-    foreach ($result[$entity_type] as $entity_id => $stub) {
+    foreach (array_keys($result[$entity_type]) as $entity_id) {
       $batch['operations'][] = array('cer_processing_entity', array('update', $entity_id, $entity_type));
     }
   }
+
   batch_set($batch);
-}
-
-/**
- * The purpose of this function is to answer this question: I am a field instance. Which other
- * fields reference the entity that owns me? And of those instances, which ones can I reference?
- * The answer is returned as an array of CER keys: "entity1 bundle1 field1 entity2 bundle2 field2".
- *
- * @param array $instance
- *  Field instance info, as returned by field_info_instance().
- *
- * @return array
- */
-function _cer_find_channels($instance) {
-  $channels = array();
-
-  $my_id = $instance['entity_type'] . ' ' . $instance['bundle'] . ' ' . $instance['field_name'];
-  $my_info = field_info_field($instance['field_name']);
-  $my_targets = _cer_get_target_bundles($my_info);
-  $my_target_type = $my_info['settings']['target_type'];
-
-  $referrers = _cer_find_referrers($instance['entity_type'], $instance['bundle']);
-  foreach ($referrers as $referrer) {
-    if (isset($referrer['bundles'][$my_target_type])) {
-      if (empty($my_targets)) {
-        $bundles = $referrer['bundles'][$my_target_type];
-      }
-      else {
-        $bundles = array_intersect($referrer['bundles'][$my_target_type], $my_targets);
-      }
-      
-      foreach ($bundles as $bundle) {
-        $channels[] = "{$my_id} {$my_target_type} {$bundle} " . $referrer['field_name'];
-      }
-    }
-  }
-
-  return $channels;
-}
-
-/**
- * Find all fields that can reference the given entity type and bundle.
- *
- * @param $entity_type
- *  The entity type that can be referenced.
- * @param $bundle
- *  The bundle that can be referenced.
- *
- * @return array
- */ 
-function _cer_find_referrers($entity_type, $bundle) {
-  $referrers = array();
-  foreach (_cer_get_fields() as $field) {
-    if ($field['settings']['target_type'] == $entity_type) {
-      $target_bundles = _cer_get_target_bundles($field);
-      if (empty($target_bundles) || in_array($bundle, $target_bundles)) {
-        $referrers[] = $field;
-      }
-    }
-  }
-
-  return $referrers;
-}
-
-/**
- * Find all bundles reference-able by a given field. If all bundles are reference-able,
- * an empty array is returned.
- *
- * @param $field
- *  Field info array as returned by field_info_field().
- *
- * @return array
- */
-function _cer_get_target_bundles($field) {
-  $target_bundles = array();
-
-  // If the reference field is using a view, load the view and see if it's filtering by the entity
-  // type's bundle filter. If it is, the filter values are the target bundles. Otherwise,
-  // assume that all bundles can be referenced.
-  //
-  // @todo Support contextual filters?
-  //
-  // NOTE: Selection handlers (i.e., $field['settings']['handler']) are plugins owned by
-  // Entity Reference. There is no method defined to get an array of referenceable
-  // bundles, but hopefully, if CER gains enough traction in the community, such a
-  // method can be added to the EntityReference_SelectionHandler interface. This
-  // function could then be deprecated, which would be a more flexible, future-proof
-  // method of finding a field's target bundles.
-  //
-  if ($field['settings']['handler'] == 'views') {
-    $view = views_get_view($field['settings']['handler_settings']['view']['view_name']);
-    $view->set_display($field['settings']['handler_settings']['view']['display_name']);
-
-    $info = entity_get_info($field['settings']['target_type']);
-    if ($info['entity keys']['bundle'] && $handler = $view->display_handler->get_handler('filter', $info['entity keys']['bundle'])) {
-      $target_bundles = $handler->value;
-    }
-  }
-  elseif (isset($field['settings']['handler_settings']['target_bundles'])) {
-    $target_bundles = $field['settings']['handler_settings']['target_bundles'];
-  }
-  else {
-    $info = entity_get_info($field['settings']['target_type']);
-    $target_bundles = array_keys($info['bundles']);
-  }
-
-  return $target_bundles;
-}
-
-/**
- * Get the Field API definitions for all entity reference fields.
- *
- * @return array
- */
-function _cer_get_fields() {
-  static $fields;
-  if (!isset($fields)) {
-    $fields = array_map('field_info_field', db_select('field_config', 'fc')->fields('fc', array('field_name'))->condition('type', 'entityreference')->execute()->fetchCol());
-  }  
-  return $fields;
 }

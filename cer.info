@@ -2,9 +2,37 @@ name = Corresponding Entity References
 description = Syncs the entity references between entity types which have an entityreference to each other.
 core = 7.x
 package = Fields
-dependencies[] = entityreference
+configure = admin/config/content/cer
+
 dependencies[] = ctools
+dependencies[] = entity
 
-files[] = handler.inc
+files[] = includes/CER.inc
+files[] = includes/CerField.inc
+files[] = includes/CerFieldChain.inc
+files[] = includes/CerFieldChainHandler.inc
+files[] = includes/CerFieldHandler.inc
+files[] = includes/CerFieldHierarchy.inc
+files[] = includes/CerEndPointIterator.inc
+files[] = includes/CerPreset.inc
+files[] = includes/CerPresetHandler.inc
+files[] = includes/commerce_product_reference/CerCommerceProductReferenceField.inc
+files[] = includes/commerce_product_reference/CerCommerceProductReferenceHandler.inc
+files[] = includes/entity_reference/CerEntityReferenceField.inc
+files[] = includes/entity_reference/CerEntityReferenceHandler.inc
+files[] = includes/field_collection/CerFieldCollectionField.inc
+files[] = includes/field_collection/CerFieldCollectionHandler.inc
+files[] = includes/node_reference/CerNodeReferenceField.inc
+files[] = includes/node_reference/CerNodeReferenceHandler.inc
+files[] = includes/taxonomy_term_reference/CerTaxonomyTermReferenceField.inc
+files[] = includes/taxonomy_term_reference/CerTaxonomyTermReferenceHandler.inc
+files[] = includes/user_reference/CerUserReferenceField.inc
+files[] = includes/user_reference/CerUserReferenceHandler.inc
+files[] = tests/CerCrudTestCase.test
 
-configure = admin/config/system/cer
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "cer"
+datestamp = "1380557974"
+
