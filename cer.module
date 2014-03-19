@@ -142,7 +142,7 @@ function cer_entity_delete($entity, $type) {
  *  Either the Batch API context (since this is the callback function used
  *  during bulk update) or NULL if we're not in a batch job.
  */
-function cer_processing_entity($op, $entity, $entity_type, &$context = NULL) {
+function cer_processing_entity($op, $entity, $entity_type, array &$context = NULL) {
   if (is_integer($entity)) {
     $entity = entity_load($entity_type, array($entity));
     $entity = reset($entity);
@@ -154,7 +154,10 @@ function cer_processing_entity($op, $entity, $entity_type, &$context = NULL) {
     $preset->$op();
   }
 
-  if (isset($context)) {
+  if ($context) {
+    if (! isset($context['results']['count'])) {
+      $context['results']['count'] = 0;
+    }
     $context['results']['count']++;
   }
 }
