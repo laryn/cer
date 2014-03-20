@@ -30,6 +30,7 @@ files[] = includes/taxonomy_term_reference/CerTaxonomyTermReferenceHandler.inc
 files[] = includes/user_reference/CerUserReferenceField.inc
 files[] = includes/user_reference/CerUserReferenceHandler.inc
 
+files[] = tests/CerEntity.test
 files[] = tests/CerInternals.test
 
 ; Information added by drupal.org packaging script on 2013-09-30
