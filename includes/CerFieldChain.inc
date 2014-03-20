@@ -9,13 +9,22 @@
  * @class
  *  Encapsulates a doubly-linked list of CerField objects.
  */
-class CerFieldChain implements Countable, Iterator {
+class CerFieldChain implements Countable, SeekableIterator {
 
   /**
    * @var array
    *  Every CerField object in the chain.
    */
   protected $chain = array();
+  
+  /**
+   * @var integer
+   */
+  protected $index = 0;
+  
+  public function __sleep() {
+    return array('chain');
+  }
 
   /**
    * Magic post-unserialization callback. Provides every field in the chain
@@ -107,12 +116,24 @@ class CerFieldChain implements Countable, Iterator {
   public function count() {
     return sizeof($this->chain);
   }
+  
+  /**
+   * Implements SeekableIterator::seek().
+   */
+  public function seek($position) {
+    if ($position >= 0 && $position < $this->count()) {
+      $this->index = $position;
+    }
+    else {
+      throw new OutOfBoundsException(t('Cannot seek to invalid position %position.', array('%position' => $position)));
+    }
+  }
 
   /**
    * Implements Iterator::current().
    */
   public function current() {
-    return current($this->chain);
+    return $this->chain[$this->index];
   }
   
   /**
@@ -126,21 +147,21 @@ class CerFieldChain implements Countable, Iterator {
    * Implements Iterator::next().
    */
   public function next() {
-    next($this->chain);
+    $this->index++;
   }
   
   /**
    * Implements Iterator::rewind().
    */
   public function rewind() {
-    reset($this->chain);
+    $this->index = 0;
   }
 
   /**
    * Implements Iterator::valid().
    */
   public function valid() {
-    return ($this->current() instanceof CerField);
+    return ($this->index < $this->count());
   }
 
 } 
