@@ -18,6 +18,10 @@ function cer_preset_list() {
           'title' => ($preset->enabled ? t('Disable') : t('Enable')),
           'href' => "admin/config/content/cer/presets/toggle/{$preset->id}",
         ),
+        'invert' => array(
+          'title' => t('Invert'),
+          'href' => "admin/config/content/cer/presets/invert/{$preset->id}",
+        ),
         'delete' => array(
           'title' => t('Delete'),
           'href' => "admin/config/content/cer/presets/delete/{$preset->id}",
@@ -166,6 +170,14 @@ function cer_add_preset_submit(array $form, array &$form_state) {
 
 function cer_preset_toggle(CerPreset $preset) {
   $preset->toggle();
+  drupal_goto('admin/config/content/cer');
+}
+
+function cer_preset_invert(CerPreset $original) {
+  $inverse = $original->invert();
+  $inverse->write($original->enabled);
+
+  $original->delete();
   drupal_goto('admin/config/content/cer');
 }
 

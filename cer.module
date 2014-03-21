@@ -34,6 +34,13 @@ function cer_menu() {
     'file' => 'cer.admin.inc',
     'type' => MENU_CALLBACK,
   );
+  $items["{$prefix}/presets/invert/%cer_preset"] = array(
+    'page callback' => 'cer_preset_invert',
+    'page arguments' => array(6),
+    'access arguments' => array('administer cer settings'),
+    'file' => 'cer.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
   $items["{$prefix}/presets/delete/%cer_preset"] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cer_delete_preset', 6),
