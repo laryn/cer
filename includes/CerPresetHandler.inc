@@ -32,8 +32,10 @@ class CerPresetHandler {
   }
 
   public function update() {
-    if (isset($this->entity->original)) {
-      $original_left = $this->preset->left()->getHandler($this->entity->original);
+    $entity = $this->entity->value();
+
+    if (isset($entity->original)) {
+      $original_left = $this->preset->left()->getHandler( new EntityDrupalWrapper($this->entity->type(), $entity->original) );
 
       foreach ($original_left as $ref) {
         if (! $this->references->contains($ref)) {
