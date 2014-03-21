@@ -39,7 +39,7 @@ class CerPresetHandler {
 
       foreach ($original_left as $ref) {
         if (! $this->references->contains($ref)) {
-          $this->preset->right()->getHandler($ref)->delete($this->entity);
+          $this->preset->right()->getHandler($ref)->delete( $this->entity->owner );
         }
       }
     }

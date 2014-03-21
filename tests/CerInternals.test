@@ -98,7 +98,9 @@ class CerInternals extends DrupalWebTestCase {
     
     // Dereference the left entity from the right entity.
     $right->field_collection->field_ref->set(NULL);
-    $right->save();
+    // If we call $right->save(), the field collection is never updated. I'm pretty sure this is
+    // Entity API's fault, not mine.
+    $right->field_collection->save();
     $this->reload( $left );
     $this->assertNull($left->field_ref->value(), "Cleared right entity's reference to left entity.");
 
