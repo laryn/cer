@@ -2,10 +2,16 @@
 
 /**
  * @file
- * Contains the CerFieldHandler object.
+ * Contains CerFieldHandler.
  */
  
-abstract class CerFieldHandler implements Countable, SeekableIterator {
+/**
+ * @class
+ * Handles low-level operations for a single field on a single entity. Exposes
+ * methods to add, delete and check for references. This will also iterate over
+ * the references, returning each one in a CerEntity wrapper.
+ */
+class CerFieldHandler implements Countable, SeekableIterator {
 
   /**
    * @var CerField
@@ -13,101 +19,159 @@ abstract class CerFieldHandler implements Countable, SeekableIterator {
   protected $field;
 
   /**
-   * @var object
+   * @var EntityDrupalWrapper
    */
   protected $entity;
+
+  /**
+   * @var EntityMetadataWrapper
+   */
+  protected $value;
 
   /**
    * @var integer
    */
   protected $delta = 0;
-
+  
   /**
-   * @var array
+   * @var boolean
    */
-  protected $items;
+  protected $isMultiValue;
 
-  /**
-   * @var string
-   */
-  protected $language = LANGUAGE_NONE;
-
-  abstract public function contains($entity);
-
-  abstract public function add($entity);
-
-  abstract public function delete($entity);
-
-  public function __construct(CerField $field, $entity) {
+  public function __construct(CerField $field, EntityDrupalWrapper $entity) {
     $this->field = $field;
-
-    if ($field->fieldInfo('translatable')) {
-      $language = entity_language($field->instanceInfo('entity_type'), $entity);
-      
-      if (in_array($language, $field->languages())) {
-        $this->language = $language;
-      }
-    }
-    $this->items = (array) @$entity->{ $field->fieldInfo('field_name') }[$this->language];
-
     $this->entity = $entity;
+    $this->value = $entity->{ $field->fieldInfo('field_name') };
+    $this->isMultiValue = ($this->value instanceof EntityListWrapper);
   }
 
-  protected function validate($entity) {
+  public function contains(EntityDrupalWrapper $entity) {
+    $entityID = $entity->getIdentifier();
+    
+    if ($this->isMultiValue) {
+      foreach ($this->value as $ref) {
+        if ($entityID == $ref->getIdentifier()) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    }
+    else {
+      return ($entityID == $this->value->getIdentifier());
+    }
+  }
+
+  public function add(EntityDrupalWrapper $entity) {
+    if ($this->validate($entity)) {
+      $this->write();
+    }
+  }
+
+  public function delete(EntityDrupalWrapper $entity) {
+    $entityID = $entity->getIdentifier();
+
+    if ($this->isMultiValue) {
+      foreach ($this->value as $delta => $ref) {
+        if ($entityID == $ref->getIdentifier()) {
+          $this->value[$delta]->set(NULL);
+        }
+      }
+    }
+    elseif ($entityID == $this->value->getIdentifier()) {
+      $this->value->set(NULL);
+    }
+
+    $this->write();
+  }
+  
+  protected function validate(EntityDrupalWrapper $entity) {
+    // Before we do anything else, check that the field has enough space to add the
+    // reference. If there isn't, bail out so we don't blindly overwrite existing
+    // field data.
+    if ($this->checkCardinality()) {
+      // Keep the previous value so we can restore it if validation fails.
+      $prev_value = $this->value->value();
+
+      if ($this->isMultiValue) {
+        $value = $this->value->value();
+        $value[] = $entity->value();
+        $this->value->set($value);
+      }
+      else {
+        $this->value->set( $entity->value() );
+      }
+
+      // Leverage the Field Attach API to validate the reference.
+      try {
+        // Only validate this field.
+        field_attach_validate($this->entity->type(), $this->entity->value(), array('field_name' => $this->field->fieldInfo('field_name')));
+
+        return TRUE;
+      }
+      catch (FieldValidationException $e) {
+        foreach ($e->errors as $field) {
+          foreach ($field as $language) {
+            foreach ($language as $error) {
+              $this->logError($error, $entity);
+            }
+          }
+        }
+        $this->value->set($prev_value);
+      }
+    }
+    else {
+      $this->logError('Cannot add reference to !that_link from !field_label on !this_link because there are no more slots available.', $entity);
+    }
+
+    return FALSE;
+  }
+
+  protected function checkCardinality() {
     $cardinality = $this->field->fieldInfo('cardinality');
 
     if ($cardinality == FIELD_CARDINALITY_UNLIMITED) {
       return TRUE;
     }
     else {
-      if ($cardinality > $this->count()) {
-        return TRUE;
-      }
-      else {
-        $this->logError('Cannot add reference to !that_link from !field_label on !this_link because there are no more slots available.', $entity);
-        return FALSE;
-      }
+      return ($cardinality > $this->count());
     }
   }
 
   protected function write() {
-    $entity_type = $this->field->instanceInfo('entity_type');
-    list($entityID, ,) = entity_extract_IDs($entity_type, $this->entity);
+    $entity_type = $this->entity->type();
+    $entityID = $this->entity->getIdentifier();
+    $entity = $this->entity->value();
 
-    $this->entity->{ $this->field->fieldInfo('field_name') }[$this->language] = $this->items;
-
-    field_attach_presave($entity_type, $this->entity);
-    field_attach_update($entity_type, $this->entity);
+    field_attach_presave($entity_type, $entity);
+    field_attach_update($entity_type, $entity);
 
     entity_get_controller($entity_type)->resetCache((array) $entityID);
 
     $entities = entity_load($entity_type, (array) $entityID);
-    $this->__construct($this->field, $entities[$entityID]);
+    $this->__construct($this->field, new CerEntity($entity_type, $entities[$entityID]));
 
     $this->rewind();
   }
 
-  protected function logError($message, $entity = NULL) {
+  protected function logError($message, EntityDrupalWrapper $entity = NULL) {
     $variables = array(
       '!field_name' => $this->field->fieldInfo('field_name'),
       '!field_type' => $this->field->fieldTypeInfo('label'),
       '!field_label' => $this->field->instanceInfo('label'),
     );
 
-    $variables['!this_type'] = $this->field->instanceInfo('entity_type');
-    $variables['!this_label'] = entity_label($variables['!this_type'], $this->entity);
+    $variables['!this_type'] = $this->entity->type();
+    $variables['!this_label'] = $this->entity->label();
 
-    $uri = entity_uri($variables['!this_type'], $this->entity);
-    $variables['!this_uri'] = $uri['path'];
-    $variables['!this_link'] = l($variables['!this_label'], $uri['path'], $uri['options']);
+    $variables['!this_url'] = $this->entity->url->value();
+    $variables['!this_link'] = '<a href="' . $variables['!this_url'] . '">' . $variables['!this_label'] . '</a>';
 
     if ($entity) {
-      $variables['!that_type'] = $this->field->getTargetType();
-      $variables['!that_label'] = entity_label($variables['!that_type'], $entity);
+      $variables['!that_type'] = $entity->type();
+      $variables['!that_label'] = $entity->label();
 
-      $uri = entity_uri($variables['!that_type'], $entity);
-      $variables['!that_uri'] = $uri['path'];
-      $variables['!that_link'] = l($variables['!that_label'], $uri['path'], $uri['options']);
+      $variables['!that_url'] = $entity->url->value();
+      $variables['!that_link'] = '<a href="' . $variables['!that_url'] . '">' . $variables['!that_label'] . '</a>';
     }
 
     watchdog('cer', $message, $variables, WATCHDOG_ERROR);
@@ -118,7 +182,12 @@ abstract class CerFieldHandler implements Countable, SeekableIterator {
   }
 
   public function count() {
-    return sizeof($this->items);
+    if ($this->isMultiValue) {
+      return sizeof($this->value);
+    }
+    else {
+      return ($this->value->value() ? 1 : 0);
+    }
   }
 
   public function seek($position) {
@@ -134,6 +203,12 @@ abstract class CerFieldHandler implements Countable, SeekableIterator {
     else {
       throw new OutOfBoundsException(t('Cannot seek to invalid position.'));
     }
+  }
+
+  public function current() {
+    $entity = ($this->isMultiValue ? $this->value[$this->delta] : $this->value);
+
+    return new CerEntity($this->field->getTargetType(), $entity->value());
   }
 
   public function key() {

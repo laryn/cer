@@ -7,10 +7,6 @@
  
 class CerTaxonomyTermReferenceField extends CerField {
 
-  public function getHandler($entity) {
-    return new CerTaxonomyTermReferenceHandler($this, $entity);
-  }
-
   public function getTargetType() {
     return 'taxonomy_term';
   }

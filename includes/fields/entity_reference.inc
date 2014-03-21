@@ -7,10 +7,6 @@
  
 class CerEntityReferenceField extends CerField {
 
-  public function getHandler($entity) {
-    return new CerEntityReferenceHandler($this, $entity);
-  }
-
   public function getTargetType() {
     return $this->fieldInfo('settings', 'target_type');
   }

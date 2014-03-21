@@ -32,7 +32,7 @@ class CerEntity extends EntityDrupalWrapper {
   }
 
   public function root() {
-    return $this->rootEntity;
+    return new CerEntity($this->rootEntityType, $this->rootEntity);
   }
 
 }

@@ -18,16 +18,16 @@ class CerPresetHandler {
 
   protected $references;
 
-  public function __construct(CerPreset $preset, $entity) {
+  public function __construct(CerPreset $preset, CerEntity $entity) {
     $this->preset = $preset;
     $this->entity = $entity;
 
-    $this->references = $preset->left()->getHandler($entity);
+    $this->references = $preset->left()->getHandler($this->entity);
   }
 
   public function insert() {
     foreach ($this->references as $ref) {
-      $this->preset->right()->getHandler($ref)->addIfNotContains($this->entity);
+      $this->preset->right()->getHandler( $ref )->addIfNotContains( $this->entity->root() );
     }
   }
 
@@ -50,7 +50,7 @@ class CerPresetHandler {
       // Without this sanity check, bulk delete is likely to fail with
       // an EntityMalformedException.
       if ($ref) {
-        $this->preset->right()->getHandler($ref)->delete($this->entity);
+        $this->preset->right()->getHandler($ref)->delete( $this->entity->root() );
       }
     }
   }

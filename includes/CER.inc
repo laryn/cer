@@ -37,16 +37,13 @@ class CER implements Iterator {
       return;
     }
 
-    $this->entity = $entity;
-
-    list(, , $bundle) = entity_extract_IDs($entity_type, $entity);
-    $pattern = "{$entity_type}:{$bundle}:%";
+    $this->entity = new CerEntity($entity_type, $entity);
 
     $baseQuery = db_select('cer')->fields('cer')->condition('enabled', 1);
 
     $a = clone $baseQuery;
     $result = $a
-      ->condition('a', $pattern, 'LIKE')
+      ->condition('a', $this->entity->__toString(), 'LIKE')
       ->execute();
 
     foreach ($result as $row) {
@@ -55,7 +52,7 @@ class CER implements Iterator {
 
     $b = clone $baseQuery;
     $result = $b
-      ->condition('b', $pattern, 'LIKE')
+      ->condition('b', $this->entity->__toString(), 'LIKE')
       ->condition('bidirectional', 1)
       ->execute();
 

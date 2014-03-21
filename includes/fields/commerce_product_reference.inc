@@ -7,10 +7,6 @@
  
 class CerCommerceProductReferenceField extends CerField {
 
-  public function getHandler($entity) {
-    return new CerCommerceProductReferenceHandler($this, $entity);
-  }
-
   public function getTargetType() {
     return 'commerce_product';
   }

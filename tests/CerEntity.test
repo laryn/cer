@@ -1,0 +1,56 @@
+<?php
+
+class CerEntityTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return [
+      'name' =>
+        'CerEntity',
+      'group' =>
+        'CER',
+      'description' =>
+        'Tests the CerEntity class.',
+    ];
+  }
+
+  public function setUp() {
+    parent::setUp('ctools', 'entity', 'field_collection', 'cer');
+    
+    field_create_field([
+      'type' =>
+        'field_collection',
+      'field_name' =>
+        'field_collection',
+      'cardinality' =>
+        1,
+    ]);
+    
+    field_create_instance([
+      'entity_type' =>
+        'node',
+      'bundle' =>
+        'page',
+      'field_name' =>
+        'field_collection',
+    ]);
+  }
+
+  public function test() {
+    $node = $this->drupalCreateNode(['type' => 'page']);
+
+    $entity = new CerEntity('node', $node);
+    $this->assertIdentical($entity->__toString(), 'node:page:%', 'Non-embedded entity is correctly encoded to a string.');
+    $this->assertIdentical($entity->depth(), 0, 'Non-embedded entity depth is 0.');
+    $this->assertIdentical($entity->root(), $node, 'Non-embedded entity is the root entity.');
+
+    $collection = entity_create('field_collection_item', ['field_name' => 'field_collection']);
+    $collection->setHostEntity('node', $node);
+    $collection->save(TRUE);
+
+    $entity = new CerEntity('field_collection_item', $collection);
+    $this->assertIdentical($entity->__toString(), 'node:page:field_collection::field_collection_item:field_collection:%', 'Single-embedded entity encodes correctly to a string.');
+    $this->assertIdentical($entity->depth(), 1, 'Single-embedded entity has depth 1.');
+    $this->assertIdentical($entity->root(), $node, 'Single-embedded entity returns the correct root entity.');
+  }
+
+}

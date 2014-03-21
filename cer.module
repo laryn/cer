@@ -238,6 +238,12 @@ function cer_cer_fields() {
   if (module_exists('commerce_product_reference')) {
     $fields = array_merge($fields, _cer_collect_fields_of_type('commerce_product_reference', 'CerCommerceProductReferenceField'));
   }
+  if (module_exists('file')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('file', 'CerFileField'));
+  }
+  if (module_exists('image')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('image', 'CerFileField'));
+  }
 
   return $fields;
 }

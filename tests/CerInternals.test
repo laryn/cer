@@ -110,10 +110,6 @@ class CerInternals extends DrupalWebTestCase {
     $this->assertNull($left->field_ref->value(), 'Re-referenced right entity from left entity, then deleted right entity.');
   }
 
-  protected function debug($object) {
-    $this->pass('<pre>' . print_r($object, TRUE) . '</pre>');
-  }
-
   protected function reload(EntityDrupalWrapper $entity) {
     $id = $entity->getIdentifier();
 

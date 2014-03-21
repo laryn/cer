@@ -40,16 +40,6 @@ abstract class CerField {
    *  Field instance contained by this one, if any.
    */
   protected $child;
-
-  /**
-   * Returns a CerFieldHandler subclass instance for the given entity.
-   *
-   * @param object $entity
-   *  The entity to be wrapped by the handler.
-   *
-   * @return CerFieldHandler
-   */
-  abstract public function getHandler($entity);
   
   abstract public function getTargetType();
 
@@ -76,6 +66,18 @@ abstract class CerField {
    */
   public function __sleep() {
     return array('entityType', 'bundle', 'field');
+  }
+
+  /**
+   * Returns a CerFieldHandler subclass instance for the given entity.
+   *
+   * @param object $entity
+   *  The entity to be wrapped by the handler.
+   *
+   * @return CerFieldHandler
+   */
+  public function getHandler(EntityDrupalWrapper $entity) {
+    return new CerFieldHandler($this, $entity);
   }
 
   /**

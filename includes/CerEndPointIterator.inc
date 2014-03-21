@@ -11,7 +11,7 @@ class CerEndPointIterator implements RecursiveIterator {
 
   protected $handler;
 
-  public function __construct(CerField $field, $entity) {
+  public function __construct(CerField $field, CerEntity $entity) {
     $this->field = $field;
     $this->handler = $field->getHandler($entity);
   }
