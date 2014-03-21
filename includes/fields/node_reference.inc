@@ -7,10 +7,6 @@
  
 class CerNodeReferenceField extends CerField {
   
-  public function getHandler($entity) {
-    return new CerNodeReferenceHandler($this, $entity);
-  }
-  
   public function getTargetType() {
     return 'node';
   }
