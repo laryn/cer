@@ -5,8 +5,8 @@
  * about what reference fields are available, and how to handle them. That's
  * what this hook is for. It should return a numerically indexed array of
  * field instances that you want to expose to CER. Each field you want
- * to expose needs to have a field definition class defined, which is simply
- * an object that extends CerField.
+ * to expose needs to have a field plugin class, which is simply a class
+ * that extends CerField.
  *
  * By default, CER will integrate with all of the following field types:
  * entityreference, node_reference, user_reference, taxonomy_term_reference,

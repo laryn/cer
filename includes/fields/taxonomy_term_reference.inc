@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the CerTaxonomyTermReferenceField object.
+ * Contains the CER plugin for Taxonomy Term Reference fields.
  */
  
 class CerTaxonomyTermReferenceField extends CerField {

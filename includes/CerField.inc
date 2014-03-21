@@ -2,12 +2,19 @@
 
 /**
  * @file
- *  Contains the CerField object.
+ * Contains the base class for CER field plugins.
+ *
+ * A field plugin tells CER how to interact with fields of a certain type. If a particular
+ * field type integrates with Entity API, its CER plugin can be as simple as extending
+ * CerField and implementing the getTargetType() method.
+ *
+ * @todo
+ * More info about extending CerFieldHandler to further customize field plugins.
  */
 
 /**
  * @class
- *  Encapsulates a single field instance.
+ * Represents a single field instance.
  */
 abstract class CerField {
 
@@ -41,6 +48,11 @@ abstract class CerField {
    */
   protected $child;
   
+  /**
+   * Gets the type of entity that can be referenced by this field.
+   *
+   * @return string
+   */
   abstract public function getTargetType();
 
   /**
@@ -179,16 +191,6 @@ abstract class CerField {
   public function instanceInfo() {
     $info = field_info_instance($this->entityType, $this->field, $this->bundle);
     return drupal_array_get_nested_value($info, func_get_args());
-  }
-
-  /**
-   * Gets the language codes this field is available in (will always contain at
-   * least LANGUAGE_NONE).
-   *
-   * @return array
-   */
-  public function languages() {
-    return field_available_languages($this->entityType, $this->fieldInfo());
   }
 
   /**

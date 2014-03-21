@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the CerEntityReferenceField object.
+ * Contains the CER plugin for Entity Reference fields.
  */
  
 class CerEntityReferenceField extends CerField {

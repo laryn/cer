@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the CerCommerceProductReferenceField object.
+ * Contains a CER plugin for Commerce's Product Reference fields.
  */
  
 class CerCommerceProductReferenceField extends CerField {

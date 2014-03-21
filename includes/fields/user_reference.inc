@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the CerUserReferenceField object.
+ * Contains the CER plugin for User Reference fields.
  */
  
 class CerUserReferenceField extends CerField {

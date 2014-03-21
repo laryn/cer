@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the CerNodeReferenceField object.
+ * Contains the CER plugin for Node Reference fields.
  */
  
 class CerNodeReferenceField extends CerField {

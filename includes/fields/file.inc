@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains CerFileField.
+ * Contains the CER plugin for File and Image fields.
  */
  
 class CerFileField extends CerField {
