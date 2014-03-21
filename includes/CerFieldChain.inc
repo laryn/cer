@@ -60,7 +60,7 @@ class CerFieldChain implements SeekableIterator {
    *
    * @return CerFieldChainHandler
    */
-  public function getHandler(CerEntity $entity) {
+  public function getHandler(EntityDrupalWrapper $entity) {
     return new CerFieldChainHandler($this, $entity);
   }
 
@@ -108,10 +108,6 @@ class CerFieldChain implements SeekableIterator {
   
   public function end() {
     return end($this->chain);
-  }
-
-  public function recursible() {
-    return ((sizeof($this->chain) - $this->index) > 1);
   }
 
   /**

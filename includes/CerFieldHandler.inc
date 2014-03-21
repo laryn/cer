@@ -9,7 +9,7 @@
  * @class
  * Handles low-level operations for a single field on a single entity. Exposes
  * methods to add, delete and check for references. This will also iterate over
- * the references, returning each one in a CerEntity wrapper.
+ * the references, returning each one as an EntityDrupalWrapper object.
  */
 class CerFieldHandler implements Countable, SeekableIterator {
 
@@ -43,6 +43,8 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $this->entity = $entity;
     $this->value = $entity->{ $field->fieldInfo('field_name') };
     $this->isMultiValue = ($this->value instanceof EntityListWrapper);
+
+    $this->rewind();
   }
 
   public function contains(EntityDrupalWrapper $entity) {
@@ -142,15 +144,15 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $entityID = $this->entity->getIdentifier();
     $entity = $this->entity->value();
 
+    // Don't call $entity->save(), or we'll cause an infinite loop.
     field_attach_presave($entity_type, $entity);
     field_attach_update($entity_type, $entity);
 
-    entity_get_controller($entity_type)->resetCache((array) $entityID);
+    // Reload the entity we just saved, and force a refresh of the static cache.
+    $entities = entity_load($entity_type, (array) $entityID, NULL, TRUE);
+    $this->entity->set($entities[$entityID]);
 
-    $entities = entity_load($entity_type, (array) $entityID);
-    $this->__construct($this->field, new CerEntity($entity_type, $entities[$entityID]));
-
-    $this->rewind();
+    $this->__construct($this->field, $this->entity);
   }
 
   protected function logError($message, EntityDrupalWrapper $entity = NULL) {
@@ -206,9 +208,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
   }
 
   public function current() {
-    $entity = ($this->isMultiValue ? $this->value[$this->delta] : $this->value);
-
-    return new CerEntity($this->field->getTargetType(), $entity->value());
+    return ($this->isMultiValue ? $this->value[$this->delta] : $this->value);
   }
 
   public function key() {

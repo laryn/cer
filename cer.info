@@ -8,7 +8,6 @@ dependencies[] = ctools
 dependencies[] = entity
 
 files[] = includes/CER.inc
-files[] = includes/CerEntity.inc
 files[] = includes/CerField.inc
 files[] = includes/CerFieldChain.inc
 files[] = includes/CerFieldChainHandler.inc
@@ -25,7 +24,6 @@ files[] = includes/fields/node_reference.inc
 files[] = includes/fields/taxonomy_term_reference.inc
 files[] = includes/fields/user_reference.inc
 
-files[] = tests/CerEntity.test
 files[] = tests/CerInternals.test
 
 ; Information added by drupal.org packaging script on 2013-09-30

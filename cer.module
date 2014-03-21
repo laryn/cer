@@ -123,7 +123,7 @@ function cer_entity_update($entity, $type) {
  * Implements hook_entity_delete().
  */
 function cer_entity_delete($entity, $type) {
-  cer_processing_entity('delete', $entity, $type);
+  cer_processing_entity('delete', $entity, $type);  
 }
 
 /**
@@ -147,6 +147,8 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
     $entity = entity_load($entity_type, array($entity));
     $entity = reset($entity);
   }
+  
+  module_load_include('inc', 'cer', 'cer.properties');
 
   $presets = new CER($entity_type, $entity);
 
@@ -206,49 +208,6 @@ function cer_hook_info() {
 }
 
 /**
- * Implements hook_cer_preset_create().
- */
-function cer_cer_preset_create(CerPreset $preset) {
-  // Prevents a race condition when deleting Commerce products which are referred to
-  // by Product Reference fields managed by CER.
-  if ($preset->right()->end() instanceof CerCommerceProductReferenceField) {
-    drupal_set_message(t('In order to prevent a race condition, bidirectionality has been disabled for this preset.'), 'warning');
-    $preset->bidirectional = FALSE;
-  }
-}
-
-/**
- * Implements hook_cer_fields().
- */
-function cer_cer_fields() {
-  $fields = array();
-
-  if (module_exists('taxonomy')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('taxonomy_term_reference', 'CerTaxonomyTermReferenceField'));
-  }
-  if (module_exists('entityreference')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('entityreference', 'CerEntityReferenceField'));
-  }
-  if (module_exists('node_reference')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('node_reference', 'CerNodeReferenceField'));
-  }
-  if (module_exists('user_reference')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('user_reference', 'CerUserReferenceField'));
-  }
-  if (module_exists('commerce_product_reference')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('commerce_product_reference', 'CerCommerceProductReferenceField'));
-  }
-  if (module_exists('file')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('file', 'CerFileField'));
-  }
-  if (module_exists('image')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('image', 'CerFileField'));
-  }
-
-  return $fields;
-}
-
-/**
  * Implements hook_query_TAG_alter().
  */
 function cer_query_cer_field_parents_alter(QueryAlterableInterface $query) {
@@ -264,43 +223,43 @@ function cer_query_cer_field_parents_alter(QueryAlterableInterface $query) {
 }
 
 /**
- * Implements hook_hierarchical_select_params().
+ * Implements hook_entity_property_info().
  */
-function cer_hierarchical_select_params() {
-  return CerFieldHierarchy::getParameters();
+function cer_entity_property_info() {
+  $properties = array();
+
+  foreach (entity_get_info() as $entity_type => $entity_info) {
+    $properties[$entity_type]['properties']['lineage'] = array(
+      'label' => t('Context'),
+      'description' => t("The entity's lineage, represented as a string."),
+      'type' => 'text',
+      'getter callback' => 'cer_get_entity_lineage',
+      'computed' => TRUE,
+    );
+
+    $properties[$entity_type]['properties']['depth'] = array(
+      'label' => t('Depth'),
+      'description' => t("How deeply the entity is embedded."),
+      'type' => 'integer',
+      'getter callback' => 'cer_get_entity_depth',
+      'computed' => TRUE,
+    );
+
+    $properties[$entity_type]['properties']['owner'] = array(
+      'label' => t('Owner'),
+      'description' => t('The top-level entity under which this one is embedded.'),
+      'type' => 'entity',
+      'getter callback' => 'cer_get_entity_owner',
+      'computed' => TRUE,
+    );
+  }
+
+  return $properties;
 }
 
-/**
- * Implements hook_hierarchical_select_root_level().
- */
-function cer_hierarchical_select_root_level($parameters) {
-  return CerFieldHierarchy::get($parameters['id'])->getOptions(CerFieldHierarchy::ROOT);
-}
-
-/**
- * Implements hook_hierarchical_select_children().
- */
-function cer_hierarchical_select_children($parent, $parameters) {
-  return CerFieldHierarchy::get($parameters['id'])->getOptions($parent);
-}
-
-/**
- * Implements hook_hierarchical_select_lineage().
- */
-function cer_hierarchical_select_lineage($item, $parameters) {
-  return CerFieldHierarchy::get($parameters['id'])->getLineage($item);
-}
-
-/**
- * Implements hook_hierarchical_select_valid_item().
- */
-function cer_hierarchical_select_valid_item($item, $parameters) {
-  return CerFieldHierarchy::get($parameters['id'])->validItem($item);
-}
-
-/**
- * Implements hook_hierarchical_select_item_get_label().
- */
-function hook_hierarchical_select_item_get_label($item, $parameters) {
-  return CerFieldHierarchy::get($parameters['id'])->getLabel($item);
+// Load CER's implementation of the Hierarchical Select API if Hierarchical Select
+// is installed. It's a bit ugleh to include it globally like this, but as soon
+// as Hierarchical Select implements hook_hook_info(), I'll get rid of it.
+if (module_exists('hierarchical_select')) {
+  module_load_include('inc', 'cer', 'cer.hierarchical_select');
 }

@@ -11,8 +11,8 @@ class CerFieldCollectionField extends CerField {
     return 'field_collection_item';
   }
 
-  public function createInnerEntity(CerEntity $owner) {
-    $collection = new CerEntity('field_collection_item', entity_create('field_collection_item', array('field_name' => $this->field)));
+  public function createInnerEntity(EntityDrupalWrapper $owner) {
+    $collection = new EntityDrupalWrapper('field_collection_item', entity_create('field_collection_item', array('field_name' => $this->field)));
     $collection->host_entity->set( $owner );
     $collection->save(TRUE);
 

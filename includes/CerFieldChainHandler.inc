@@ -13,16 +13,16 @@ class CerFieldChainHandler implements IteratorAggregate {
 
   protected $handlers;
 
-  public function __construct(CerFieldChain $chain, CerEntity $entity) {
+  public function __construct(CerFieldChain $chain, EntityDrupalWrapper $entity) {
     $this->chain = $chain;
     $this->entity = $entity;
 
     $chain->__wakeup();
-    $chain->seek($entity->depth());
+    $chain->seek($entity->depth->value());
 
     $field = $chain->current();
 
-    if ($chain->recursible()) {
+    if ($field->child()) {
       $this->handlers = new RecursiveIteratorIterator(new CerEndPointIterator($field, $entity));
     }
     else {
@@ -43,7 +43,7 @@ class CerFieldChainHandler implements IteratorAggregate {
     return $iterator;
   }
 
-  public function contains(CerEntity $entity) {
+  public function contains(EntityDrupalWrapper $entity) {
     foreach ($this->handlers as $handler) {
       if ($handler->contains($entity)) {
         return TRUE;
@@ -52,13 +52,13 @@ class CerFieldChainHandler implements IteratorAggregate {
     return FALSE;
   }
 
-  public function addIfNotContains(CerEntity $entity) {
+  public function addIfNotContains(EntityDrupalWrapper $entity) {
     if (! $this->contains($entity)) {
       $this->add($entity);
     }
   }
 
-  public function add(CerEntity $entity) {
+  public function add(EntityDrupalWrapper $entity) {
     $owner = $this->entity;
 
     foreach ($this->chain as $field) {
@@ -78,7 +78,7 @@ class CerFieldChainHandler implements IteratorAggregate {
     $field->getHandler($owner)->add($entity);
   }
 
-  public function delete(CerEntity $entity) {
+  public function delete(EntityDrupalWrapper $entity) {
     foreach ($this->handlers as $handler) {
       $handler->delete($entity);
     }

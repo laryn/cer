@@ -37,13 +37,13 @@ class CER implements Iterator {
       return;
     }
 
-    $this->entity = new CerEntity($entity_type, $entity);
+    $this->entity = new EntityDrupalWrapper($entity_type, $entity);
 
     $baseQuery = db_select('cer')->fields('cer')->condition('enabled', 1);
 
     $a = clone $baseQuery;
     $result = $a
-      ->condition('a', $this->entity->__toString(), 'LIKE')
+      ->condition('a', $this->entity->lineage->value(), 'LIKE')
       ->execute();
 
     foreach ($result as $row) {
@@ -52,7 +52,7 @@ class CER implements Iterator {
 
     $b = clone $baseQuery;
     $result = $b
-      ->condition('b', $this->entity->__toString(), 'LIKE')
+      ->condition('b', $this->entity->lineage->value(), 'LIKE')
       ->condition('bidirectional', 1)
       ->execute();
 
