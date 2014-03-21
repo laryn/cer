@@ -154,6 +154,11 @@ function cer_entity_delete($entity, $type) {
  *  during bulk update) or NULL if we're not in a batch job.
  */
 function cer_processing_entity($op, $entity, $entity_type, array &$context = NULL) {
+  if (defined('MAINTENANCE_MODE')) {
+    drupal_set_message(t('Refusing to initialize CER when global MAINTENANCE_MODE flag is set.'), 'warning');
+    return;
+  }
+
   if (is_integer($entity)) {
     $entity = entity_load($entity_type, array($entity));
     $entity = reset($entity);
@@ -161,10 +166,10 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
   
   module_load_include('inc', 'cer', 'cer.properties');
 
-  $presets = new CER($entity_type, $entity);
+  $handlers = _cer_load_handlers($entity_type, $entity);
 
-  foreach ($presets as $key => $preset) {
-    $preset->$op();
+  foreach ($handlers as $handler) {
+    $handler->$op();
   }
 
   if ($context) {
@@ -173,6 +178,35 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
     }
     $context['results']['count']++;
   }
+}
+
+function _cer_load_handlers($entity_type, $entity) {
+  $handlers = array();
+  $entity = new EntityDrupalWrapper($entity_type, $entity);
+
+  $baseQuery = db_select('cer')->fields('cer')->condition('enabled', 1);
+
+  $a = clone $baseQuery;
+  $result = $a
+    ->condition('a', $entity->lineage->value(), 'LIKE')
+    ->execute();
+
+  foreach ($result as $row) {
+    $handlers[] = new CerPresetHandler(new CerPreset($row), $entity);
+  }
+
+  $b = clone $baseQuery;
+  $result = $b
+    ->condition('b', $entity->lineage->value(), 'LIKE')
+    ->condition('bidirectional', 1)
+    ->execute();
+
+  foreach ($result as $row) {
+    $preset = new CerPreset($row);
+    $handlers[] = new CerPresetHandler($preset->invert(), $entity);
+  }
+  
+  return $handlers;
 }
 
 /**
