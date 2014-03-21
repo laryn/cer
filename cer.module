@@ -107,7 +107,7 @@ function cer_node_insert(StdClass $node) {
  * Implements hook_entity_insert().
  */
 function cer_entity_insert($entity, $type) {
-  if ($type != 'node') {
+  if (! function_exists("cer_{$type}_insert")) {
     cer_processing_entity('insert', $entity, $type);
   }
 }
@@ -116,14 +116,18 @@ function cer_entity_insert($entity, $type) {
  * Implements hook_entity_update().
  */
 function cer_entity_update($entity, $type) {
-  cer_processing_entity('update', $entity, $type);
+  if (! function_exists("cer_{$type}_update")) {
+    cer_processing_entity('update', $entity, $type);
+  }
 }
 
 /**
  * Implements hook_entity_delete().
  */
 function cer_entity_delete($entity, $type) {
-  cer_processing_entity('delete', $entity, $type);  
+  if (! function_exists("cer_{$type}_delete")) {
+    cer_processing_entity('delete', $entity, $type);
+  }
 }
 
 /**
