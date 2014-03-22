@@ -52,7 +52,7 @@ function cer_schema() {
     'primary key' => array('id'),
   );
 
-  $schema['cer_disable'] = array(
+  $schema['cer_entity_settings'] = array(
     'fields' => array(
       'entity_type' => array(
         'type' => 'varchar',
@@ -169,9 +169,9 @@ function cer_update_7002() {
 }
 
 /**
- * Create the cer_disable database table.
+ * Create the cer_entity_settings database table.
  */
 function cer_update_7003() {
   $tables = cer_schema();
-  db_create_table('cer_disable', $tables['cer_disable']);
+  db_create_table('cer_entity_settings', $tables['cer_entity_settings']);
 }
