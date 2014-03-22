@@ -1,73 +1,57 @@
 ACKNOWLEDGEMENTS
 
-As this is the next evolution of Corresponding Node References,
-I would like to say thanks for all the work done over on Corresponding Node
-References.
+This is the next generation of Corresponding Node References. So, thanks are due
+to everyone who ever worked on CNR!
 
 DESCRIPTION
 
-CER syncs the entity reference between two entity types which have an entity
-reference to each other, so double editing entities is no longer needed. If one
-entity has a reference, the other entity also receives a reference to the saved
-entity if it is referenced in that entity.
+CER keeps reference fields in sync. If entity Alice references entity Bob, CER will make Bob back-reference Alice automatically, and it will continue to keep the two in sync if either one is changed or deleted. CER does this by way of “presets”, which are relationships you set up between reference-type fields.
+
+By “reference-type fields”, I mean any kind of field that references an entity. Out of the box, CER can integrate with the following field types:
+
+- Entity Reference
+- Node Reference
+- User Reference
+- File (or Image)
+- Field Collection
+- Taxonomy Term Reference
+- Commerce Product Reference
+
+CER has an object-oriented API you can use to integrate other kinds of fields, if you need to.
 
 DEPENDENCIES
 
-- Drupal core 7.15 or better
+- Drupal core 7.15 or higher
 - Entity API
 
-In order to create presets (relationships between reference fields), Hierarchical
-Select is required. If it isn't installed, the preset creation form will complain
-and refuse to appear. Everything else will work properly, though.
+In order to create presets, Hierarchical Select is required. If it isn't installed, the preset creation form will complain and refuse to appear. Everything else will work properly, though.
 
-EXAMPLE
+CREATING PRESTS
 
-Entity type A has an entity reference to entity type B and entity type B has an
-entity reference to entity type A. When you create entity X of type A and
-reference it to entity Y of type B entity Y will also receive an update in its
-entity reference field pointing to entity X.
+CER won’t do anything until you create at least one preset. To create a preset, visit admin/config/content/cer and click Add Preset. You will need Hierarchical Select installed to continue.
 
-KNOWN ISSUES N' STUFF
+Use the hierarchical select widget to drill down to the field you want to use for the left side of the preset, then click Continue. You’ll see another hierarchical select widget show up; use that to drill down to the field to use for the right side of the preset. Click Save, and you’re all set!
 
-- This is an EXPERIMENTAL version of CER's 2.x-dev branch! It has been almost totally
-  rewritten in order to support field collections. This approach also brings native
-  support for Node Reference, User Reference, and Commerce Product Reference fields
-  in addition to Entity Reference, and provides a rudimentary object-oriented API
-  for customizing CER's behavior.
-  
-- That being the case, I HIGHLY recommend that you test this update on a clone of your
-  site, and not on your production (or even dev) site before using it in your normal
-  environment!
-  
-- The rewrite completely changed the way that presets are stored in the database, so
-  this version DOES NOT support exporting to Features. This is a regression from the
-  normal version of CER 2.x. If anyone out there knows the Features API well, a patch 
-  for this would be most welcome. Otherwise, I'll get to it soon enough.
-  
-- You must run upgrade.php after updating to this version of CER, because CER's database
-  table structure has changed. And be sure to clear your caches! This update introduces
-  many new classes that need to be registered with the autoloader.
-  
-- Now that CER natively supports node reference fields, it will take over Corresponding
-  Node References when installed/updated, then deactivate it. All active CNR presets will
-  be automatically converted to CER presets.
+THINGS YOU SHOULD KNOW
 
-- The frequent CerExceptions that plagued the previous version of CER 2.x are gone (rejoice)!
-  When CER encounters an error, it will silently log the error to Watchdog with detailed
-  information about exactly which entities and fields failed to work, and why. So if something
-  is failing for no apparent reason, the first thing to do is check the logs.
+- If you’re updating from CER 1.x or 2.x, you MUST clear all your caches *before* running update.php so that new classes can be registered with the autoloader! If you don’t do this, you are likely to receive fatal errors during the update.
+
+- At the moment, exporting CER presets to Features is not supported (it is supported in 1.x and 2.x). I’ll restore this functionality soon.
+
+- If you have Corresponding Node References installed, CER will disable it and take over its field relationships.
+
+- Everything CER does, it does in a normal security context. This can lead to unexpected behavior if you’re not aware of it. In other words, if you don’t have the permission to view a specific node, don’t expect CER to be able to reference it when logged in as you. Be mindful of your entity/field permissions!
   
-- It's important to understand that CER does NOT necessarily operate in the administrative
-  context. To do so would potentially introduce a gaping security vulnerability. CER only
-  has as much privilege as the currently logged-in (or not logged-in) user. This applies
-  to all levels of CER's operation, from loading referenceable entities to modifying
-  field values. Carefully consider your entity-level and field-level permissions, especially
-  if you're using modules which control access to entities and/or fields!
-  
-- Although translatable fields are supported, it may be a bit flaky due to the ambiguities
-  inherent in language handling.
-  
-- devel_generate does not play nicely with CER, especially where field collections are concerned.
+- devel_generate does not play nicely with CER, especially where field collections are concerned. The results are utterly unpredictable.
+
+ROAD MAP
+
+If any of this stuff interests you, I wholeheartedly encourage you to submit patches or contribute in any way you can!
+
+- Full test coverage
+- Features integration
+- Performance enhancement
+- Documentation
 
 MAINTAINER
 
