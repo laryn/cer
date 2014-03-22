@@ -1,9 +1,13 @@
 <?php
 
+/**
+ * Page callback listing all CER presets.
+ */
 function cer_preset_list() {
   $table = array(
     '#theme' => 'table',
     '#header' => array(
+      t('Active'),
       t('Left Field'),
       t('Right Field'),
       t('Bidirectional'),
@@ -15,21 +19,22 @@ function cer_preset_list() {
     $operations = array(
       'links' => array(
         'toggle' => array(
-          'title' => ($preset->enabled ? t('Disable') : t('Enable')),
+          'title' => ($preset->enabled ? t('disable') : t('enable')),
           'href' => "admin/config/content/cer/presets/toggle/{$preset->id}",
         ),
         'invert' => array(
-          'title' => t('Invert'),
+          'title' => t('invert'),
           'href' => "admin/config/content/cer/presets/invert/{$preset->id}",
         ),
         'delete' => array(
-          'title' => t('Delete'),
+          'title' => t('delete'),
           'href' => "admin/config/content/cer/presets/delete/{$preset->id}",
         ),
       ),
     );
   
     $table['#rows'][] = array(
+      ($preset->enabled ? '&#10003;' : ''),
       sprintf('<strong>%s</strong>: %s', $preset->left()->end()->fieldTypeInfo('label'), $preset->left()->getLabel()),
       sprintf('<strong>%s</strong>: %s', $preset->right()->end()->fieldTypeInfo('label'), $preset->right()->getLabel()),
       ($preset->bidirectional ? '&#10003;' : ''),
@@ -43,7 +48,7 @@ function cer_preset_list() {
 function cer_add_preset(array $form, array &$form_state) {
   drupal_set_title(t('Add a CER preset'));
 
-  if (!module_exists('hierarchical_select')) {
+  if (! module_exists('hierarchical_select')) {
     drupal_set_message(t('You must install the <a href="http://www.drupal.org/project/hierarchical_select">Hierarchical Select</a> module in order to create CER presets.'), 'error');
     return $form;
   }
@@ -96,7 +101,7 @@ function cer_add_preset(array $form, array &$form_state) {
 
       $form['right'] = $right->getHierarchicalSelect(array('save_lineage' => TRUE));
       $form['right']['#title'] = t('Choose a corresponding field...');
-      
+
       $form['advanced'] = array(
         '#type' => 'fieldset',
         '#title' => t('Advanced'),
@@ -137,11 +142,19 @@ function cer_add_preset(array $form, array &$form_state) {
   return $form;
 }
 
+/**
+ * Submit handler. Stores the selected left field in $form_state['storage'] and rebuilds
+ * the form so the user can choose the right field.
+ */
 function _cer_add_preset_continue(array $form, array &$form_state) {
   $form_state['storage']['cer']['left'] = CerFieldHierarchy::get('cer_left')->getChain(end($form_state['values']['left']));  
   $form_state['rebuild'] = TRUE;
 }
 
+/**
+ * Submit handler. Deletes the cer_left and cer_right hierarchies from the cache and
+ * sets the redirect path to the main administration page.
+ */
 function _cer_add_preset_cancel(array $form, array &$form_state) {
   CerFieldHierarchy::get('cer_left')->clean();
   CerFieldHierarchy::get('cer_right')->clean();
@@ -168,19 +181,30 @@ function cer_add_preset_submit(array $form, array &$form_state) {
   _cer_add_preset_cancel($form, $form_state);
 }
 
+/**
+ * Page callback to toggle a preset from the main administration page.
+ */
 function cer_preset_toggle(CerPreset $preset) {
   $preset->toggle();
   drupal_goto('admin/config/content/cer');
 }
 
+/**
+ * Page callback to invert a preset from the main administration page.
+ */
 function cer_preset_invert(CerPreset $original) {
   $inverse = $original->invert();
-  $inverse->write($original->enabled);
-
+  $inverse->write($original->enabled);  // Preserve the original's status
+  // There's no point in having two presets that are inverses of each other,
+  // so delete the original.
   $original->delete();
+
   drupal_goto('admin/config/content/cer');
 }
 
+/**
+ * Confirmation form to delete a preset.
+ */
 function cer_delete_preset(array $form, array &$form_state, CerPreset $preset) {
   $question = t('<i>!left</i> will no longer correspond with <i>!right</i>.', array(
     '!left' => $preset->left()->getLabel(),
@@ -197,6 +221,10 @@ function cer_delete_preset_submit(array $form, array &$form_state) {
   $form_state['redirect'] = 'admin/config/content/cer';
 }
 
+/**
+ * Gets information about all the fields exposed to CER by invoking hook_cer_fields().
+ * Returns an array of CerFieldChain objects, or an empty array if no fields were found.
+ */
 function cer_collect_fields() {
   $chains = array();
 
@@ -251,8 +279,7 @@ function cer_bulk_update_form(array $form, array &$form_state) {
 }
 
 /**
- * The update form.
- * Allows updating of current entitys.
+ * The update form. Allows bulk updating of current entities.
  */
 function cer_bulk_update_form_submit($form, &$form_state) {
   $batch = array(

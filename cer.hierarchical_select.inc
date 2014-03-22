@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains CER's implementation of the Hierarchical Select API.
+ */
+
+/**
  * Implements hook_hierarchical_select_params().
  */
 function cer_hierarchical_select_params() {
