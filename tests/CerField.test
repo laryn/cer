@@ -1,0 +1,60 @@
+<?php
+
+class CerFieldUnitTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return [
+      'name' =>
+        'CerField',
+      'group' =>
+        'CER',
+      'description' =>
+        'Unit tests the CerField class.',
+    ];
+  }
+
+  public function setUp() {
+    parent::setUp('ctools', 'entity', 'entityreference', 'cer');
+
+    field_create_field([
+      'type' =>
+        'entityreference',
+      'field_name' =>
+        'field_ref',
+      'cardinality' =>
+        1,
+      'settings' => [
+        'target_type' => 'node',
+      ],
+    ]);
+
+    field_create_instance([
+      'entity_type' =>
+        'node',
+      'bundle' =>
+        'page',
+      'field_name' =>
+        'field_ref',
+      'label' =>
+        'Reference',
+    ]);
+  }
+
+  public function test() {
+    $field = new CerEntityReferenceField('node', 'page', 'field_ref');
+
+    $node = new EntityDrupalWrapper('node', $this->drupalCreateNode(['type' => 'page']));
+    $handler = $field->getHandler($node);
+    $this->assertTrue($handler instanceof CerFieldHandler, 'getHandler() returns CerFieldHandler.');
+
+    $this->assertIdentical($field->__toString(), 'node:page:field_ref', '__toString() returns expected identifier.');
+    $this->assertIdentical($field->fieldTypeInfo(), field_info_field_types('entityreference'), 'fieldTypeInfo() returns field type definition.');
+    $this->assertIdentical($field->entityInfo(), entity_get_info('node'), 'entityInfo() returns instance entity type info.');
+    $this->assertIdentical($field->fieldInfo(), field_info_field('field_ref'), 'fieldInfo() returns field definition.');
+    $this->assertIdentical($field->instanceInfo(), field_info_instance('node', 'field_ref', 'page'), 'instanceInfo() returns instance definition.');
+    $this->assertTrue(is_array($field->getParents()), 'getParents() returns an array.');
+    $this->assertFalse($field->getParents(), 'getParents() returns falsy.');
+    $this->assertIdentical($field->getLabel(), 'Node &raquo; Basic page &raquo; Reference', 'getLabel() returns expected field label.');
+  }
+
+}
