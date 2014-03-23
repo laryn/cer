@@ -26,7 +26,7 @@ DEPENDENCIES
 
 In order to create presets, Hierarchical Select is required. If it isn't installed, the preset creation form will complain and refuse to appear. Everything else will work properly, though.
 
-CREATING PRESTS
+CREATING PRESETS
 
 CER won’t do anything until you create at least one preset. To create a preset, visit admin/config/content/cer and click Add Preset. You will need Hierarchical Select installed to continue.
 
