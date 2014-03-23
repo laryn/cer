@@ -286,11 +286,11 @@ function cer_entity_property_info() {
       'computed' => TRUE,
     );
 
-    $properties[$entity_type]['properties']['owner'] = array(
-      'label' => t('Owner'),
+    $properties[$entity_type]['properties']['root'] = array(
+      'label' => t('Root Entity'),
       'description' => t('The top-level entity under which this one is embedded.'),
       'type' => 'entity',
-      'getter callback' => 'cer_get_entity_owner',
+      'getter callback' => 'cer_get_entity_root',
       'computed' => TRUE,
     );
   }
@@ -327,9 +327,9 @@ function cer_get_entity_depth($entity, array $options, $property, $entity_type, 
  * Gets the ultimate owner of the entity as an EntityDrupalWrapper. Currently,
  * this only applies to field collections.
  */
-function cer_get_entity_owner($entity, array $options, $property, $entity_type, $info) {
+function cer_get_entity_root($entity, array $options, $property, $entity_type, $info) {
   if ($entity_type == 'field_collection_item') {
-    return cer_get_entity_owner($entity->hostEntity(), $options, $property, $entity->hostEntityType(), $info);
+    return cer_get_entity_root($entity->hostEntity(), $options, $property, $entity->hostEntityType(), $info);
   }
   else {
     return new EntityDrupalWrapper($entity_type, $entity);

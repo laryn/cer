@@ -212,7 +212,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
   }
 
   public function key() {
-    return $this->delta;
+    return $this->current()->getIdentifier();
   }
 
   public function next() {

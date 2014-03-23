@@ -27,7 +27,7 @@ class CerPresetHandler {
 
   public function insert() {
     foreach ($this->references as $ref) {
-      $this->preset->right()->getHandler( $ref )->addIfNotContains( $this->entity->owner );
+      $this->preset->right()->getHandler( $ref )->addIfNotContains( $this->entity->root );
     }
   }
 
@@ -39,7 +39,7 @@ class CerPresetHandler {
 
       foreach ($original_left as $ref) {
         if (! $this->references->contains($ref)) {
-          $this->preset->right()->getHandler($ref)->delete( $this->entity->owner );
+          $this->preset->right()->getHandler($ref)->delete( $this->entity->root );
         }
       }
     }
@@ -52,7 +52,7 @@ class CerPresetHandler {
       // Without this sanity check, bulk delete is likely to fail with
       // an EntityMalformedException.
       if ($ref) {
-        $this->preset->right()->getHandler($ref)->delete( $this->entity->owner );
+        $this->preset->right()->getHandler($ref)->delete( $this->entity->root );
       }
     }
   }
