@@ -26,3 +26,4 @@ files[] = includes/fields/user_reference.inc
 files[] = tests/CerInternals.test
 files[] = tests/CerBulkUpdate.test
 files[] = tests/CerField.test
+files[] = tests/CerFieldHandler.test

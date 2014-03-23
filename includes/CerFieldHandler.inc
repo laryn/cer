@@ -48,18 +48,23 @@ class CerFieldHandler implements Countable, SeekableIterator {
   }
 
   public function contains(EntityDrupalWrapper $entity) {
-    $entityID = $entity->getIdentifier();
-    
-    if ($this->isMultiValue) {
-      foreach ($this->value as $ref) {
-        if ($entityID == $ref->getIdentifier()) {
-          return TRUE;
+    if ($this->field->getTargetType() == $entity->type()) {
+      $entityID = $entity->getIdentifier();
+
+      if ($this->isMultiValue) {
+        foreach ($this->value as $ref) {
+          if ($entityID == $ref->getIdentifier()) {
+            return TRUE;
+          }
         }
+        return FALSE;
       }
-      return FALSE;
+      else {
+        return ($entityID == $this->value->getIdentifier());
+      }
     }
     else {
-      return ($entityID == $this->value->getIdentifier());
+      return FALSE;
     }
   }
 

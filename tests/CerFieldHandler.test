@@ -1,0 +1,70 @@
+<?php
+
+class CerFieldHandlerUnitTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return [
+      'name' =>
+        'Field Handler',
+      'group' =>
+        'CER',
+      'description' =>
+        "Unit tests CER's field handler class.",
+    ];
+  }
+
+  public function setUp() {
+    parent::setUp('ctools', 'entity', 'entityreference', 'cer');
+
+    field_create_field([
+      'type' =>
+        'entityreference',
+      'field_name' =>
+        'field_ref',
+      'cardinality' =>
+        1,
+      'settings' => [
+        'target_type' => 'node',
+      ],
+    ]);
+
+    field_create_instance([
+      'entity_type' =>
+        'node',
+      'bundle' =>
+        'page',
+      'field_name' =>
+        'field_ref',
+    ]);
+  }
+
+  public function test() {
+    $field = new CerEntityReferenceField('node', 'page', 'field_ref');
+
+    $node = new EntityDrupalWrapper('node', $this->drupalCreateNode(['type' => 'page']));
+    $ref = new EntityDrupalWrapper('node', $this->drupalCreateNode(['type' => 'page']));
+    $account = new EntityDrupalWrapper('user', $this->drupalCreateUser());
+
+    $handler = $field->getHandler($node);
+    $this->assertFalse($handler->contains($ref), 'contains() returns FALSE for non-referenced entity.');
+    $this->assertIdentical($handler->count(), 0, 'count() is 0 when there are no references.');
+
+    $handler->add($account);
+    $this->assertFalse($handler->contains($account), 'contains() returns FALSE after trying to reference an invalid entity.');
+    $this->assertIdentical($handler->count(), 0, 'count() is still 0 after trying to reference an invalid entity.');
+
+    $handler->add($ref);
+    $this->assertTrue($handler->contains($ref), 'contains() returns TRUE after adding a reference.');
+    $this->assertIdentical($handler->count(), 1, 'count() is 1 after adding a reference.');
+    $this->assertIdentical($handler->key(), $ref->getIdentifier(), 'current() returns the referenced entity, and key() returns its ID.');
+    
+    $rejectMe = new EntityDrupalWrapper('node', $this->drupalCreateNode(['type' => 'article']));
+    $handler->add($rejectMe);
+    $this->assertFalse($handler->contains($rejectMe), 'contains() returns FALSE after trying to add more references than the field allows.');
+
+    $handler->delete($ref);
+    $this->assertFalse($handler->contains($ref), 'contains() returns FALSE after clearing a reference.');
+    $this->assertIdentical($handler->count(), 0, 'count() is 0 after clearing a reference.');
+  }
+
+}
