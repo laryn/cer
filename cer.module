@@ -299,6 +299,13 @@ function cer_entity_property_info() {
           'getter callback' => 'cer_get_entity_owner',
           'computed' => TRUE,
         ),
+        'original' => array(
+          'label' => t('Original'),
+          'description' => t('The original entity (before update), or the current entity if an update has not occurred.'),
+          'type' => 'entity',
+          'getter callback' => 'cer_get_entity_original',
+          'computed' => TRUE,
+        ),
       ),
     );
   }
@@ -374,6 +381,14 @@ function cer_get_entity_lineage_array(array $data, array $options, $property, $d
   else {
     return $options['lineage'];
   }
+}
+
+/**
+ * Gets the original entity, before update. If no update has taken place, the current
+ * entity is returned.
+ */
+function cer_get_entity_original(array $data, array $options, $property, $data_type, array $info) {
+  return new EntityDrupalWrapper($data[0], (isset($data[1]->original) ? $data[1]->original : $data[1]));
 }
 
 // Load CER's implementation of the Hierarchical Select API if Hierarchical Select

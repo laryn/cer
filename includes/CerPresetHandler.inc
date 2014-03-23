@@ -12,35 +12,34 @@
  */
 class CerPresetHandler {
 
-  protected $preset;
+  protected $left;
+  
+  protected $right;
   
   protected $entity;
 
   protected $references;
 
   public function __construct(CerPreset $preset, EntityDrupalWrapper $entity) {
-    $this->preset = $preset;
+    $this->left = $preset->left();
+    $this->right = $preset->right();
     $this->entity = $entity;
 
-    $this->references = $preset->left()->getHandler($this->entity);
+    $this->references = $this->left->getHandler( $this->entity );
   }
 
   public function insert() {
     foreach ($this->references as $ref) {
-      $this->preset->right()->getHandler( $ref )->addIfNotContains( $this->entity->cer->owner );
+      $this->right->getHandler( $ref )->addIfNotContains( $this->entity->cer->owner );
     }
   }
 
   public function update() {
-    $entity = $this->entity->value();
+    $original_left = $this->left->getHandler( $this->entity->cer->original );
 
-    if (isset($entity->original)) {
-      $original_left = $this->preset->left()->getHandler( new EntityDrupalWrapper($this->entity->type(), $entity->original) );
-
-      foreach ($original_left as $ref) {
-        if (! $this->references->contains($ref)) {
-          $this->preset->right()->getHandler($ref)->delete( $this->entity->cer->owner );
-        }
+    foreach ($original_left as $ref) {
+      if (! $this->references->contains($ref)) {
+        $this->right->getHandler($ref)->delete( $this->entity->cer->owner );
       }
     }
 
@@ -52,7 +51,7 @@ class CerPresetHandler {
       // Without this sanity check, bulk delete is likely to fail with
       // an EntityMalformedException.
       if ($ref) {
-        $this->preset->right()->getHandler($ref)->delete( $this->entity->cer->owner );
+        $this->right->getHandler($ref)->delete( $this->entity->cer->owner );
       }
     }
   }
