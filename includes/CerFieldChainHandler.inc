@@ -18,7 +18,7 @@ class CerFieldChainHandler implements IteratorAggregate {
     $this->entity = $entity;
 
     $chain->__wakeup();
-    $chain->seek($entity->depth->value());
+    $chain->seek($entity->cer->depth->value());
 
     $field = $chain->current();
 

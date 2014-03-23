@@ -188,14 +188,14 @@ function _cer_load_handlers(EntityDrupalWrapper $entity) {
   $baseQuery = db_select('cer')->fields('cer')->condition('enabled', 1);
 
   $a = clone $baseQuery;
-  $result = $a->condition('a', $entity->lineage->value(), 'LIKE')->execute();
+  $result = $a->condition('a', $entity->cer->lineage->value(), 'LIKE')->execute();
 
   foreach ($result as $row) {
     $handlers[] = new CerPresetHandler(new CerPreset($row), $entity);
   }
 
   $b = clone $baseQuery;
-  $result = $b->condition('b', $entity->lineage->value(), 'LIKE')->condition('bidirectional', 1)->execute();
+  $result = $b->condition('b', $entity->cer->lineage->value(), 'LIKE')->condition('bidirectional', 1)->execute();
 
   foreach ($result as $row) {
     $preset = new CerPreset($row);
@@ -270,28 +270,36 @@ function cer_entity_property_info() {
   $properties = array();
 
   foreach (entity_get_info() as $entity_type => $entity_info) {
-    $properties[$entity_type]['properties']['lineage'] = array(
-      'label' => t('Context'),
-      'description' => t("The entity's lineage, represented as a string."),
-      'type' => 'text',
-      'getter callback' => 'cer_get_entity_lineage',
+    $properties[$entity_type]['properties']['cer'] = array(
+      'label' => t('CER'),
+      'description' => t('Information about the entity, used internally by CER.'),
+      'type' => 'struct',
+      'getter callback' => 'cer_get_entity_context',
       'computed' => TRUE,
-    );
-
-    $properties[$entity_type]['properties']['depth'] = array(
-      'label' => t('Depth'),
-      'description' => t("How deeply the entity is embedded."),
-      'type' => 'integer',
-      'getter callback' => 'cer_get_entity_depth',
-      'computed' => TRUE,
-    );
-
-    $properties[$entity_type]['properties']['root'] = array(
-      'label' => t('Root Entity'),
-      'description' => t('The top-level entity under which this one is embedded.'),
-      'type' => 'entity',
-      'getter callback' => 'cer_get_entity_root',
-      'computed' => TRUE,
+      'property info' => array(
+        'lineage' => array(
+          'label' => t('Context'),
+          'description' => t("The entity's lineage, represented as a string."),
+          'type' => 'text',
+          'getter callback' => 'cer_get_entity_lineage',
+          'raw getter callback' => 'cer_get_entity_lineage_array',
+          'computed' => TRUE,
+        ),
+        'depth' => array(
+          'label' => t('Depth'),
+          'description' => t("How deeply the entity is embedded."),
+          'type' => 'integer',
+          'getter callback' => 'cer_get_entity_depth',
+          'computed' => TRUE,
+        ),
+        'owner' => array(
+          'label' => t('Owner'),
+          'description' => t('The top-level entity under which this one is embedded.'),
+          'type' => 'entity',
+          'getter callback' => 'cer_get_entity_owner',
+          'computed' => TRUE,
+        ),
+      ),
     );
   }
 
@@ -301,22 +309,27 @@ function cer_entity_property_info() {
 /**
  * Entity API property callback functions
  */
+ 
+function cer_get_entity_context($entity, array $options, $property, $entity_type, array $info) {
+  return array(
+    $entity_type, $entity,
+  );
+}
 
 /**
  * Gets the lineage of the entity as a string, in the format
  * entity_type:bundle:field::...
  */
-function cer_get_entity_lineage($entity, array $options, $property, $entity_type, $info) {
-  return implode( '::', _cer_get_entity_lineage($entity_type, $entity) );
+function cer_get_entity_lineage(array $data, array $options, $property, $data_type, array $info) {
+  return implode('::', cer_get_entity_lineage_array($data, $options, $property, $data_type, $info));
 }
 
 /**
- * Gets the entity depth as an integer. Currently, this only applies to field
- * collections.
+ * Gets the entity depth as an integer. Currently, this applies only to field collections.
  */
-function cer_get_entity_depth($entity, array $options, $property, $entity_type, $info) {
-  if ($entity_type == 'field_collection_item') {
-    return sizeof( _cer_get_entity_lineage($entity_type, $entity) );
+function cer_get_entity_depth(array $data, array $options, $property, $data_type, array $info) {
+  if ($data[0] == 'field_collection_item') {
+    return (sizeof(cer_get_entity_lineage_array($data, $options, $property, $data_type, $info)) - 1);
   }
   else {
     return 0;
@@ -324,39 +337,42 @@ function cer_get_entity_depth($entity, array $options, $property, $entity_type, 
 }
 
 /**
- * Gets the ultimate owner of the entity as an EntityDrupalWrapper. Currently,
- * this only applies to field collections.
+ * Gets the ultimate owner of the entity as an EntityDrupalWrapper. Currently, this
+ * applies only to field collections.
  */
-function cer_get_entity_root($entity, array $options, $property, $entity_type, $info) {
-  if ($entity_type == 'field_collection_item') {
-    return cer_get_entity_root($entity->hostEntity(), $options, $property, $entity->hostEntityType(), $info);
+function cer_get_entity_owner(array $data, array $options, $property, $data_type, array $info) {
+  if ($data[0] == 'field_collection_item') {
+    $data[0] = $data[1]->hostEntityType();
+    $data[1] = $data[1]->hostEntity();
+
+    return cer_get_entity_owner($data, $options, $property, $data_type, $info);
   }
   else {
-    return new EntityDrupalWrapper($entity_type, $entity);
+    return new EntityDrupalWrapper($data[0], $data[1]);
   }
 }
 
 /**
- * Recursively computes the lineage of an entity and returns it as an array of
- * strings in the format entity_type:bundle:field.
+ * Recursively computes the lineage of an entity and returns it as an array of strings
+ * in the format entity_type:bundle:field.
  */
-function _cer_get_entity_lineage($entity_type, $entity, array $chain = array()) {
-  list(, , $bundle) = entity_extract_IDs($entity_type, $entity);
+function cer_get_entity_lineage_array(array $data, array $options, $property, $data_type, array $info) {
+  list(, , $bundle) = entity_extract_IDs($data[0], $data[1]);
 
-  if (! $chain) {
-    $chain[0] = "{$entity_type}:{$bundle}:%";
+  if (! isset($options['lineage'])) {
+    $options['lineage'] = array( $data[0] . ":{$bundle}:%" );
   }
 
-  if ($entity_type == 'field_collection_item') {
-    $host_type = $entity->hostEntityType();
-    $host = $entity->hostEntity();
-    list(, , $host_bundle) = entity_extract_IDs($host_type, $host);
-    array_unshift($chain, "{$host_type}:{$host_bundle}:{$bundle}");
+  if ($data[0] == 'field_collection_item') {
+    $data[0] = $data[1]->hostEntityType();
+    $data[1] = $data[1]->hostEntity();
+    list(, , $hostBundle) = entity_extract_IDs($data[0], $data[1]);
+    array_unshift($options['lineage'], $data[0] . ":{$hostBundle}:{$bundle}");
 
-    return _cer_get_entity_lineage($host_type, $host);
+    return cer_get_entity_lineage_array($data, $options, $property, $data_type, $info);
   }
   else {
-    return $chain;
+    return $options['lineage'];
   }
 }
 
