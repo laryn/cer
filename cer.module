@@ -164,10 +164,6 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
     $entity = reset($entity);
   }
 
-  // Load our Entity API property callback functions, because from this point on,
-  // we're gonna need 'em...  
-  module_load_include('inc', 'cer', 'cer.properties');
-
   $handlers = _cer_load_handlers( new EntityDrupalWrapper($entity_type, $entity) );
 
   foreach ($handlers as $handler) {
