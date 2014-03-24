@@ -47,27 +47,6 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $this->rewind();
   }
 
-  public function contains(EntityDrupalWrapper $entity) {
-    if ($this->field->getTargetType() == $entity->type()) {
-      $entityID = $entity->getIdentifier();
-
-      if ($this->isMultiValue) {
-        foreach ($this->value as $ref) {
-          if ($entityID == $ref->getIdentifier()) {
-            return TRUE;
-          }
-        }
-        return FALSE;
-      }
-      else {
-        return ($entityID == $this->value->getIdentifier());
-      }
-    }
-    else {
-      return FALSE;
-    }
-  }
-
   public function add(EntityDrupalWrapper $entity) {
     if ($this->validate($entity)) {
       $this->write();
@@ -186,6 +165,21 @@ class CerFieldHandler implements Countable, SeekableIterator {
     if (variable_get('cer_debug', FALSE)) {
       drupal_set_message(t($message, $variables), 'error');
     }
+  }
+  
+  public function getIDs() {
+    $IDs = array();
+
+    if ($this->isMultiValue) {
+      foreach ($this->value as $ref) {
+        $IDs[] = $ref->raw();
+      }
+    }
+    else {
+      $IDs[] = $this->value->raw();
+    }
+    
+    return array_unique(array_filter($IDs));
   }
 
   public function count() {

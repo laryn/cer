@@ -46,24 +46,16 @@ class CerFieldHandlerUnitTest extends DrupalWebTestCase {
     $account = new EntityDrupalWrapper('user', $this->drupalCreateUser());
 
     $handler = $field->getHandler($node);
-    $this->assertFalse($handler->contains($ref), 'contains() returns FALSE for non-referenced entity.');
     $this->assertIdentical($handler->count(), 0, 'count() is 0 when there are no references.');
 
     $handler->add($account);
-    $this->assertFalse($handler->contains($account), 'contains() returns FALSE after trying to reference an invalid entity.');
     $this->assertIdentical($handler->count(), 0, 'count() is still 0 after trying to reference an invalid entity.');
 
     $handler->add($ref);
-    $this->assertTrue($handler->contains($ref), 'contains() returns TRUE after adding a reference.');
     $this->assertIdentical($handler->count(), 1, 'count() is 1 after adding a reference.');
-    $this->assertIdentical($handler->key(), $ref->getIdentifier(), 'current() returns the referenced entity, and key() returns its ID.');
-    
-    $rejectMe = new EntityDrupalWrapper('node', $this->drupalCreateNode(['type' => 'article']));
-    $handler->add($rejectMe);
-    $this->assertFalse($handler->contains($rejectMe), 'contains() returns FALSE after trying to add more references than the field allows.');
+    $this->assertIdentical($handler->key(), $ref->getIdentifier(), "key() returns the referenced entity's ID.");
 
     $handler->delete($ref);
-    $this->assertFalse($handler->contains($ref), 'contains() returns FALSE after clearing a reference.');
     $this->assertIdentical($handler->count(), 0, 'count() is 0 after clearing a reference.');
   }
 

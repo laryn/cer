@@ -12,12 +12,24 @@
  */
 class CerPresetHandler {
 
+  /**
+   * @var CerFieldChain
+   */
   protected $left;
   
+  /**
+   * @var CerFieldChain
+   */
   protected $right;
   
+  /**
+   * @var EntityDrupalWrapper
+   */
   protected $entity;
 
+  /**
+   * @var CerFieldChainHandler
+   */
   protected $references;
 
   public function __construct(CerPreset $preset, EntityDrupalWrapper $entity) {
@@ -28,22 +40,26 @@ class CerPresetHandler {
     $this->references = $this->left->getHandler( $this->entity );
   }
 
-  public function insert() {
-    foreach ($this->references as $ref) {
-      $this->right->getHandler( $ref )->addIfNotContains( $this->entity->cer->owner );
+  public function insert(array $IDs = NULL) {
+    $refs = (isset($IDs) ? $this->load($IDs) : $this->references);
+
+    foreach ($refs as $ref) {
+      $this->right->getHandler( $ref )->add( $this->entity->cer->owner );
     }
   }
 
   public function update() {
-    $original_left = $this->left->getHandler( $this->entity->cer->original );
-
-    foreach ($original_left as $ref) {
-      if (! $this->references->contains($ref)) {
-        $this->right->getHandler($ref)->delete( $this->entity->cer->owner );
+    $original = $this->left->getHandler( $this->entity->cer->original );
+    
+    $deleted = array_diff($original->getIDs(), $this->references->getIDs());
+    if ($deleted) {
+      foreach ($this->load($deleted) as $ref) {
+        $this->right->getHandler( $ref )->delete( $this->entity->cer->owner );
       }
     }
 
-    $this->insert();
+    $added = array_diff($this->references->getIDs(), $original->getIDs());
+    $this->insert($added ? $added : NULL);
   }
 
   public function delete() {
@@ -54,6 +70,18 @@ class CerPresetHandler {
         $this->right->getHandler($ref)->delete( $this->entity->cer->owner );
       }
     }
+  }
+  
+  protected function load(array $IDs) {
+    $refs = array();
+
+    $entity_type = $this->left->end()->getTargetType();
+    $entities = entity_load($entity_type, $IDs);
+    foreach ($entities as $entity) {
+      $refs[] = new EntityDrupalWrapper($entity_type, $entity);
+    }
+    
+    return $refs;
   }
 
 } 

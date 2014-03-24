@@ -43,19 +43,14 @@ class CerFieldChainHandler implements IteratorAggregate {
     return $iterator;
   }
 
-  public function contains(EntityDrupalWrapper $entity) {
-    foreach ($this->handlers as $handler) {
-      if ($handler->contains($entity)) {
-        return TRUE;
-      }
-    }
-    return FALSE;
-  }
+  public function getIDs() {
+    $IDs = array();
 
-  public function addIfNotContains(EntityDrupalWrapper $entity) {
-    if (! $this->contains($entity)) {
-      $this->add($entity);
+    foreach ($this->handlers as $handler) {
+      $IDs = array_merge($handler->getIDs(), $IDs);
     }
+
+    return array_unique($IDs);
   }
 
   public function add(EntityDrupalWrapper $entity) {

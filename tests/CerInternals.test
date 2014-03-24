@@ -9,7 +9,7 @@ class CerInternals extends DrupalWebTestCase {
       'group' =>
         'CER',
       'description' =>
-        'Tests the core CER handler.',
+        'Tests the core CER logic.',
     ];
   }
 
