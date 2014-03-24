@@ -28,20 +28,20 @@ class CerPresetHandler {
   protected $entity;
 
   /**
-   * @var CerFieldChainHandler
+   * @var array
    */
-  protected $references;
+  protected $refIDs;
 
   public function __construct(CerPreset $preset, EntityDrupalWrapper $entity) {
     $this->left = $preset->left();
     $this->right = $preset->right();
     $this->entity = $entity;
 
-    $this->references = $this->left->getHandler( $this->entity );
+    $this->refIDs = $this->left->getHandler( $this->entity )->getIDs();
   }
 
   public function insert(array $IDs = NULL) {
-    $refs = (isset($IDs) ? $this->load($IDs) : $this->references);
+    $refs = $this->load( isset($IDs) ? $IDs : $this->refIDs );
 
     foreach ($refs as $ref) {
       $this->right->getHandler( $ref )->add( $this->entity->cer->owner );
@@ -49,26 +49,22 @@ class CerPresetHandler {
   }
 
   public function update() {
-    $original = $this->left->getHandler( $this->entity->cer->original );
+    $originalIDs = $this->left->getHandler( $this->entity->cer->original )->getIDs();
     
-    $deleted = array_diff($original->getIDs(), $this->references->getIDs());
+    $deleted = array_diff($originalIDs, $this->refIDs);
     if ($deleted) {
       foreach ($this->load($deleted) as $ref) {
         $this->right->getHandler( $ref )->delete( $this->entity->cer->owner );
       }
     }
 
-    $added = array_diff($this->references->getIDs(), $original->getIDs());
+    $added = array_diff($this->refIDs, $originalIDs);
     $this->insert($added ? $added : NULL);
   }
 
   public function delete() {
-    foreach ($this->references as $ref) {
-      // Without this sanity check, bulk delete is likely to fail with
-      // an EntityMalformedException.
-      if ($ref) {
-        $this->right->getHandler($ref)->delete( $this->entity->cer->owner );
-      }
+    foreach ($this->load( $this->refIDs ) as $ref) {
+      $this->right->getHandler($ref)->delete( $this->entity->cer->owner );
     }
   }
   

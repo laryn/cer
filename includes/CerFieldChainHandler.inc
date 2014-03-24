@@ -5,7 +5,7 @@
  * Contains the CerFieldChainHandler object.
  */
 
-class CerFieldChainHandler implements IteratorAggregate {
+class CerFieldChainHandler {
 
   protected $chain;
 
@@ -28,19 +28,6 @@ class CerFieldChainHandler implements IteratorAggregate {
     else {
       $this->handlers = array( $field->getHandler($entity) );
     }
-  }
-
-  /**
-   * Implements IteratorAggregate::getIterator().
-   */
-  public function getIterator() {
-    $iterator = new AppendIterator();
-
-    foreach ($this->handlers as $handler) {
-      $iterator->append($handler);
-    }
-
-    return $iterator;
   }
 
   public function getIDs() {
