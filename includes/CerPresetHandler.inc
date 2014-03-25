@@ -64,6 +64,18 @@ class CerPresetHandler {
     }
   }
 
+  public function bulk_update() {
+    $thisID = $this->entity->getIdentifier();
+
+    foreach ($this->load( $this->refIDs ) as $ref) {
+      $handler = $this->right->getHandler( $ref );
+
+      if (! in_array($thisID, $handler->getIDs())) {
+        $handler->add( $this->entity );
+      }
+    }
+  }
+
   public function delete() {
     foreach ($this->load( $this->refIDs ) as $ref) {
       $this->right->getHandler($ref)->delete( $this->entity->cer->owner );

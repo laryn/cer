@@ -86,7 +86,7 @@ class CerBulkUpdate extends DrupalWebTestCase {
     // CER with better test code! Or at least tell me what I'm missing!
     $IDs = array_merge(array_keys($map), array_values($map));
     foreach ($IDs as $nid) {
-      cer_processing_entity('update', $nid, 'node');
+      cer_processing_entity('bulk_update', $nid, 'node');
     }
 
     // Ensure that the updated nodes match the map we created.
