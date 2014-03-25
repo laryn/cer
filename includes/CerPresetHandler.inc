@@ -37,29 +37,31 @@ class CerPresetHandler {
     $this->right = $preset->right();
     $this->entity = $entity;
 
-    $this->refIDs = $this->left->getHandler( $this->entity )->getIDs();
+    $this->refIDs = $this->left->getHandler( $entity )->getIDs();
   }
 
-  public function insert(array $IDs = NULL) {
-    $refs = $this->load( isset($IDs) ? $IDs : $this->refIDs );
-
-    foreach ($refs as $ref) {
+  public function insert() {
+    foreach ($this->load( $this->refIDs ) as $ref) {
       $this->right->getHandler( $ref )->add( $this->entity->cer->owner );
     }
   }
 
   public function update() {
     $originalIDs = $this->left->getHandler( $this->entity->cer->original )->getIDs();
-    
+
     $deleted = array_diff($originalIDs, $this->refIDs);
     if ($deleted) {
-      foreach ($this->load($deleted) as $ref) {
+      foreach ($this->load( $deleted ) as $ref) {
         $this->right->getHandler( $ref )->delete( $this->entity->cer->owner );
       }
     }
 
     $added = array_diff($this->refIDs, $originalIDs);
-    $this->insert($added ? $added : NULL);
+    if ($added) {
+      foreach ($this->load( $added ) as $ref) {
+        $this->right->getHandler( $ref )->add( $this->entity->cer->owner );
+      }
+    }
   }
 
   public function delete() {
