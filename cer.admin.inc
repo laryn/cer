@@ -15,7 +15,8 @@ function cer_preset_list() {
     ),
   );
 
-  foreach (cer_preset_load() as $preset) {
+  ctools_include('export');
+  foreach (ctools_export_crud_load_all('cer') as $preset) {
     $operations = array(
       'links' => array(
         'toggle' => array(
@@ -32,7 +33,7 @@ function cer_preset_list() {
         ),
       ),
     );
-  
+
     $table['#rows'][] = array(
       ($preset->enabled ? '&#10003;' : ''),
       sprintf('<strong>%s</strong>: %s', $preset->left()->end()->fieldTypeInfo('label'), $preset->left()->getLabel()),

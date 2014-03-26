@@ -72,13 +72,9 @@ function cer_permission() {
   );
 }
 
-function cer_preset_load($id = NULL) {
-  if (isset($id)) {
-    return new CerPreset(db_select('cer')->fields('cer')->condition('id', $id)->execute()->fetchObject());
-  }
-  else {
-    return array_map(__FUNCTION__, db_select('cer')->fields('cer', array('id'))->execute()->fetchCol());
-  }
+function cer_preset_load($id) {
+  ctools_include('export');
+  return ctools_export_crud_load('cer', $id);
 }
 
 /**
