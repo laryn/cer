@@ -55,6 +55,8 @@ class CerPreset {
   public function __get($property) {
     switch ($property) {
       case 'id':
+        return MD5($this->__toString());
+
       case 'bidirectional':
       case 'enabled':
         return $this->{$property};
@@ -95,7 +97,7 @@ class CerPreset {
 
       $preset = new StdClass();
 
-      $preset->id = MD5($this->__toString());
+      $preset->id = $this->__get('id');
       $preset->a_chain = $this->left();
       $preset->a = $preset->a_chain->__toString();
       $preset->b_chain = $this->right();
