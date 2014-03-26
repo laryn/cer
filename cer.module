@@ -72,6 +72,10 @@ function cer_permission() {
   );
 }
 
+/**
+ * Loads a single preset by ID. The only reason this is here is so we can use
+ * %cer_preset wildcards in hook_menu().
+ */
 function cer_preset_load($id) {
   ctools_include('export');
   return ctools_export_crud_load('cer', $id);
@@ -285,14 +289,14 @@ function _cer_features_export_chain(CerFieldChain $chain) {
 }
 
 /**
- * 'object factory' function for the CTools Export API.
+ * 'object factory' function.
  */
 function _cer_preset_factory(array $schema, StdClass $data) {
   return new CerPreset($data);
 }
 
 /**
- * 'list callback' function for bulk export via CTools.
+ * 'list callback' function.
  */
 function _cer_preset_list() {
   $list = array();
@@ -306,7 +310,7 @@ function _cer_preset_list() {
 }
 
 /**
- * 'to hook code callback' function for bulk export via CTools.
+ * 'to hook code callback' function. Renders a set of presets to code.
  */
 function _cer_export(array $IDs, $module) {
   $code = array();
@@ -339,6 +343,9 @@ function _cer_export(array $IDs, $module) {
   return implode("\n", $code);
 }
 
+/**
+ * Renders a single field chain to code.
+ */
 function _cer_export_chain(CerFieldChain $chain) {
   $code = $fields = array();
 
@@ -450,14 +457,22 @@ function cer_entity_property_info() {
 }
 
 /**
- * Entity API property callback functions
+ * Entity API property callback functions.
  */
- 
+
+/**
+ * Returns the parent struct for the lineage, depth, owner and original properties.
+ */ 
 function cer_get_entity_context($entity, array $options, $property, $entity_type, array $info) {
   return array(
     $entity_type, $entity,
   );
 }
+
+/**
+ * The rest of these functions expect $data to be a struct returned by
+ * cer_get_entity_context().
+ */
 
 /**
  * Gets the lineage of the entity as a string, in the format
@@ -532,4 +547,11 @@ function cer_get_entity_original(array $data, array $options, $property, $data_t
 // as Hierarchical Select implements hook_hook_info(), I'll get rid of it.
 if (module_exists('hierarchical_select')) {
   module_load_include('inc', 'cer', 'cer.hierarchical_select');
+}
+
+// Include CER's Features API implementation. The reason we can't let Features autoload
+// it is because Features tries to automatically implement cer_features_export() before
+// it tries to autoload the file, resulting in a "function already declared" fatal error. 
+if (module_exists('features')) {
+  module_load_include('inc', 'cer', 'cer.features');
 }
