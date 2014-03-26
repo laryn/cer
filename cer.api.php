@@ -40,3 +40,12 @@ function hook_cer_fields() {
 function hook_cer_fields_alter(array &$fields) {
   // NOP
 }
+
+function hook_cer_default_presets() {
+}
+
+function hook_cer_preset_create() {
+}
+
+function hook_cer_preset_delete() {
+}

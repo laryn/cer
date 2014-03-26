@@ -228,23 +228,6 @@ function cer_batch_update_existing_finished($success, $results, $operations) {
 }
 
 /**
- * Implements hook_hook_info().
- */
-function cer_hook_info() {
-  return array(
-    'cer_fields' => array(
-      'group' => 'cer',
-    ),
-    'cer_preset_create' => array(
-      'group' => 'cer',
-    ),
-    'cer_preset_delete' => array(
-      'group' => 'cer',
-    ),
-  );
-}
-
-/**
  * Implements hook_query_TAG_alter().
  */
 function cer_query_cer_field_parents_alter(QueryAlterableInterface $query) {
@@ -302,6 +285,8 @@ function _cer_export(array $IDs, $module) {
     $code = array_merge($code, _cer_export_chain($preset->right()));
     $code[] = '  $preset->right($chain);';
     $code[] = '';
+    $code[] = '  $preset->bidirectional = ' . $preset->bidirectional . ';';
+    $code[] = '  $preset->enabled = ' . $preset->enabled . ';';
     $code[] = '  $presets[] = $preset;';
   }
 
@@ -323,6 +308,53 @@ function _cer_export_chain(CerFieldChain $chain) {
   }
 
   return array_merge($code, array_reverse($fields));
+}
+
+/**
+ * CER hook implementations
+ */
+
+/**
+ * Implements hook_cer_preset_create().
+ */
+function cer_cer_preset_create(CerPreset $preset) {
+  // Prevents a race condition when deleting Commerce products which are referred to
+  // by Product Reference fields managed by CER.
+  if ($preset->right()->end() instanceof CerCommerceProductReferenceField) {
+    drupal_set_message(t('In order to prevent a race condition, bidirectionality has been disabled for this preset.'), 'warning');
+    $preset->bidirectional = FALSE;
+  }
+}
+
+/**
+ * Implements hook_cer_fields().
+ */
+function cer_cer_fields() {
+  $fields = array();
+
+  if (module_exists('taxonomy')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('taxonomy_term_reference', 'CerTaxonomyTermReferenceField'));
+  }
+  if (module_exists('entityreference')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('entityreference', 'CerEntityReferenceField'));
+  }
+  if (module_exists('node_reference')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('node_reference', 'CerNodeReferenceField'));
+  }
+  if (module_exists('user_reference')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('user_reference', 'CerUserReferenceField'));
+  }
+  if (module_exists('commerce_product_reference')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('commerce_product_reference', 'CerCommerceProductReferenceField'));
+  }
+  if (module_exists('file')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('file', 'CerFileField'));
+  }
+  if (module_exists('image')) {
+    $fields = array_merge($fields, _cer_collect_fields_of_type('image', 'CerFileField'));
+  }
+
+  return $fields;
 }
 
 /**
