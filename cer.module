@@ -264,6 +264,72 @@ function cer_query_cer_field_parents_alter(QueryAlterableInterface $query) {
 }
 
 /**
+ * 'object factory' function for the CTools Export API.
+ */
+function _cer_preset_factory(array $schema, StdClass $data) {
+  return new CerPreset($data);
+}
+
+/**
+ * 'list callback' function for bulk export via CTools.
+ */
+function _cer_preset_list() {
+  $list = array();
+
+  $presets = ctools_export_crud_load_all('cer');
+  foreach ($presets as $preset) {
+    $list[ $preset->id ] = sprintf('%s <> %s', html_entity_decode($preset->left()->getLabel()), html_entity_decode($preset->right()->getLabel()));
+  }
+
+  return $list;
+}
+
+/**
+ * 'to hook code callback' function for bulk export via CTools.
+ */
+function _cer_export(array $IDs, $module) {
+  $code = array();
+
+  $code[] = 'function ' . $module . '_cer_default_presets() {';
+  $code[] = '  $presets = array();';
+
+  foreach ($IDs as $presetID) {
+    $preset = ctools_export_crud_load('cer', $presetID);
+
+    $code[] = '';
+    $code[] = "  // {$preset}";
+    $code[] = '  $preset = new ' . get_class($preset) . '();';
+
+    $code = array_merge($code, _cer_export_chain($preset->left()));
+    $code[] = '  $preset->left($chain);';
+
+    $code = array_merge($code, _cer_export_chain($preset->right()));
+    $code[] = '  $preset->right($chain);';
+    $code[] = '';
+    $code[] = '  $presets[] = $preset;';
+  }
+
+  $code[] = '';
+  $code[] = '  return $presets;';
+  $code[] = '}';
+
+  return implode("\n", $code);
+}
+
+function _cer_export_chain(CerFieldChain $chain) {
+  $code = $fields = array();
+
+  $code[] = '';
+  $code[] = "  // {$chain}";
+  $code[] = '  $chain = new ' . get_class($chain) . '();';
+  foreach ($chain as $field) {
+    $fields[] = sprintf("  \$chain->addField(new %s('%s', '%s', '%s'));", get_class($field), $field->instanceInfo('entity_type'), $field->instanceInfo('bundle'), $field->fieldInfo('field_name'));
+  }
+
+  return array_merge($code, array_reverse($fields));
+}
+
+/**
  * Implements hook_entity_property_info().
  */
 function cer_entity_property_info() {

@@ -49,6 +49,22 @@ function cer_schema() {
         'unsigned' => TRUE,
       ),
     ),
+    'export' => array(
+      'key' => 'id',
+      'key name' => 'Preset ID',
+      'object factory' => '_cer_preset_factory',
+      'status' => 'enabled',
+      'default hook' => 'cer_default_presets',
+      'identifier' => 'preset',
+      'bulk export' => TRUE,
+      'list callback' => '_cer_preset_list',
+      'to hook code callback' => '_cer_export',
+      'api' => array(
+        'owner' => 'cer',
+        'minimum_version' => 3,
+        'current_version' => 3,
+      ),
+    ),
     'primary key' => array('id'),
   );
 
