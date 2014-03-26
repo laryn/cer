@@ -127,7 +127,9 @@ class CerPreset {
   public function delete() {
     if ($this->id) {
       module_invoke_all('cer_preset_delete', $this);
-      db_delete('cer')->condition('id', $this->id)->execute();
+
+      ctools_include('export');
+      ctools_export_crud_delete('cer', $this);
     }
   }
 
