@@ -38,14 +38,34 @@ function hook_cer_fields() {
  * Alter the information gathered by hook_cer_fields().
  */
 function hook_cer_fields_alter(array &$fields) {
-  // NOP
 }
 
+/**
+ * Provide default presets.
+ */
 function hook_cer_default_presets() {
 }
 
-function hook_cer_preset_create() {
+/**
+ * Alter default presets.
+ */
+function hook_cer_default_presets_alter(array &$presets) {
 }
 
-function hook_cer_preset_delete() {
+/**
+ * React to the creation of a preset.
+ */
+function hook_cer_preset_create(CerPreset $preset) {
+}
+
+/**
+ * React to a preset being enabled or disabled.
+ */
+function hook_cer_preset_toggle(CerPreset $preset) {
+}
+
+/**
+ * React to the deletion of a preset.
+ */
+function hook_cer_preset_delete(CerPreset $preset) {
 }
