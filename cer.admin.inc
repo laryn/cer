@@ -249,7 +249,7 @@ function _cer_collect_field_chains() {
  * Gets information about all the fields exposed to CER by invoking hook_cer_fields().
  * Returns an array of CerFieldChain objects, or an empty array if no fields were found.
  */
-function _cer_collect_fields() {
+function _cer_collect_fields($identifier = NULL) {
   $fields = &drupal_static(__FUNCTION__);
 
   if (! isset($fields)) {
@@ -257,7 +257,7 @@ function _cer_collect_fields() {
     drupal_alter('cer_fields', $fields);
   }
 
-  return $fields;
+  return (isset($identifier) ? $fields[$identifier] : $fields);
 }
 
 function _cer_collect_fields_of_type($field_type, $class) {
