@@ -69,7 +69,7 @@ function cer_add_preset(array $form, array &$form_state) {
   $left = CerFieldHierarchy::get('cer_left');
 
   if (sizeof($left) == 0) {
-    foreach (cer_collect_fields() as $chain) {
+    foreach (_cer_collect_field_chains() as $chain) {
       $left->addChain($chain);
     }
   }
@@ -88,7 +88,7 @@ function cer_add_preset(array $form, array &$form_state) {
     $left = $form_state['storage']['cer']['left'];
 
     $right = CerFieldHierarchy::get('cer_right');
-    foreach (cer_collect_fields() as $chain) {
+    foreach (_cer_collect_field_chains() as $chain) {
       if ($left->canReference($chain) && $chain->canReference($left)) {
         $right->addChain($chain);
       }
@@ -222,17 +222,10 @@ function cer_delete_preset_submit(array $form, array &$form_state) {
   $form_state['redirect'] = 'admin/config/content/cer';
 }
 
-/**
- * Gets information about all the fields exposed to CER by invoking hook_cer_fields().
- * Returns an array of CerFieldChain objects, or an empty array if no fields were found.
- */
-function cer_collect_fields() {
+function _cer_collect_field_chains() {
   $chains = array();
 
-  $fields = module_invoke_all('cer_fields');
-  drupal_alter('cer_fields', $fields);
-
-  foreach ($fields as $key => $info) {
+  foreach (_cer_collect_fields() as $key => $info) {
     $info += array(
       'get parents' => TRUE,
     );
@@ -252,10 +245,25 @@ function cer_collect_fields() {
   return $chains;
 }
 
+/**
+ * Gets information about all the fields exposed to CER by invoking hook_cer_fields().
+ * Returns an array of CerFieldChain objects, or an empty array if no fields were found.
+ */
+function _cer_collect_fields() {
+  $fields = &drupal_static(__FUNCTION__);
+
+  if (! isset($fields)) {
+    $fields = module_invoke_all('cer_fields');
+    drupal_alter('cer_fields', $fields);
+  }
+
+  return $fields;
+}
+
 function _cer_collect_fields_of_type($field_type, $class) {
   $fields = array();
 
-  $result = db_query("SELECT CONCAT_WS(':', fci.entity_type, fci.bundle, fci.field_name) AS field_key FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.type = :type", array(':type' => $field_type))->fetchCol();
+  $result = db_query("SELECT CONCAT_WS(':', fci.entity_type, fci.bundle, fci.field_name) FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.type = :type", array(':type' => $field_type))->fetchCol();
   foreach ($result as $identifier) {
     $fields[$identifier]['class'] = $class;
   }
