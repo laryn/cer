@@ -232,20 +232,20 @@ function cer_collect_fields() {
   $fields = module_invoke_all('cer_fields');
   drupal_alter('cer_fields', $fields);
 
-  foreach ($fields as $field) {
-    setType($field, 'array');
-    $field += array(
+  foreach ($fields as $key => $info) {
+    $info += array(
       'get parents' => TRUE,
     );
 
     $chain = new CerFieldChain();
-    $wrapper = new $field['class']($field['entity_type'], $field['bundle'], $field['field_name']);
+    list ($entity_type, $bundle, $field) = explode(':', $key);
+    $field = new $info['class']($entity_type, $bundle, $field);
 
-    if ($field['get parents']) {
-      $chain->addField($wrapper, $chains);
+    if ($info['get parents']) {
+      $chain->addField($field, $chains);
     }
     else {
-      $chain->addField($wrapper);
+      $chain->addField($field);
     }
   }
 
@@ -253,7 +253,14 @@ function cer_collect_fields() {
 }
 
 function _cer_collect_fields_of_type($field_type, $class) {
-  return db_query("SELECT fci.entity_type, fci.bundle, fci.field_name, :class AS class FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.type = :type", array(':class' => $class, ':type' => $field_type))->fetchAll();
+  $fields = array();
+
+  $result = db_query("SELECT CONCAT_WS(':', fci.entity_type, fci.bundle, fci.field_name) AS field_key FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.type = :type", array(':type' => $field_type))->fetchCol();
+  foreach ($result as $identifier) {
+    $fields[$identifier]['class'] = $class;
+  }
+
+  return $fields;
 }
 
 /**
