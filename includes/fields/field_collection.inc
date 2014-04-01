@@ -5,17 +5,14 @@
  * Contains the CER plugin for Field Collection fields.
  */
 
-class CerFieldCollectionField extends CerField {
+class CerFieldCollectionField extends CerField implements CerEntityContainerInterface {
 
   public function getTargetType() {
     return 'field_collection_item';
   }
 
   /**
-   * This method is unique to this plugin because field collections need special
-   * handling. This creates a new field collection that is owned by $owner, in case
-   * we need to create a reference on a field collection field which hasn't got
-   * any items yet.
+   * Implements CerEntityContainerInterface::createInnerEntity().
    */
   public function createInnerEntity(EntityDrupalWrapper $owner) {
     // Create an empty field collection item.

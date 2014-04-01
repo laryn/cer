@@ -7,6 +7,7 @@ configure = admin/config/content/cer
 dependencies[] = ctools
 dependencies[] = entity
 
+files[] = includes/CerEntityContainerInterface.inc
 files[] = includes/CerField.inc
 files[] = includes/CerFieldChain.inc
 files[] = includes/CerFieldChainHandler.inc

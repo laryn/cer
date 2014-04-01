@@ -44,7 +44,7 @@ class CerFieldChainHandler {
     $owner = $this->entity;
 
     foreach ($this->chain as $field) {
-      if ($field instanceof CerFieldCollectionField) {
+      if ($field instanceof CerEntityContainerInterface) {
         $items = $field->getHandler($owner);
 
         if (sizeof($items) == 0) {
