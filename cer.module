@@ -73,16 +73,6 @@ function cer_permission() {
 }
 
 /**
- * Loads a single preset by ID.
- *
- * @return CerPreset
- */
-function cer_preset_load($id) {
-  $data = db_query('SELECT * FROM {cer} WHERE id = :id', array(':id' => $id))->fetchObject();
-  return new CerPreset($data);
-}
-
-/**
  * Implements hook_field_delete_instance().
  */
 function cer_field_delete_instance(array $instance) {
@@ -277,6 +267,45 @@ function cer_features_api() {
 /**
  * CTools Export API functions
  */
+ 
+/**
+ * Export API create callback.
+ */
+function cer_preset_create($set_defaults) {
+  $preset = new CerPreset();
+
+  if ($set_defaults) {
+    $preset->enabled = TRUE;
+    $preset->bidirectional = TRUE;
+  }
+
+  return $preset;
+}
+
+/**
+ * Export API load callback. Loads a single preset by ID.
+ *
+ * @return CerPreset
+ */
+function cer_preset_load($id) {
+  $data = db_query('SELECT * FROM {cer} WHERE id = :id', array(':id' => $id))->fetchObject();
+  return new CerPreset($data);
+}
+
+/**
+ * Export API save function.
+ */
+function cer_preset_save(CerPreset $preset) {
+  $record = new StdClass();
+
+  $record->a = $preset->left();
+  $record->b = $preset->right();
+  $record->enabled = $preset->enabled;
+  $record->bidirectional = $preset->bidirectional;
+  $record->id = MD5("{$record->a}*{$record->b}");
+
+  drupal_write_record('cer', $record);
+}
 
 /**
  * 'object factory' function.
