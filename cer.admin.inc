@@ -213,11 +213,14 @@ function cer_preset_toggle(CerPreset $preset) {
  * Page callback to invert a preset from the main administration page.
  */
 function cer_preset_invert(CerPreset $original) {
+  ctools_include('export');
+
   $inverse = $original->invert();
-  $inverse->write($original->enabled);  // Preserve the original's status
+  ctools_export_crud_save('cer', $inverse);
+
   // There's no point in having two presets that are inverses of each other,
   // so delete the original.
-  $original->delete();
+  ctools_export_crud_delete('cer', $original);
 
   drupal_goto('admin/config/content/cer');
 }

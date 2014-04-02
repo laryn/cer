@@ -109,18 +109,12 @@ class CerPreset {
     }
   }
 
-  public function delete() {
-    if ($this->id) {
-      module_invoke_all('cer_preset_delete', $this);
-
-      ctools_include('export');
-      ctools_export_crud_delete('cer', $this);
-    }
-  }
-
   public function invert() {
-    $inverse = new CerPreset();
-    
+    ctools_include('export');
+    $inverse = ctools_export_crud_new('cer', FALSE);
+
+    $inverse->enabled = $this->enabled;
+
     $inverse->left($this->right());
     $inverse->right($this->left());
     
@@ -128,14 +122,14 @@ class CerPreset {
   }
 
   public function left(CerFieldChain $chain = NULL) {
-    if ($chain && empty($this->left)) {
+    if ($chain) {
       $this->left = $chain;
     }
     return $this->left;
   }
 
   public function right(CerFieldChain $chain = NULL) {
-    if ($chain && empty($this->right)) {
+    if ($chain) {
       $this->right = $chain;
     }
     return $this->right;
