@@ -47,8 +47,8 @@ class CerPreset {
       $this->id = $preset->id;
       $this->bidirectional = $preset->bidirectional;
       $this->enabled = $preset->enabled;
-      $this->left(unserialize($preset->a_chain));
-      $this->right(unserialize($preset->b_chain));
+      $this->left(CerFieldChain::unpack($preset->a));
+      $this->right(CerFieldChain::unpack($preset->b));
     }
   }
 
@@ -98,10 +98,8 @@ class CerPreset {
       $preset = new StdClass();
 
       $preset->id = $this->__get('id');
-      $preset->a_chain = $this->left();
-      $preset->a = $preset->a_chain->__toString();
-      $preset->b_chain = $this->right();
-      $preset->b = $preset->b_chain->__toString();
+      $preset->a = $this->left()->__toString();
+      $preset->b = $this->right->__toString();
       $preset->bidirectional = (int) $this->bidirectional;
       $preset->enabled = $this->enabled = (int) $enabled;
 

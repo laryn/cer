@@ -24,23 +24,9 @@ function cer_schema() {
         'type' => 'text',
         'size' => 'tiny',
       ),
-      // @todo: Delete this field
-      'a_chain' => array(
-        'mysql_type' => 'text',
-        'pgsql_type' => 'blob',
-        'size' => 'big',
-        'serialize' => TRUE,
-      ),
       'b' => array(
         'type' => 'text',
         'size' => 'tiny',
-      ),
-      // @todo: Delete this field too.
-      'b_chain' => array(
-        'mysql_type' => 'text',
-        'pgsql_type' => 'blob',
-        'size' => 'big',
-        'serialize' => TRUE,
       ),
       'bidirectional' => array(
         'type' => 'int',
