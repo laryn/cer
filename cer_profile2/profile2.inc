@@ -13,7 +13,9 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
 
   public function __construct($entity_type, $bundle, $field) {
     parent::__construct($entity_type, $bundle, $field);
-    $this->profileType = subStr($field, 9);
+
+    // Load the Profile2 type information
+    $this->profileType = profile2_get_types(subStr($field, 9));
   }
 
   public function getTargetType() {
@@ -44,7 +46,7 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
       'entity_type' => $this->entityType,
       'bundle' => $this->bundle,
       'field_name' => $this->field,
-      'label' => profile2_get_types($this->profileType)->label,
+      'label' => $this->profileType->label,
     );
     return drupal_array_get_nested_value($info, func_get_args());
   }
@@ -53,7 +55,17 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
    * Implements CerEntityContainerInterface::createInnerEntity().
    */
   public function createInnerEntity(EntityDrupalWrapper $owner) {
-    // @todo
+    $init = array(
+      'user' => $owner->value(),
+      'type' => $this->profileType,
+    );
+
+    // Create a blank profile for this user, and save it. The "reference" is implied
+    // by the existence of the profile.
+    $profile = profile2_create($init);
+    $profile->save();
+
+    return $profile;
   }
 
 }
