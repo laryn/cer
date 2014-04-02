@@ -304,7 +304,7 @@ function cer_preset_save(CerPreset $preset) {
   $record->bidirectional = $preset->bidirectional;
   $record->id = MD5("{$record->a}*{$record->b}");
 
-  drupal_write_record('cer', $record);
+  return drupal_write_record('cer', $record);
 }
 
 /**
