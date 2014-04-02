@@ -47,3 +47,14 @@ function cer_cer_fields() {
 
   return $fields;
 }
+
+function _cer_collect_fields_of_type($field_type, $class) {
+  $fields = array();
+
+  $result = db_query("SELECT CONCAT_WS(':', fci.entity_type, fci.bundle, fci.field_name) FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.type = :type", array(':type' => $field_type))->fetchCol();
+  foreach ($result as $identifier) {
+    $fields[$identifier]['class'] = $class;
+  }
+
+  return $fields;
+}

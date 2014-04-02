@@ -225,7 +225,7 @@ function cer_delete_preset_submit(array $form, array &$form_state) {
 function _cer_collect_field_chains() {
   $chains = array();
 
-  foreach (_cer_collect_fields() as $key => $info) {
+  foreach (CerField::getPluginInfo() as $key => $info) {
     $info += array(
       'get parents' => TRUE,
     );
@@ -243,32 +243,6 @@ function _cer_collect_field_chains() {
   }
 
   return $chains;
-}
-
-/**
- * Gets information about all the fields exposed to CER by invoking hook_cer_fields().
- * Returns an array of CerFieldChain objects, or an empty array if no fields were found.
- */
-function _cer_collect_fields($identifier = NULL) {
-  $fields = &drupal_static(__FUNCTION__);
-
-  if (! isset($fields)) {
-    $fields = module_invoke_all('cer_fields');
-    drupal_alter('cer_fields', $fields);
-  }
-
-  return (isset($identifier) ? $fields[$identifier] : $fields);
-}
-
-function _cer_collect_fields_of_type($field_type, $class) {
-  $fields = array();
-
-  $result = db_query("SELECT CONCAT_WS(':', fci.entity_type, fci.bundle, fci.field_name) FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.type = :type", array(':type' => $field_type))->fetchCol();
-  foreach ($result as $identifier) {
-    $fields[$identifier]['class'] = $class;
-  }
-
-  return $fields;
 }
 
 /**
