@@ -73,12 +73,13 @@ function cer_permission() {
 }
 
 /**
- * Loads a single preset by ID. The only reason this is here is so we can use
- * %cer_preset wildcards in hook_menu().
+ * Loads a single preset by ID.
+ *
+ * @return CerPreset
  */
 function cer_preset_load($id) {
-  ctools_include('export');
-  return ctools_export_crud_load('cer', $id);
+  $data = db_query('SELECT * FROM {cer} WHERE id = :id', array(':id' => $id))->fetchObject();
+  return new CerPreset($data);
 }
 
 /**
