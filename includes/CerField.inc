@@ -212,6 +212,15 @@ abstract class CerField {
 
     return $label;
   }
+
+  public function getExportPipe(array &$export) {
+    $pipe = array();
+
+    $pipe['field_base'][] = $this->field;
+    $pipe['field_instance'][] = "{$this->entityType}-{$this->bundle}-{$this->field}";
+
+    return $pipe;
+  }
   
   /**
    * Returns information about a particular field plugin, by its identifier, or all

@@ -72,6 +72,19 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
   }
 
   /**
+   * @override CerField::getExportPipe().
+   */
+  public function getExportPipe(array &$export) {
+    $export['dependencies']['cer_profile2'] = 'cer_profile2';
+
+    return array(
+      'profile2_type' => array(
+        $this->profileType->type,
+      ),
+    );
+  }
+
+  /**
    * Implements CerEntityContainerInterface::createInnerEntity().
    */
   public function createInnerEntity(EntityDrupalWrapper $owner) {
