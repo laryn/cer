@@ -18,7 +18,7 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     parent::__construct($entity_type, $bundle, $field);
 
     // Load the Profile2 type information
-    $this->profileType = profile2_get_types(subStr($field, 9));
+    $this->profileType = profile2_get_types(subStr($field, 8));
   }
 
   /**
