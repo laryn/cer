@@ -7,7 +7,7 @@ function cer_profile2_cer_fields() {
   $fields = array();
   
   foreach (array_keys(profile2_get_types()) as $profile_type) {
-    $fields["user:user:profile2_{$profile_type}"]['class'] = 'CerProfile2Field';
+    $fields["user:user:profile_{$profile_type}"]['class'] = 'CerProfile2Field';
   }
   
   return $fields;
@@ -21,7 +21,7 @@ function cer_profile2_cer_fields_alter(array &$fields) {
     list ($entity_type, $bundle) = explode(':', $identifier);
 
     if ($entity_type == 'profile2') {
-      $fields[$identifier]['parents'][] = "user:user:profile2_{$bundle}";
+      $fields[$identifier]['parents'][] = "user:user:profile_{$bundle}";
       $fields[$identifier]['require parent'] = TRUE;
     }
   }
