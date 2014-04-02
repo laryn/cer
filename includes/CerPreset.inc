@@ -29,12 +29,12 @@ class CerPreset {
   /**
    * @var boolean
    */
-  protected $bidirectional = TRUE;
+  public $bidirectional = TRUE;
   
   /**
    * @var boolean
    */
-  protected $enabled;
+  public $enabled;
 
   /**
    * Constructs a CerPreset object.
@@ -57,21 +57,6 @@ class CerPreset {
       case 'id':
         return MD5($this->__toString());
 
-      case 'bidirectional':
-      case 'enabled':
-        return $this->{$property};
-
-      default:
-        break;
-    }
-  }
-
-  public function __set($property, $value) {
-    switch ($property) {
-      case 'bidirectional':
-      case 'enabled':
-        $this->{$property} = (boolean) $value;
-        
       default:
         break;
     }
