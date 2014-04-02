@@ -66,37 +66,6 @@ class CerPreset {
     return "{$this->left}*{$this->right}";
   }
 
-  /**
-   * Writes this preset to the database. Only new presets, without an ID,
-   * can be written.
-   *
-   * @param $enabled
-   *  Whether or not to enable the preset by default.
-   *
-   * @return mixed
-   *  NULL if the preset was not written, otherwise the result of drupal_write_record().
-   */
-  public function write($enabled = TRUE) {
-    if (empty($this->id)) {
-      module_invoke_all('cer_preset_create', $this);
-
-      $preset = new StdClass();
-
-      $preset->id = $this->__get('id');
-      $preset->a = $this->left()->__toString();
-      $preset->b = $this->right->__toString();
-      $preset->bidirectional = (int) $this->bidirectional;
-      $preset->enabled = $this->enabled = (int) $enabled;
-
-      $written = drupal_write_record('cer', $preset);
-      if ($written) {
-        $this->id = $preset->id;
-      }
-
-      return $written;
-    }
-  }
-
   public function toggle() {
     if ($this->id) {
       $fields = array(
@@ -114,6 +83,7 @@ class CerPreset {
     $inverse = ctools_export_crud_new('cer', FALSE);
 
     $inverse->enabled = $this->enabled;
+    $inverse->bidirectional = $this->bidirectional;
 
     $inverse->left($this->right());
     $inverse->right($this->left());

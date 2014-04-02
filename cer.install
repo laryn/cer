@@ -71,6 +71,8 @@ function cer_install() {
 }
 
 function _cer_hijack_cnr() {
+  ctools_include('export');
+
   $result = db_select('corresponding_node_references')->fields('corresponding_node_references')->condition('enabled', 1)->execute();
   
   foreach ($result as $row) {
@@ -82,11 +84,11 @@ function _cer_hijack_cnr() {
     $right = new CerFieldChain();
     $right->addField(new CerNodeReferenceField($keys[3], $keys[4], $keys[5]));
     
-    $preset = new CerPreset();
+    $preset = ctools_export_crud_new('cer');
     $preset->left($left);
     $preset->right($right);
 
-    $preset->write($row->enabled);
+    ctools_export_crud_save('cer', $preset);
   }
 
   module_disable(array('corresponding_node_references'));
@@ -106,6 +108,7 @@ function cer_update_7001() {
  */
 function cer_update_7002() {
   registry_rebuild();
+  ctools_include('export');
 
   $tables = cer_schema();
   $table = $tables['cer'];
@@ -132,11 +135,12 @@ function cer_update_7002() {
     $right = new CerFieldChain();
     $right->addField(new CerEntityReferenceField($keys[3], $keys[4], $keys[5]));
 
-    $preset = new CerPreset();
+    $preset = ctools_export_crud_new('cer');
+    $preset->enabled = $row->enabled;
     $preset->left($left);
     $preset->right($right);
 
-    $preset->write($row->enabled);
+    ctools_export_crud_save('cer', $preset);
   }
 
   // The old presets will have an empty 'id' field, so delete them all before
