@@ -342,7 +342,7 @@ function _cer_export_chain(CerFieldChain $chain) {
   $code[] = "  // {$chain}";
   $code[] = '  $chain = new ' . get_class($chain) . '();';
   foreach ($chain as $field) {
-    $fields[] = sprintf("  \$chain->addField(new %s('%s', '%s', '%s'));", get_class($field), $field->instanceInfo('entity_type'), $field->instanceInfo('bundle'), $field->fieldInfo('field_name'));
+    $fields[] = sprintf('  \$chain->addField(CerField::getPlugin("%s"));', $field);
   }
 
   return array_merge($code, array_reverse($fields));
