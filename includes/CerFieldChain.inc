@@ -75,12 +75,9 @@ class CerFieldChain implements SeekableIterator {
     return implode(' &raquo; ', $label);
   }
 
-  public function canReference(CerFieldChain $that) {
-    $here = $this->end();
-
-    // Create a regex of things that this field can reference, and match it against the other
-    // chain. The regex will look like /^node:(page|article)/
-    return preg_match('/^' . $here->getTargetType() . ':(' . implode('|', $here->getTargetBundles()) . ')/', $that->__toString());
+  public function regex() {
+    $end = $this->end();
+    return '/^' . $end->getTargetType() . ':(' . implode('|', $end->getTargetBundles()) . ')/';
   }
 
   public function addField(CerField $field, array &$completed = NULL) {

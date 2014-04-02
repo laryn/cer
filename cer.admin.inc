@@ -86,10 +86,11 @@ function cer_add_preset(array $form, array &$form_state) {
 
   if (isset($form_state['storage']['cer']['left'])) {
     $left = $form_state['storage']['cer']['left'];
+    $left_re = $left->regex();
 
     $right = CerFieldHierarchy::get('cer_right');
     foreach (CerFieldChain::collectAll() as $chain) {
-      if ($left->canReference($chain) && $chain->canReference($left)) {
+      if (preg_match($left_re, $chain->__toString()) && preg_match($chain->regex(), $left->__toString())) {
         $right->addChain($chain);
       }
     }
