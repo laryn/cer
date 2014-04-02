@@ -116,6 +116,8 @@ function cer_update_7001() {
  * Rebuilds the CER table and all active presets.
  */
 function cer_update_7002() {
+  registry_rebuild();
+
   $tables = cer_schema();
   $table = $tables['cer'];
 
