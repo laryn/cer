@@ -54,10 +54,17 @@ function cer_get_entity_original(array $data, array $options, $property, $data_t
  * Callback functions for field collections (@see cer_entity_property_info_alter()).
  */
 
+/**
+ * Gets a field collection's lineage as a string, e.g.
+ * node:page:field_my_collection::field_collection_item:field_my_collection:%
+ */
 function cer_get_field_collection_lineage(array $data, array $options, $property, $data_type, array $info) {
   return implode('::', $info['raw getter callback']($data, $options, $property, $data_type, $info));
 }
 
+/**
+ * Gets a field collection's lineage as an array.
+ */
 function cer_get_field_collection_lineage_array(array $data, array $options, $property, $data_type, array $info) {
   if (! isset($options['lineage'])) {
     $options['lineage'] = array( 'field_collection_item:' . $data[1]->field_name . ':%' );
@@ -79,11 +86,19 @@ function cer_get_field_collection_lineage_array(array $data, array $options, $pr
   }
 }
 
+/**
+ * Gets the zero-based depth of a field collection.
+ */
 function cer_get_field_collection_depth(array $data, array $options, $property, $data_type, array $info) {
   $lineage = cer_get_field_collection_lineage_array($data, $options, $property, $data_type, $info);
   return (sizeof($lineage) - 1);
 }
 
+/**
+ * Gets the ultimate owner of a field collection -- that is, the top-level entity
+ * under which it's embedded. This could be any kind of entity that's not a field
+ * collection item.
+ */
 function cer_get_field_collection_owner(array $data, array $options, $property, $data_type, array $info) {
   if ($data[0] == 'field_collection_item') {
     $data[0] = $data[1]->hostEntityType();
