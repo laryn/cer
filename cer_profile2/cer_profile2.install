@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * Implements hook_disable().
+ */
+function cer_profile2_disable() {
+  $pattern = '%user:user:profile_%';
+  db_query('UPDATE {cer} SET enabled = 0 WHERE a LIKE :pattern OR b LIKE :pattern', array(':pattern' => $pattern));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cer_profile2_uninstall() {
+  $pattern = '%user:user:profile_%';
+  db_query('DELETE FROM {cer} WHERE a LIKE :pattern OR b LIKE :pattern', array(':pattern' => $pattern));
+}
