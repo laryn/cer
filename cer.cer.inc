@@ -6,18 +6,6 @@
  */
 
 /**
- * Implements hook_cer_preset_create().
- */
-function cer_cer_preset_create(CerPreset $preset) {
-  // Prevents a race condition when deleting Commerce products which are referred to
-  // by Product Reference fields managed by CER.
-  if ($preset->right()->end() instanceof CerCommerceProductReferenceField) {
-    drupal_set_message(t('In order to prevent a race condition, bidirectionality has been disabled for this preset.'), 'warning');
-    $preset->bidirectional = FALSE;
-  }
-}
-
-/**
  * Implements hook_cer_fields().
  */
 function cer_cer_fields() {
@@ -35,9 +23,6 @@ function cer_cer_fields() {
   if (module_exists('user_reference')) {
     $fields = array_merge($fields, _cer_collect_fields_of_type('user_reference', 'CerUserReferenceField'));
   }
-  if (module_exists('commerce_product_reference')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('commerce_product_reference', 'CerCommerceProductReferenceField'));
-  }
   if (module_exists('file')) {
     $fields = array_merge($fields, _cer_collect_fields_of_type('file', 'CerFileField'));
   }
@@ -48,6 +33,13 @@ function cer_cer_fields() {
     $fields = array_merge($fields, _cer_collect_fields_of_type('field_collection', 'CerFieldCollectionField'));
   }
 
+  return $fields;
+}
+
+/**
+ * Implmements hook_cer_fields_alter().
+ */
+function cer_cer_fields_alter(array &$fields) {
   foreach (array_keys($fields) as $identifier) {
     list ($entity_type, $bundle, $field) = explode(':', $identifier);
 
@@ -61,8 +53,6 @@ function cer_cer_fields() {
       $fields[$identifier]['require parent'] = TRUE;
     }
   }
-
-  return $fields;
 }
 
 function _cer_collect_fields_of_type($field_type, $class) {

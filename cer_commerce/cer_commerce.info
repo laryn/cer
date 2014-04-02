@@ -1,0 +1,6 @@
+name = "CER Commerce"
+core = "7.x"
+dependencies[] = cer
+dependencies[] = commerce_product_reference
+
+files[] = commerce_product_reference.inc
