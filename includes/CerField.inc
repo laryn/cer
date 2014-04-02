@@ -246,6 +246,11 @@ abstract class CerField {
     return $label;
   }
   
+  /**
+   * Returns information about a particular field plugin, by its identifier, or all
+   * available plugins (i.e., defined by hook_cer_fields()) if no identifier is given.
+   * The aggregated result of hook_cer_fields() is statically cached.
+   */
   public static function getPluginInfo($identifier = NULL) {
     $info = &drupal_static(__METHOD__);
     
@@ -263,7 +268,11 @@ abstract class CerField {
     
     return ($identifier ? $identifier[$info] : $info);
   }
-  
+
+  /**
+   * Returns a single field plugin instance, by its identifier. All plugin instances
+   * are statically cached.
+   */
   public static function getPlugin($identifier) {
     $instances = &drupal_static(__METHOD__);
     
