@@ -142,6 +142,19 @@ abstract class CerField {
   }
 
   /**
+   * Gets information about this particular plugin.
+   *
+   * @param [string...]
+   *  Array keys to fetch, or nothing to return all plugin info.
+   *
+   * @return mixed
+   */
+  public function pluginInfo() {
+    $info = self::getPluginInfo($this->__toString());
+    return drupal_array_get_nested_value($info, func_get_args());
+  }
+
+  /**
    * Gets information about this field type.
    *
    * @param [string...]
