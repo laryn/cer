@@ -245,5 +245,36 @@ abstract class CerField {
 
     return $label;
   }
+  
+  public static function getPluginInfo($identifier = NULL) {
+    $info = &drupal_static(__METHOD__);
+    
+    if (! isset($info)) {
+      $info = module_invoke_all('cer_fields');
+
+      foreach ($info as &$field) {
+        $field += array(
+          'parents' => array(),
+          'require parent' => FALSE,
+        );
+      }
+      drupal_alter('cer_fields', $info);
+    }
+    
+    return ($identifier ? $identifier[$info] : $info);
+  }
+  
+  public static function getPlugin($identifier) {
+    $instances = &drupal_static(__METHOD__);
+    
+    if (! isset($instances[$identifier])) {
+      list ($entity_type, $bundle, $field) = explode(':', $identifier);
+
+      $info = self::getPluginInfo($identifier);
+      $instances[$identifier] = new $info['class']($entity_type, $bundle, $field);
+    }
+    
+    return $instances[$identifier];
+  }
 
 }
