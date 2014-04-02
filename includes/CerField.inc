@@ -74,13 +74,6 @@ abstract class CerField {
   }
 
   /**
-   * Magic pre-serialization callback.
-   */
-  public function __sleep() {
-    return array('entityType', 'bundle', 'field');
-  }
-
-  /**
    * Returns a CerFieldHandler subclass instance for the given entity.
    *
    * @param object $entity
@@ -100,15 +93,6 @@ abstract class CerField {
   public function getTargetBundles() {
     $info = entity_get_info($this->getTargetType());
     return array_keys($info['bundles']);
-  }
-
-  /**
-   * Check if this field is instantiated on a field collection.
-   *
-   * @return boolean
-   */
-  public function inFieldCollection() {
-    return ($this->instanceInfo('entity_type') == 'field_collection_item');
   }
   
   /**
@@ -215,7 +199,7 @@ abstract class CerField {
   public function getLabel() {
     $label = '';
 
-    if (! $this->inFieldCollection()) {
+    if (! $this->pluginInfo('require parent')) {
       $label .= $this->entityInfo('label');
       $label .= ' &raquo; ';
 

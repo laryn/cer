@@ -79,7 +79,6 @@ class CerFieldUnitTest extends DrupalWebTestCase {
     $this->assertTrue($handler instanceof CerFieldHandler, 'getHandler() returns CerFieldHandler.');
 
     $this->assertIdentical($field->__toString(), 'node:page:field_ref', '__toString() returns expected identifier.');
-    $this->assertFalse($field->inFieldCollection(), 'inFieldCollection() returns false for non-embedded field.');
     $this->assertIdentical($field->fieldTypeInfo(), field_info_field_types('entityreference'), 'fieldTypeInfo() returns field type definition.');
     $this->assertIdentical($field->entityInfo(), entity_get_info('node'), 'entityInfo() returns instance entity type info.');
     $this->assertIdentical($field->fieldInfo(), field_info_field('field_ref'), 'fieldInfo() returns field definition.');
@@ -90,7 +89,6 @@ class CerFieldUnitTest extends DrupalWebTestCase {
     $field_collection = new CerFieldCollectionField('node', 'page', 'field_collection');
     $field_collection->child($field)->parent($field_collection);
 
-    $this->assertTrue($field->inFieldCollection(), 'inFieldCollection() returns true for embedded field.');
     $this->assertIdentical($field->getLabel(), 'Reference', 'getLabel() returns expected field label for embedded field.');
   }
 

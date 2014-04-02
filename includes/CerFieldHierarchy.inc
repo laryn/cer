@@ -118,7 +118,7 @@ class CerFieldHierarchy implements Countable {
     $parents = array();
 
     foreach ($chain as $field) {
-      if ($field->inFieldCollection()) {
+      if ($field->pluginInfo('require parent')) {
         $parent_key = implode('::', $parents);
         $field_key = "{$parent_key}::{$field}";
 
