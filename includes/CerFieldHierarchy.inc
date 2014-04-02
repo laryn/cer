@@ -112,14 +112,6 @@ class CerFieldHierarchy implements Countable {
 
     $field_key = "{$bundle_key}:{$fieldName}";
     $this->add($field_key, $field->instanceInfo('label'), $bundle_key);
-
-    $this->hierarchy[$field_key]['field'] = serialize($field);
-  }
-
-  public function getField($key) {
-    if (isset($this->hierarchy[$key]['field'])) {
-      return unserialize($this->hierarchy[$key]['field']);
-    }
   }
 
   public function addChain(CerFieldChain $chain) {
@@ -137,14 +129,6 @@ class CerFieldHierarchy implements Countable {
       }
 
       $parents[] = $field->__toString();
-    }
-
-    $this->hierarchy[ implode('::', $parents) ]['chain'] = serialize($chain);
-  }
-
-  public function getChain($key) {
-    if (isset($this->hierarchy[$key]['chain'])) {
-      return unserialize($this->hierarchy[$key]['chain']);
     }
   }
 

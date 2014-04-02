@@ -148,7 +148,7 @@ function cer_add_preset(array $form, array &$form_state) {
  * the form so the user can choose the right field.
  */
 function _cer_add_preset_continue(array $form, array &$form_state) {
-  $form_state['storage']['cer']['left'] = CerFieldHierarchy::get('cer_left')->getChain(end($form_state['values']['left']));  
+  $form_state['storage']['cer']['left'] = CerFieldChain::unpack(end($form_state['values']['left']));  
   $form_state['rebuild'] = TRUE;
 }
 
@@ -167,7 +167,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
   $preset = new CerPreset();
 
   $preset->left($form_state['storage']['cer']['left']);
-  $preset->right(CerFieldHierarchy::get('cer_right')->getChain(end($form_state['values']['right'])));
+  $preset->right(CerFieldChain::unpack(end($form_state['values']['right'])));
 
   $preset->enabled = $form_state['values']['enabled'];
   $preset->bidirectional = $form_state['values']['bidirectional'];

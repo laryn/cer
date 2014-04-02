@@ -157,5 +157,19 @@ class CerFieldChain implements SeekableIterator {
     return ($this->index < sizeof($this->chain));
   }
 
+  /**
+   * Constructs and returns a CerFieldChain object from an encoded string
+   * of field plugin identifiers glued together with ::.
+   */
+  public static function unpack($identifier) {
+    $chain = new CerFieldChain();
+
+    foreach (array_reverse(explode('::', $identifier)) as $field) {
+      $chain->addField(CerField::getPlugin($field));
+    }
+    
+    return $chain;
+  }
+
 } 
  
