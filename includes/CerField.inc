@@ -213,6 +213,14 @@ abstract class CerField {
     return $label;
   }
 
+  /**
+   * Returns the export pipe for this field when exporting to Features. Anything
+   * this particular field needs in order to be properly exported, it should add
+   * to the pipe. The full export definition is passed by reference so dependencies
+   * can be added.
+   *
+   * @return array
+   */
   public function getExportPipe(array &$export) {
     $pipe = array();
 
