@@ -235,7 +235,8 @@ function cer_delete_preset(array $form, array &$form_state, CerPreset $preset) {
 }
 
 function cer_delete_preset_submit(array $form, array &$form_state) {
-  $form_state['build_info']['args'][0]->delete();
+  ctools_include('export');
+  ctools_export_crud_delete('cer', $form_state['build_info']['args'][0]);
 
   drupal_set_message(t('The preset was deleted.'));
   $form_state['redirect'] = 'admin/config/content/cer';
