@@ -66,14 +66,19 @@ function cer_add_preset(array $form, array &$form_state) {
     '#weight' => 5,
   );
 
+  // Either create a new hierarchy to choose the left field, or load it from
+  // the cache if the form is being rebuilt.
   $left = CerFieldHierarchy::get('cer_left');
 
+  // If the hierarchy is empty, add every available field chain to it.
   if (sizeof($left) == 0) {
     foreach (CerFieldChain::collectAll() as $chain) {
       $left->addChain($chain);
     }
   }
 
+  // If the hierarchy now has data, generate a hierarchical_select field and add
+  // it to the form. Otherwise, fail with an error message.
   if (sizeof($left) > 0) {
     $form['left'] = $left->getHierarchicalSelect(array('save_lineage' => TRUE));
     $form['left']['#required'] = TRUE;
@@ -84,18 +89,29 @@ function cer_add_preset(array $form, array &$form_state) {
     return $form;
   }
 
+  // One the user has chosen a left field and clicked Continue, we can find the
+  // possible right fields. (@see _cer_add_preset_continue())
   if (isset($form_state['storage']['cer']['left'])) {
+    // Fetch the left field chain from storage, and get its full identifier
+    // and a regex we can use to match it against right fields.
     $left = $form_state['storage']['cer']['left'];
     $left_identifier = $left->__toString();
     $left_re = $left->regex();
 
+    // Create, or get from the cache, a hierarchy for the right field chain.
     $right = CerFieldHierarchy::get('cer_right');
+
+    // Loop through every possible field chain and test it against the left
+    // chain's regex. If it matches, we can add the chain to the right hierarchy.
     foreach (CerFieldChain::collectAll() as $chain) {
       if (preg_match($left_re, $chain->__toString()) && preg_match($chain->regex(), $left_identifier)) {
         $right->addChain($chain);
       }
     }
 
+    // If there's data in the right hierarchy, we have corresponding fields to choose from,
+    // so display the other hierarchical_select field and advanced options. Otherwise,
+    // display an error and start over.
     if (sizeof($right) > 0) {
       $form['left'] = array(
         '#type' => 'markup',
