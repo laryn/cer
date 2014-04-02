@@ -75,9 +75,13 @@ class CerFieldChain implements SeekableIterator {
     return implode(' &raquo; ', $label);
   }
 
+  /**
+   * Gets a regular expression to match field chain identifiers that this chain can
+   * reference, e.g. /^node:(page|article):/
+   */
   public function regex() {
     $end = $this->end();
-    return '/^' . $end->getTargetType() . ':(' . implode('|', $end->getTargetBundles()) . ')/';
+    return '/^' . $end->getTargetType() . ':(' . implode('|', $end->getTargetBundles()) . '):/';
   }
 
   public function addField(CerField $field, array &$completed = NULL) {
