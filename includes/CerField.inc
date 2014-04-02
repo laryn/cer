@@ -207,36 +207,6 @@ abstract class CerField {
   }
 
   /**
-   * Gets the parents of this field instance. Modules should implement
-   * hook_query_cer_field_parents_alter() and set up query conditions,
-   * as well as the 'class' metadata containing the name of the CerField
-   * subclass which will wrap the parent field(s).
-   *
-   * @return array
-   *  Array of CerField objects, or empty if there are no parents.
-   */
-  public function getParents() {
-    $parents = array();
-
-    $query = db_select('field_config_instance', 'fci')
-      ->fields('fci', array(
-        'entity_type', 'bundle', 'field_name',
-      ))
-      ->addTag('cer_field_parents')
-      ->addMetaData('field', $this);
-
-    $result = $query->execute();
-
-    if ($class = $query->getMetaData('class')) {
-      foreach ($result as $row) {
-        $parents[] = new $class($row->entity_type, $row->bundle, $row->field_name);
-      }
-    }
-
-    return $parents;
-  }
-
-  /**
    * Generates a human-readable label for this field instance. By default,
    * this is in the form of Entity Type >> Bundle >> Label.
    *

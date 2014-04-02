@@ -59,7 +59,7 @@ class CerFieldHierarchy implements Countable {
 
     $this->cache();
     $config['module'] = 'cer';
-    $config['params']['id'] = $this->cacheID;    
+    $config['params']['id'] = $this->cacheID;
 
     return array(
       '#type' => 'hierarchical_select',

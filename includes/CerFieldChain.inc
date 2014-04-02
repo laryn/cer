@@ -92,7 +92,7 @@ class CerFieldChain implements SeekableIterator {
     array_unshift($this->chain, $field);
 
     if (isset($completed)) {
-      $parents = $field->getParents();
+      $parents = array_map('CerField::getPlugin', $field->pluginInfo('parents'));
 
       if ($parents) {
         foreach ($parents as $parent) {

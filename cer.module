@@ -232,21 +232,6 @@ function cer_batch_update_existing_finished($success, $results, $operations) {
 }
 
 /**
- * Implements hook_query_TAG_alter().
- */
-function cer_query_cer_field_parents_alter(QueryAlterableInterface $query) {
-  $field = $query->getMetaData('field');
-  
-  // If the field is instantiated on a field collection, find the field
-  // collection field(s) which contain this one.
-  if ($field->inFieldCollection()) {
-    $query
-      ->condition('field_name', $field->instanceInfo('bundle'))
-      ->addMetaData('class', 'CerFieldCollectionField');
-  }
-}
-
-/**
  * Implements hook_hook_info().
  */
 function cer_hook_info() {

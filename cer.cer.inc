@@ -54,6 +54,23 @@ function cer_cer_fields() {
     $fields = array_merge($fields, $collections);
   }
 
+  foreach (array_keys($fields) as $identifier) {
+    list ($entity_type, $bundle, $field) = explode(':', $identifier);
+
+    if ($entity_type == 'field_collection_item') {
+      $result = db_select('field_config_instance', 'fci')
+        ->fields('fci', array(
+          'entity_type', 'bundle', 'field_name',
+        ))
+        ->condition('field_name', $bundle)
+        ->execute();
+
+      foreach ($result as $r) {
+        $fields[$identifier]['parents'][] = "{$r->entity_type}:{$r->bundle}:{$r->field_name}";
+      }
+    }
+  }
+
   return $fields;
 }
 
