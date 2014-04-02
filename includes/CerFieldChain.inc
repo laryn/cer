@@ -21,10 +21,6 @@ class CerFieldChain implements SeekableIterator {
    * @var integer
    */
   protected $index = 0;
-  
-  public function __sleep() {
-    return array('chain');
-  }
 
   /**
    * Magic post-unserialization callback. Provides every field in the chain
@@ -90,6 +86,7 @@ class CerFieldChain implements SeekableIterator {
 
   public function addField(CerField $field, array &$completed = NULL) {
     array_unshift($this->chain, $field);
+    $this->__wakeup();
 
     if (isset($completed)) {
       $parents = array_map('CerField::getPlugin', $field->pluginInfo('parents'));
@@ -155,6 +152,33 @@ class CerFieldChain implements SeekableIterator {
    */
   public function valid() {
     return ($this->index < sizeof($this->chain));
+  }
+
+  /**
+   * Returns an array of every possible field chain for every field defined in
+   * hook_cer_fields().
+   */
+  public static function collectAll() {
+    $chains = array();
+
+    foreach (array_keys(CerField::getPluginInfo()) as $identifier) {
+      $chains = array_merge($chains, self::collect($identifier));
+    }
+
+    return $chains;
+  }
+
+  /**
+   * Returns an array of every possible field chain for a single field, identified
+   * by its key in hook_cer_fields().
+   */
+  public static function collect($identifier) {
+    $chains = array();
+
+    $chain = new CerFieldChain();
+    $chain->addField(CerField::getPlugin($identifier), $chains);
+
+    return $chains;
   }
 
   /**

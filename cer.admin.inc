@@ -69,7 +69,7 @@ function cer_add_preset(array $form, array &$form_state) {
   $left = CerFieldHierarchy::get('cer_left');
 
   if (sizeof($left) == 0) {
-    foreach (_cer_collect_field_chains() as $chain) {
+    foreach (CerFieldChain::collectAll() as $chain) {
       $left->addChain($chain);
     }
   }
@@ -88,7 +88,7 @@ function cer_add_preset(array $form, array &$form_state) {
     $left = $form_state['storage']['cer']['left'];
 
     $right = CerFieldHierarchy::get('cer_right');
-    foreach (_cer_collect_field_chains() as $chain) {
+    foreach (CerFieldChain::collectAll() as $chain) {
       if ($left->canReference($chain) && $chain->canReference($left)) {
         $right->addChain($chain);
       }
@@ -220,29 +220,6 @@ function cer_delete_preset_submit(array $form, array &$form_state) {
 
   drupal_set_message(t('The preset was deleted.'));
   $form_state['redirect'] = 'admin/config/content/cer';
-}
-
-function _cer_collect_field_chains() {
-  $chains = array();
-
-  foreach (CerField::getPluginInfo() as $key => $info) {
-    $info += array(
-      'get parents' => TRUE,
-    );
-
-    $chain = new CerFieldChain();
-    list ($entity_type, $bundle, $field) = explode(':', $key);
-    $field = new $info['class']($entity_type, $bundle, $field);
-
-    if ($info['get parents']) {
-      $chain->addField($field, $chains);
-    }
-    else {
-      $chain->addField($field);
-    }
-  }
-
-  return $chains;
 }
 
 /**
