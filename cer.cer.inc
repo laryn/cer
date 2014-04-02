@@ -44,6 +44,15 @@ function cer_cer_fields() {
   if (module_exists('image')) {
     $fields = array_merge($fields, _cer_collect_fields_of_type('image', 'CerFileField'));
   }
+  if (module_exists('field_collection')) {
+    $collections = _cer_collect_fields_of_type('field_collection', 'CerFieldCollectionField');
+
+    foreach ($collections as &$c) {
+      $c['require parent'] = TRUE;
+    }
+
+    $fields = array_merge($fields, $collections);
+  }
 
   return $fields;
 }
