@@ -14,7 +14,7 @@ function cer_commerce_cer_fields() {
 function cer_commerce_cer_preset_create(CerPreset $preset) {
   // Prevents a race condition when deleting Commerce products which are referred to
   // by Product Reference fields managed by CER.
-  if ($preset->right()->end() instanceof CerCommerceProductReferenceField) {
+  if ($preset->right->end() instanceof CerCommerceProductReferenceField) {
     drupal_set_message(t('In order to prevent a race condition, bidirectionality has been disabled for this preset.'), 'warning');
     $preset->bidirectional = FALSE;
   }
