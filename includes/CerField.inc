@@ -249,7 +249,7 @@ abstract class CerField {
       }
       drupal_alter('cer_fields', $info);
     }
-    
+
     return ($identifier ? $info[$identifier] : $info);
   }
 
@@ -264,9 +264,14 @@ abstract class CerField {
       list ($entity_type, $bundle, $field) = explode(':', $identifier);
 
       $info = self::getPluginInfo($identifier);
-      $instances[$identifier] = new $info['class']($entity_type, $bundle, $field);
+      if ($info) {
+        $instances[$identifier] = new $info['class']($entity_type, $bundle, $field);
+      }
+      else {
+        throw new Exception(t('Cannot get instance of invalid plugin %identifier.', array('%identifier' => $identifier)));
+      }
     }
-    
+
     return $instances[$identifier];
   }
 
