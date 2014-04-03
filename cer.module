@@ -277,16 +277,6 @@ function cer_features_api() {
  */
 
 /**
- * Export API status callback.
- */
-function cer_preset_set_status($preset, $status) {
-  $preset->enabled = $status;
-
-  ctools_include('export');
-  ctools_export_crud_save('cer', $preset);
-}
-
-/**
  * 'list callback' function.
  */
 function _cer_preset_list() {
@@ -300,6 +290,9 @@ function _cer_preset_list() {
   return $list;
 }
 
+/**
+ * Exports a CerFieldChain as a string.
+ */
 function _cer_export_chain(CerPreset $preset, $field, CerFieldChain $value, $indent) {
   return "'{$value}'";
 }

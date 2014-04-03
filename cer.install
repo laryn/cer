@@ -53,7 +53,6 @@ function cer_schema() {
       'identifier' => 'preset',
       'bulk export' => TRUE,
       'list callback' => '_cer_preset_list',
-      'status callback' => 'cer_preset_set_status',
     ),
     'primary key' => array('id'),
   );
