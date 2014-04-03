@@ -17,7 +17,7 @@ class CerPreset extends StdClass {
    * drupal_write_record() finds record properties.
    */
   protected $id;
-  
+
   /**
    * Used only by the CTools Export API.
    */
@@ -26,47 +26,56 @@ class CerPreset extends StdClass {
   /**
    * @var CerFieldChain
    */
-  public $left;
+  protected $a;
 
   /**
    * @var CerFieldChain
    */
-  public $right;
-  
-  /**
-   * @var boolean
-   */
-  public $bidirectional = TRUE;
+  protected $b;
 
   /**
    * @var boolean
    */
-  public $enabled = TRUE;
+  protected $bidirectional = TRUE;
+
+  /**
+   * @var boolean
+   */
+  protected $enabled = TRUE;
 
   public function __get($property) {
     switch ($property) {
       case 'id':
         return MD5("{$this->left}*{$this->right}");
-      
+
       case 'a':
-        return $this->left;
+      case 'left':
+        return $this->a;
 
       case 'b':
-        return $this->right;
+      case 'right':
+        return $this->b;
 
       default:
-        break;
+        return $this->{$property};
     }
   }
 
   public function __set($property, $value) {
     switch ($property) {
       case 'a':
-        $this->setChain($this->left, $value);
+      case 'left':
+        $this->setChain($this->a, $value);
         break;
 
       case 'b':
-        $this->setChain($this->right, $value);
+      case 'right':
+        $this->setChain($this->b, $value);
+        break;
+
+      case 'bidirectional':
+      case 'enabled':
+        $this->{$property} = (boolean) $value;
         break;
         
       default:
