@@ -62,19 +62,24 @@ class CerPreset extends StdClass {
   public function __set($property, $value) {
     switch ($property) {
       case 'a':
-        if ($value) {
-          $this->left = CerFieldChain::unpack($value);
-        }
+        $this->setChain($this->left, $value);
         break;
 
       case 'b':
-        if ($value) {
-          $this->right = CerFieldChain::unpack($value);
-        }
+        $this->setChain($this->right, $value);
         break;
         
       default:
         break;
+    }
+  }
+
+  protected function setChain(&$property, $chain) {
+    if ($chain instanceof CerFieldChain) {
+      $property = $chain;
+    }
+    elseif (is_string($chain) && $chain) {
+      $property = CerFieldChain::unpack($chain);
     }
   }
 
