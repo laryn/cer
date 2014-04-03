@@ -62,6 +62,14 @@ function cer_menu() {
 }
 
 /**
+ * Load callback for %cer_preset wildcards.
+ */
+function cer_preset_load($id) {
+  ctools_include('export');
+  return ctools_export_crud_load('cer', $id);
+}
+
+/**
  * Implements hook_permission().
  */
 function cer_permission() {
@@ -267,32 +275,6 @@ function cer_features_api() {
 /**
  * CTools Export API functions
  */
-
-/**
- * Export API load callback. Loads a single preset by ID.
- *
- * @return CerPreset
- */
-function cer_preset_load($id) {
-  $data = db_query('SELECT * FROM {cer} WHERE id = :id', array(':id' => $id))->fetchObject();
-  return new CerPreset($data);
-}
-
-/**
- * Export API load multiple callback.
- */
-function cer_preset_load_multiple(array $IDs) {
-  return array_map('cer_preset_load', $IDs);
-}
-
-/**
- * Export API load all callback.
- *
- * @return array
- */
-function cer_preset_load_all($reset = FALSE) {
-  return array_map('cer_preset_load', db_query('SELECT id FROM {cer} WHERE 1')->fetchCol());
-}
 
 /**
  * Export API save function.
