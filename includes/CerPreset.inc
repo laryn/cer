@@ -12,9 +12,16 @@
 class CerPreset extends StdClass {
 
   /**
-   * @var string
+   * This is always computed by __get(). But it needs to be here so that
+   * property_exists($preset, 'id') will return TRUE, which is how
+   * drupal_write_record() finds record properties.
    */
   protected $id;
+  
+  /**
+   * Used only by the CTools Export API.
+   */
+  public $export_type;
 
   /**
    * @var CerFieldChain
@@ -30,7 +37,7 @@ class CerPreset extends StdClass {
    * @var boolean
    */
   public $bidirectional = TRUE;
-  
+
   /**
    * @var boolean
    */
@@ -39,13 +46,19 @@ class CerPreset extends StdClass {
   public function __get($property) {
     switch ($property) {
       case 'id':
-        return MD5($this->__toString());
+        return MD5("{$this->left}*{$this->right}");
+      
+      case 'a':
+        return $this->left;
+
+      case 'b':
+        return $this->right;
 
       default:
         break;
     }
   }
-  
+
   public function __set($property, $value) {
     switch ($property) {
       case 'a':
@@ -63,10 +76,6 @@ class CerPreset extends StdClass {
       default:
         break;
     }
-  }
-
-  public function __toString() {
-    return "{$this->left}*{$this->right}";
   }
 
   public function invert() {

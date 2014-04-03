@@ -277,24 +277,6 @@ function cer_features_api() {
  */
 
 /**
- * Export API save function.
- */
-function cer_preset_save(CerPreset $preset) {
-  $record = new StdClass();
-
-  $record->a = $preset->left;
-  $record->b = $preset->right;
-  $record->enabled = $preset->enabled;
-  $record->bidirectional = $preset->bidirectional;
-  $record->id = MD5("{$record->a}*{$record->b}");
-
-  // Temporary kludge.
-  $inDB = cer_preset_load($record->id);
-
-  return drupal_write_record('cer', $record, ($inDB ? 'id' : NULL));
-}
-
-/**
  * Export API status callback.
  */
 function cer_preset_set_status($preset, $status) {

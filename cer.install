@@ -51,7 +51,6 @@ function cer_schema() {
       'bulk export' => TRUE,
       'list callback' => '_cer_preset_list',
       'to hook code callback' => '_cer_export',
-      'save callback' => 'cer_preset_save',
       'status callback' => 'cer_preset_set_status',
     ),
     'primary key' => array('id'),
