@@ -300,54 +300,8 @@ function _cer_preset_list() {
   return $list;
 }
 
-/**
- * 'to hook code callback' function. Renders a set of presets to code.
- */
-function _cer_export(array $IDs, $module) {
-  $code = array();
-
-  $code[] = 'function ' . $module . '_cer_default_presets() {';
-  $code[] = '  $presets = array();';
-
-  foreach ($IDs as $presetID) {
-    $preset = ctools_export_crud_load('cer', $presetID);
-
-    $code[] = '';
-    $code[] = "  // {$preset}";
-    $code[] = '  $preset = new ' . get_class($preset) . '();';
-
-    $code = array_merge($code, _cer_export_chain($preset->left));
-    $code[] = '  $preset->left = $chain;';
-
-    $code = array_merge($code, _cer_export_chain($preset->right));
-    $code[] = '  $preset->right = $chain;';
-    $code[] = '';
-    $code[] = '  $preset->bidirectional = ' . $preset->bidirectional . ';';
-    $code[] = '  $preset->enabled = ' . $preset->enabled . ';';
-    $code[] = '  $presets[ $preset->id ] = $preset;';
-  }
-
-  $code[] = '';
-  $code[] = '  return $presets;';
-  $code[] = '}';
-
-  return implode("\n", $code);
-}
-
-/**
- * Renders a single field chain to code.
- */
-function _cer_export_chain(CerFieldChain $chain) {
-  $code = $fields = array();
-
-  $code[] = '';
-  $code[] = "  // {$chain}";
-  $code[] = '  $chain = new ' . get_class($chain) . '();';
-  foreach ($chain as $field) {
-    $fields[] = sprintf('  $chain->addField(CerField::getPlugin("%s"));', $field);
-  }
-
-  return array_merge($code, array_reverse($fields));
+function _cer_export_chain(CerPreset $preset, $field, CerFieldChain $value, $indent) {
+  return "'{$value}'";
 }
 
 /**

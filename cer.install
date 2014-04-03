@@ -19,14 +19,17 @@ function cer_schema() {
         'length' => 32,
         'not null' => TRUE,
         'initial' => '',
+        'no export' => TRUE,
       ),
       'a' => array(
         'type' => 'text',
         'size' => 'tiny',
+        'export callback' => '_cer_export_chain',
       ),
       'b' => array(
         'type' => 'text',
         'size' => 'tiny',
+        'export callback' => '_cer_export_chain',
       ),
       'bidirectional' => array(
         'type' => 'int',
@@ -50,7 +53,6 @@ function cer_schema() {
       'identifier' => 'preset',
       'bulk export' => TRUE,
       'list callback' => '_cer_preset_list',
-      'to hook code callback' => '_cer_export',
       'status callback' => 'cer_preset_set_status',
     ),
     'primary key' => array('id'),
