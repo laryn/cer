@@ -293,6 +293,22 @@ function cer_preset_load($id) {
 }
 
 /**
+ * Export API load multiple callback.
+ */
+function cer_preset_load_multiple(array $IDs) {
+  return array_map('cer_preset_load', $IDs);
+}
+
+/**
+ * Export API load all callback.
+ *
+ * @return array
+ */
+function cer_preset_load_all($reset = FALSE) {
+  return array_map('cer_preset_load', db_query('SELECT id FROM {cer} WHERE 1')->fetchCol());
+}
+
+/**
  * Export API save function.
  */
 function cer_preset_save(CerPreset $preset) {
@@ -305,13 +321,6 @@ function cer_preset_save(CerPreset $preset) {
   $record->id = MD5("{$record->a}*{$record->b}");
 
   return drupal_write_record('cer', $record);
-}
-
-/**
- * 'object factory' function.
- */
-function _cer_preset_factory(array $schema, StdClass $data) {
-  return new CerPreset($data);
 }
 
 /**

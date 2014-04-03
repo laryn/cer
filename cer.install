@@ -44,7 +44,6 @@ function cer_schema() {
     'export' => array(
       'key' => 'id',
       'key name' => 'Preset ID',
-      'object factory' => '_cer_preset_factory',
       'status' => 'enabled',
       'default hook' => 'cer_default_presets',
       'identifier' => 'preset',
@@ -53,6 +52,8 @@ function cer_schema() {
       'to hook code callback' => '_cer_export',
       'create callback' => 'cer_preset_create',
       'load callback' => 'cer_preset_load',
+      'load multiple callback' => 'cer_preset_load_multiple',
+      'load all callback' => 'cer_preset_load_all',
       'save callback' => 'cer_preset_save',
     ),
     'primary key' => array('id'),
