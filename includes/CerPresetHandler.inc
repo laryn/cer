@@ -33,8 +33,8 @@ class CerPresetHandler {
   protected $refIDs;
 
   public function __construct(CerPreset $preset, EntityDrupalWrapper $entity) {
-    $this->left = $preset->left();
-    $this->right = $preset->right();
+    $this->left = $preset->left;
+    $this->right = $preset->right;
     $this->entity = $entity;
 
     $this->refIDs = $this->left->getHandler( $entity )->getIDs();

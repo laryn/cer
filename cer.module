@@ -314,8 +314,8 @@ function cer_preset_load_all($reset = FALSE) {
 function cer_preset_save(CerPreset $preset) {
   $record = new StdClass();
 
-  $record->a = $preset->left();
-  $record->b = $preset->right();
+  $record->a = $preset->left;
+  $record->b = $preset->right;
   $record->enabled = $preset->enabled;
   $record->bidirectional = $preset->bidirectional;
   $record->id = MD5("{$record->a}*{$record->b}");
@@ -344,7 +344,7 @@ function _cer_preset_list() {
 
   $presets = ctools_export_crud_load_all('cer');
   foreach ($presets as $preset) {
-    $list[ $preset->id ] = sprintf('%s <> %s', html_entity_decode($preset->left()->getLabel()), html_entity_decode($preset->right()->getLabel()));
+    $list[ $preset->id ] = sprintf('%s <> %s', html_entity_decode($preset->left->getLabel()), html_entity_decode($preset->right->getLabel()));
   }
 
   return $list;
@@ -366,11 +366,11 @@ function _cer_export(array $IDs, $module) {
     $code[] = "  // {$preset}";
     $code[] = '  $preset = new ' . get_class($preset) . '();';
 
-    $code = array_merge($code, _cer_export_chain($preset->left()));
-    $code[] = '  $preset->left($chain);';
+    $code = array_merge($code, _cer_export_chain($preset->left));
+    $code[] = '  $preset->left = $chain;';
 
-    $code = array_merge($code, _cer_export_chain($preset->right()));
-    $code[] = '  $preset->right($chain);';
+    $code = array_merge($code, _cer_export_chain($preset->right));
+    $code[] = '  $preset->right = $chain;';
     $code[] = '';
     $code[] = '  $preset->bidirectional = ' . $preset->bidirectional . ';';
     $code[] = '  $preset->enabled = ' . $preset->enabled . ';';

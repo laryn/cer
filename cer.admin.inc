@@ -36,8 +36,8 @@ function cer_preset_list() {
 
     $table['#rows'][] = array(
       ($preset->enabled ? '&#10003;' : ''),
-      sprintf('<strong>%s</strong>: %s', $preset->left()->end()->fieldTypeInfo('label'), $preset->left()->getLabel()),
-      sprintf('<strong>%s</strong>: %s', $preset->right()->end()->fieldTypeInfo('label'), $preset->right()->getLabel()),
+      sprintf('<strong>%s</strong>: %s', $preset->left->end()->fieldTypeInfo('label'), $preset->left->getLabel()),
+      sprintf('<strong>%s</strong>: %s', $preset->right->end()->fieldTypeInfo('label'), $preset->right->getLabel()),
       ($preset->bidirectional ? '&#10003;' : ''),
       theme('links__ctools_dropbutton', $operations),
     );
@@ -185,8 +185,8 @@ function cer_add_preset_submit(array $form, array &$form_state) {
   ctools_include('export');
   $preset = ctools_export_crud_new('cer', FALSE);
 
-  $preset->left($form_state['storage']['cer']['left']);
-  $preset->right(CerFieldChain::unpack(end($form_state['values']['right'])));
+  $preset->left = $form_state['storage']['cer']['left'];
+  $preset->right = CerFieldChain::unpack(end($form_state['values']['right']));
 
   $preset->enabled = $form_state['values']['enabled'];
   $preset->bidirectional = $form_state['values']['bidirectional'];
@@ -232,8 +232,8 @@ function cer_preset_invert(CerPreset $original) {
  */
 function cer_delete_preset(array $form, array &$form_state, CerPreset $preset) {
   $question = t('<i>!left</i> will no longer correspond with <i>!right</i>.', array(
-    '!left' => $preset->left()->getLabel(),
-    '!right' => $preset->right()->getLabel(),
+    '!left' => $preset->left->getLabel(),
+    '!right' => $preset->right->getLabel(),
   ));
 
   return confirm_form($form, t('Are you sure you want to delete this preset?'), 'admin/config/content/cer', $question, t('Delete'));

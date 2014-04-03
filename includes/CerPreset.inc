@@ -19,12 +19,12 @@ class CerPreset {
   /**
    * @var CerFieldChain
    */
-  protected $left;
+  public $left;
 
   /**
    * @var CerFieldChain
    */
-  protected $right;
+  public $right;
   
   /**
    * @var boolean
@@ -47,8 +47,8 @@ class CerPreset {
       $this->id = $preset->id;
       $this->bidirectional = $preset->bidirectional;
       $this->enabled = $preset->enabled;
-      $this->left(CerFieldChain::unpack($preset->a));
-      $this->right(CerFieldChain::unpack($preset->b));
+      $this->left = CerFieldChain::unpack($preset->a);
+      $this->right = CerFieldChain::unpack($preset->b);
     }
   }
 
@@ -73,24 +73,10 @@ class CerPreset {
     $inverse->enabled = $this->enabled;
     $inverse->bidirectional = $this->bidirectional;
 
-    $inverse->left($this->right());
-    $inverse->right($this->left());
+    $inverse->left = $this->right;
+    $inverse->right = $this->left;
     
     return $inverse;
-  }
-
-  public function left(CerFieldChain $chain = NULL) {
-    if ($chain) {
-      $this->left = $chain;
-    }
-    return $this->left;
-  }
-
-  public function right(CerFieldChain $chain = NULL) {
-    if ($chain) {
-      $this->right = $chain;
-    }
-    return $this->right;
   }
 
 }

@@ -85,10 +85,10 @@ function _cer_hijack_cnr() {
 
     $right = new CerFieldChain();
     $right->addField(new CerNodeReferenceField($keys[3], $keys[4], $keys[5]));
-    
+
     $preset = ctools_export_crud_new('cer');
-    $preset->left($left);
-    $preset->right($right);
+    $preset->left = $left;
+    $preset->right = $right;
 
     ctools_export_crud_save('cer', $preset);
   }
@@ -139,8 +139,8 @@ function cer_update_7002() {
 
     $preset = ctools_export_crud_new('cer');
     $preset->enabled = $row->enabled;
-    $preset->left($left);
-    $preset->right($right);
+    $preset->left = $left;
+    $preset->right = $right;
 
     ctools_export_crud_save('cer', $preset);
   }
