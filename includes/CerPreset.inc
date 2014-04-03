@@ -9,7 +9,7 @@
  * @class
  *  Encapsulates a single CER preset, which consists of two CerFieldChain objects.
  */
-class CerPreset {
+class CerPreset extends StdClass {
 
   /**
    * @var string
@@ -34,29 +34,32 @@ class CerPreset {
   /**
    * @var boolean
    */
-  public $enabled;
-
-  /**
-   * Constructs a CerPreset object.
-   *
-   * @param $preset
-   *  A row from the {cer} database table.
-   */
-  public function __construct(StdClass $preset = NULL) {
-    if ($preset) {
-      $this->id = $preset->id;
-      $this->bidirectional = $preset->bidirectional;
-      $this->enabled = $preset->enabled;
-      $this->left = CerFieldChain::unpack($preset->a);
-      $this->right = CerFieldChain::unpack($preset->b);
-    }
-  }
+  public $enabled = TRUE;
 
   public function __get($property) {
     switch ($property) {
       case 'id':
         return MD5($this->__toString());
 
+      default:
+        break;
+    }
+  }
+  
+  public function __set($property, $value) {
+    switch ($property) {
+      case 'a':
+        if ($value) {
+          $this->left = CerFieldChain::unpack($value);
+        }
+        break;
+
+      case 'b':
+        if ($value) {
+          $this->right = CerFieldChain::unpack($value);
+        }
+        break;
+        
       default:
         break;
     }

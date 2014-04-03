@@ -267,20 +267,6 @@ function cer_features_api() {
 /**
  * CTools Export API functions
  */
- 
-/**
- * Export API create callback.
- */
-function cer_preset_create($set_defaults) {
-  $preset = new CerPreset();
-
-  if ($set_defaults) {
-    $preset->enabled = TRUE;
-    $preset->bidirectional = TRUE;
-  }
-
-  return $preset;
-}
 
 /**
  * Export API load callback. Loads a single preset by ID.
