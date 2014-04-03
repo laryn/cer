@@ -66,18 +66,6 @@ class CerPreset {
     return "{$this->left}*{$this->right}";
   }
 
-  public function toggle() {
-    if ($this->id) {
-      $fields = array(
-        'enabled' => ($this->enabled ? 0 : 1),
-      );
-
-      db_update('cer')->fields($fields)->condition('id', $this->id)->execute();
-
-      module_invoke_all('cer_preset_toggle', $this);
-    }
-  }
-
   public function invert() {
     ctools_include('export');
     $inverse = ctools_export_crud_new('cer', FALSE);

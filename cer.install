@@ -55,6 +55,7 @@ function cer_schema() {
       'load multiple callback' => 'cer_preset_load_multiple',
       'load all callback' => 'cer_preset_load_all',
       'save callback' => 'cer_preset_save',
+      'status callback' => 'cer_preset_set_status',
     ),
     'primary key' => array('id'),
   );

@@ -205,7 +205,9 @@ function cer_add_preset_submit(array $form, array &$form_state) {
  * Page callback to toggle a preset from the main administration page.
  */
 function cer_preset_toggle(CerPreset $preset) {
-  $preset->toggle();
+  ctools_include('export');
+  ctools_export_crud_set_status('cer', $preset, ! ($preset->enabled));
+
   drupal_goto('admin/config/content/cer');
 }
 

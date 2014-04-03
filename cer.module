@@ -320,7 +320,20 @@ function cer_preset_save(CerPreset $preset) {
   $record->bidirectional = $preset->bidirectional;
   $record->id = MD5("{$record->a}*{$record->b}");
 
-  return drupal_write_record('cer', $record);
+  // Temporary kludge.
+  $inDB = cer_preset_load($record->id);
+
+  return drupal_write_record('cer', $record, ($inDB ? 'id' : NULL));
+}
+
+/**
+ * Export API status callback.
+ */
+function cer_preset_set_status($preset, $status) {
+  $preset->enabled = $status;
+
+  ctools_include('export');
+  ctools_export_crud_save('cer', $preset);
 }
 
 /**
