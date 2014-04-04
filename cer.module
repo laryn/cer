@@ -173,9 +173,11 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
       ->condition('a', $entity->cer->lineage->value(), 'LIKE')
       ->execute()
       ->fetchCol();
-    $presets = ctools_export_crud_load_multiple('cer', $IDs);
-    foreach ($presets as $preset) {
-      $handlers[] = new CerPresetHandler($preset, $entity);
+    if ($IDs) {
+      $presets = ctools_export_crud_load_multiple('cer', $IDs);
+      foreach ($presets as $preset) {
+        $handlers[] = new CerPresetHandler($preset, $entity);
+      }
     }
 
     $query = clone $baseQuery;
@@ -184,9 +186,11 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
       ->condition('bidirectional', 1)
       ->execute()
       ->fetchCol();
-    $presets = ctools_export_crud_load_multiple('cer', $IDs);
-    foreach ($presets as $preset) {
-      $handlers[] = new CerPresetHandler($preset->invert(), $entity);
+    if ($IDs) {
+      $presets = ctools_export_crud_load_multiple('cer', $IDs);
+      foreach ($presets as $preset) {
+        $handlers[] = new CerPresetHandler($preset->invert(), $entity);
+      }
     }
 
     foreach ($handlers as $handler) {
