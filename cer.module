@@ -194,7 +194,7 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
   }
   elseif (is_numeric($entity)) {
     $entities = entity_load($entity_type, array($entity));
-    cer_processing_entity($op, $entity_type, reset($entities), $context);
+    cer_processing_entity($op, reset($entities), $entity_type, $context);
   }
   else {
     drupal_set_message(t('CER Error: Could not process @entity_type @entity.', array('@entity_type' => $entity_type, '@entity' => $entity)), 'error');
