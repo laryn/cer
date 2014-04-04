@@ -9,7 +9,7 @@ function cer_features_export($data, &$export, $module) {
   $export['dependencies']['cer'] = 'cer';
 
   ctools_include('export');
-  $presets = cer_export_crud_load_multiple($data);
+  $presets = ctools_export_crud_load_multiple($data);
 
   foreach ($presets as $preset) {
     $export['features']['cer'][$preset->id] = $preset->id;
