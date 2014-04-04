@@ -162,7 +162,7 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
     if (! ($entity instanceof EntityDrupalWrapper)) {
       $entity = new EntityDrupalWrapper($entity_type, $entity);
     }
-    $lineage = '/^' . $entity->cer->lineage->value() . '$/';
+    $lineage = $entity->cer->lineage->value();
   
     ctools_include('export');
 
@@ -174,10 +174,10 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
         continue;
       }
 
-      if (preg_match($lineage, $preset->left->__toString())) {
+      if (strPos($preset->left->__toString(), $lineage) === 0) {
         $presets[] = $preset;
       }
-      elseif ($preset->bidirectional && preg_match($lineage, $preset->right->__toString())) {
+      elseif ($preset->bidirectional && strPos($preset->right->__toString(), $lineage) === 0) {
         $presets[] = $preset->invert();
       }
     }
