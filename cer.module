@@ -143,7 +143,7 @@ function cer_entity_delete($entity, $type) {
  *  The operation being performed on the entity (insert, update, or delete).
  *
  * @param object $entity
- *  The entity.
+ *  The entity object, optionally wrapped by EntityDrupalWrapper, or the entity's ID.
  *
  * @param string $entity_type
  *  The entity type.
@@ -158,53 +158,55 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
     return;
   }
 
-  if (is_numeric($entity)) {
-    $entity = entity_load($entity_type, array($entity));
-    $entity = reset($entity);
-  }
-
-  $handlers = _cer_load_handlers( new EntityDrupalWrapper($entity_type, $entity) );
-
-  foreach ($handlers as $handler) {
-    $handler->$op();
-  }
-
-  if ($context) {
-    if (! isset($context['results']['count'])) {
-      $context['results']['count'] = 0;
+  if (is_object($entity)) {
+    if (! ($entity instanceof EntityDrupalWrapper)) {
+      $entity = new EntityDrupalWrapper($entity_type, $entity);
     }
-    $context['results']['count']++;
-  }
-}
-
-/**
- * Loads all CerPresetHandler objects that apply to the given entity. If there are
- * no applicable presets, an empty array is returned.
- */
-function _cer_load_handlers(EntityDrupalWrapper $entity) {
-  ctools_include('export');
-
-  $handlers = array();
-
-  $baseQuery = db_select('cer')->fields('cer', array('id'))->condition('enabled', 1);
-
-  $a = clone $baseQuery;
-  $IDs = $a->condition('a', $entity->cer->lineage->value(), 'LIKE')->execute()->fetchCol();
-  $presets = ctools_export_crud_load_multiple('cer', $IDs);
-
-  foreach ($presets as $preset) {
-    $handlers[] = new CerPresetHandler($preset, $entity);
-  }
-
-  $b = clone $baseQuery;
-  $IDs = $b->condition('b', $entity->cer->lineage->value(), 'LIKE')->condition('bidirectional', 1)->execute()->fetchCol();
-  $presets = ctools_export_crud_load_multiple('cer', $IDs);
-
-  foreach ($presets as $preset) {
-    $handlers[] = new CerPresetHandler($preset->invert(), $entity);
-  }
   
-  return $handlers;
+    ctools_include('export');
+
+    $baseQuery = db_select('cer')->fields('cer', array('id'))->condition('enabled', 1);
+    $handlers = array();
+
+    $query = clone $baseQuery;
+    $IDs = $query
+      ->condition('a', $entity->cer->lineage->value(), 'LIKE')
+      ->execute()
+      ->fetchCol();
+    $presets = ctools_export_crud_load_multiple('cer', $IDs);
+    foreach ($presets as $preset) {
+      $handlers[] = new CerPresetHandler($preset, $entity);
+    }
+
+    $query = clone $baseQuery;
+    $IDs = $query
+      ->condition('b', $entity->cer->lineage->value(), 'LIKE')
+      ->condition('bidirectional', 1)
+      ->execute()
+      ->fetchCol();
+    $presets = ctools_export_crud_load_multiple('cer', $IDs);
+    foreach ($presets as $preset) {
+      $handlers[] = new CerPresetHandler($preset->invert(), $entity);
+    }
+
+    foreach ($handlers as $handler) {
+      $handler->$op();
+    }
+
+    if ($context) {
+      if (! isset($context['results']['count'])) {
+        $context['results']['count'] = 0;
+      }
+      $context['results']['count']++;
+    }
+  }
+  elseif (is_numeric($entity)) {
+    $entities = entity_load($entity_type, array($entity));
+    cer_processing_entity($op, $entity_type, reset($entities), $context);
+  }
+  else {
+    drupal_set_message(t('CER Error: Could not process @entity_type @entity.', array('@entity_type' => $entity_type, '@entity' => $entity)), 'error');
+  }
 }
 
 /**
