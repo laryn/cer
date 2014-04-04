@@ -23,16 +23,20 @@ function cer_preset_list() {
           'title' => ($preset->enabled ? t('disable') : t('enable')),
           'href' => "admin/config/content/cer/presets/toggle/{$preset->id}",
         ),
-        'invert' => array(
-          'title' => t('invert'),
-          'href' => "admin/config/content/cer/presets/invert/{$preset->id}",
-        ),
         'delete' => array(
           'title' => t('delete'),
           'href' => "admin/config/content/cer/presets/delete/{$preset->id}",
         ),
       ),
     );
+    
+    // Only one-directional presets can be flipped in the UI.
+    if (! $preset->bidirectional) {
+      $operations['links']['invert'] = array(
+        'title' => t('invert'),
+        'href' => "admin/config/content/cer/presets/invert/{$preset->id}",
+      );
+    }
 
     $table['#rows'][] = array(
       ($preset->enabled ? '&#10003;' : ''),
@@ -217,14 +221,19 @@ function cer_preset_toggle(CerPreset $preset) {
  * Page callback to invert a preset from the main administration page.
  */
 function cer_preset_invert(CerPreset $original) {
-  ctools_include('export');
+  if ($original->bidirectional) {
+    ctools_include('export');
 
-  $inverse = $original->invert();
-  ctools_export_crud_save('cer', $inverse);
+    $inverse = $original->invert();
+    ctools_export_crud_save('cer', $inverse);
 
-  // There's no point in having two presets that are inverses of each other,
-  // so delete the original.
-  ctools_export_crud_delete('cer', $original);
+    // There's no point in having two presets that are inverses of each other,
+    // so delete the original.
+    ctools_export_crud_delete('cer', $original);
+  }
+  else {
+    drupal_set_message(t('You cannot invert a bidirectional preset.'), 'error');
+  }
 
   drupal_goto('admin/config/content/cer');
 }
