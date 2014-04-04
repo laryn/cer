@@ -37,12 +37,6 @@ function cer_schema() {
         'default' => 1,
         'unsigned' => TRUE,
       ),
-      'weight' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'default' => 0,
-        'unsigned' => TRUE,
-      ),
     ),
     'export' => array(
       'key' => 'id',
@@ -51,7 +45,8 @@ function cer_schema() {
       'default hook' => 'cer_default_presets',
       'identifier' => 'preset',
       'bulk export' => TRUE,
-      'list callback' => '_cer_preset_list',
+      'list callback' => 'cer_preset_list_all',
+      'load all callback' => 'cer_preset_load_all',
     ),
     'primary key' => array('id'),
   );
@@ -74,6 +69,9 @@ function cer_install() {
 function cer_uninstall() {
   // Delete CTools' preset status variable.
   variable_del('default_cer');
+
+  // Delete the presets' weights.
+  variable_del('cer_weight');
 }
 
 function _cer_hijack_cnr() {
@@ -155,17 +153,6 @@ function cer_update_7003() {
 function cer_update_7004() {
   if (db_field_exists('cer', 'enabled')) {
     db_drop_field('cer', 'enabled');
-  }
-}
-
-/**
- * Creates {cer}.weight.
- */
-function cer_update_7005() {
-  $tables = cer_schema();
-
-  if (! db_field_exists('cer', 'weight')) {
-    db_add_field('cer', 'weight', $tables['cer']['fields']['weight']);
   }
 }
 

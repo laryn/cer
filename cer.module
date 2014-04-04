@@ -302,11 +302,51 @@ function cer_features_api() {
 /**
  * CTools Export API functions
  */
+ 
+/**
+ * load all callback
+ */
+function cer_preset_load_all($reset = FALSE) {
+  if ($reset) {
+    drupal_static_reset(__FUNCTION__);
+  }
+  $presets = &drupal_static(__FUNCTION__);
+
+  if (! isset($presets)) {
+    ctools_include('export');
+    $presets = ctools_export_load_object('cer', 'all');
+
+    foreach ($weights = variable_get('cer_weight', array()) as $w => $id) {
+      if (isset($presets[$id])) {
+        $presets[$id]->weight = $w;
+      }
+    }
+
+    uasort($presets, '_cer_sort_presets');
+  }
+
+  return $presets;
+}
 
 /**
- * 'list callback' function.
+ * uasort() callback. @see cer_preset_load_all().
  */
-function _cer_preset_list() {
+function _cer_sort_presets(CerPreset $a, CerPreset $b) {
+  if ($a->weight > $b->weight) {
+    return 1;
+  }
+  elseif ($a->weight < $b->weight) {
+    return -1;
+  }
+  else {
+    return 0;
+  }
+}
+
+/**
+ * list callback
+ */
+function cer_preset_list_all() {
   $list = array();
 
   $presets = ctools_export_crud_load_all('cer');

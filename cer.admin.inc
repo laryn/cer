@@ -4,6 +4,8 @@
  * Page callback listing all CER presets.
  */
 function cer_preset_list(array $form, array &$form_state) {
+  // The table element type is provided by the table_element module, which
+  // is a backport from Drupal 8.
   $form['cer'] = array(
     '#type' => 'table',
     '#header' => array(
@@ -62,7 +64,7 @@ function cer_preset_list(array $form, array &$form_state) {
       ),
       '#weight' => $preset->weight,
     );
-    
+
     // Only one-directional presets can be flipped in the UI.
     if (! $preset->bidirectional) {
       $form['cer'][$id]['operations']['#links']['invert'] = array(
@@ -83,13 +85,15 @@ function cer_preset_list(array $form, array &$form_state) {
   return $form;
 }
 
+/**
+ * Submit handler. Stuffs the weights of all presets into a variable, so that we can
+ * sort presets that are stored in code (similar to the way CTools stores the status
+ * of exportable objects).
+ *
+ * @see cer_preset_load_all()
+ */
 function cer_preset_list_submit(array $form, array &$form_state) {
-  foreach ($form_state['values']['cer'] as $id => $values) {
-    db_update('cer')
-      ->fields($values)
-      ->condition('id', $id)
-      ->execute();
-  }
+  variable_set('cer_weight', array_keys($form_state['values']['cer']));
 
   drupal_set_message(t('Saved changes.'));
 }
