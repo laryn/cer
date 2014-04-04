@@ -38,11 +38,6 @@ class CerPreset extends StdClass {
    */
   protected $bidirectional = TRUE;
 
-  /**
-   * @var boolean
-   */
-  protected $enabled = TRUE;
-
   public function __get($property) {
     switch ($property) {
       case 'id':
@@ -55,6 +50,10 @@ class CerPreset extends StdClass {
       case 'b':
       case 'right':
         return $this->b;
+
+      // This constant is used by ctools_export_set_object_status().
+      case 'table':
+        return 'cer';
 
       default:
         return $this->{$property};
@@ -74,7 +73,6 @@ class CerPreset extends StdClass {
         break;
 
       case 'bidirectional':
-      case 'enabled':
         $this->{$property} = (boolean) $value;
         break;
         
@@ -92,11 +90,18 @@ class CerPreset extends StdClass {
     }
   }
 
+  public function status() {
+    $id = $this->__get('id');
+    $status = variable_get('default_cer', array());
+
+    return (isset($status[$id]) ? $status[$id] : FALSE);
+  }
+
   public function invert() {
     ctools_include('export');
+
     $inverse = ctools_export_crud_new('cer', FALSE);
 
-    $inverse->enabled = $this->enabled;
     $inverse->bidirectional = $this->bidirectional;
 
     $inverse->left = $this->right;

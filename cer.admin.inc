@@ -17,10 +17,12 @@ function cer_preset_list() {
 
   ctools_include('export');
   foreach (ctools_export_crud_load_all('cer') as $preset) {
+    $isEnabled = $preset->status();
+
     $operations = array(
       'links' => array(
         'toggle' => array(
-          'title' => ($preset->enabled ? t('disable') : t('enable')),
+          'title' => ($isEnabled ? t('disable') : t('enable')),
           'href' => "admin/config/content/cer/presets/toggle/{$preset->id}",
         ),
         'delete' => array(
@@ -39,7 +41,7 @@ function cer_preset_list() {
     }
 
     $table['#rows'][] = array(
-      ($preset->enabled ? '&#10003;' : ''),
+      ($isEnabled ? '&#10003;' : ''),
       sprintf('<strong>%s</strong>: %s', $preset->left->end()->fieldTypeInfo('label'), $preset->left->getLabel()),
       sprintf('<strong>%s</strong>: %s', $preset->right->end()->fieldTypeInfo('label'), $preset->right->getLabel()),
       ($preset->bidirectional ? '&#10003;' : ''),
@@ -210,9 +212,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
  */
 function cer_preset_toggle(CerPreset $preset) {
   ctools_include('export');
-
-  $preset->enabled = ($preset->enabled ? FALSE : TRUE);
-  ctools_export_crud_save('cer', $preset);
+  ctools_export_crud_set_status('cer', $preset, (! $preset->status()));
 
   drupal_goto('admin/config/content/cer');
 }
