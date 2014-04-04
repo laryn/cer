@@ -17,7 +17,7 @@ function cer_preset_list() {
 
   ctools_include('export');
   foreach (ctools_export_crud_load_all('cer') as $preset) {
-    $isEnabled = $preset->status();
+    $isEnabled = $preset->enabled();
 
     $operations = array(
       'links' => array(
@@ -213,7 +213,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
  */
 function cer_preset_toggle(CerPreset $preset) {
   ctools_include('export');
-  ctools_export_crud_set_status('cer', $preset, (! $preset->status()));
+  ctools_export_crud_set_status('cer', $preset, (! $preset->enabled()));
   module_invoke_all('cer_preset_toggle', $preset);
 
   drupal_goto('admin/config/content/cer');

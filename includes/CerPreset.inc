@@ -95,7 +95,7 @@ class CerPreset extends StdClass {
     }
   }
 
-  public function status() {
+  public function enabled() {
     $id = $this->__get('id');
     $status = variable_get('default_cer', array());
 
