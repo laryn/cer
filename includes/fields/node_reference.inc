@@ -25,7 +25,7 @@ class CerNodeReferenceField extends CerField {
       }
     }
     else {
-      $bundles = $this->fieldInfo('settings', 'referenceable_types');
+      $bundles = array_filter($this->fieldInfo('settings', 'referenceable_types'));
     }
 
     return ($bundles ? $bundles : parent::getTargetBundles());

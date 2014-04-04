@@ -11,5 +11,11 @@ class CerFileField extends CerField {
     return 'file';
   }
 
+  /**
+   * @override CerField::getTargetBundles().
+   */
+  public function getTargetBundles() {
+    return ($this->fieldInfo('type') == 'image' ? array('image') : parent::getTargetBundles());
+  }
+
 }
- 
