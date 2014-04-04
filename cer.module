@@ -166,7 +166,7 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
   
     ctools_include('export');
 
-    $handlers = array();
+    $presets = array();
     $all = ctools_export_crud_load_all('cer');
     foreach ($all as $preset) {
       // If the preset is disabled, don't use it at all.
@@ -175,14 +175,33 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
       }
 
       if (preg_match($lineage, $preset->left->__toString())) {
-        $handlers[] = new CerPresetHandler($preset, $entity);
+        $presets[] = $preset;
       }
       elseif ($preset->bidirectional && preg_match($lineage, $preset->right->__toString())) {
-        $handlers[] = new CerPresetHandler($preset->invert(), $entity);
+        $presets[] = $preset->invert();
       }
     }
 
-    foreach ($handlers as $handler) {
+    // Before we do the actual processing, allow modules to react and alter
+    // the preset list.
+    $hook = "cer_entity_{$op}";
+    foreach (module_implements($hook) as $module) {
+      $function = "{$module}_{$hook}";
+      
+      if (! function_exists($function)) {
+        $include = drupal_get_path('module', $module) . "/{$module}.cer.inc";
+        if (file_exists($include)) {
+          include $include;
+        }
+      }
+
+      if (function_exists($function)) {
+        $function($presets, $entity);
+      }
+    }
+
+    foreach ($presets as $preset) {
+      $handler = new CerPresetHandler($preset, $entity);
       $handler->$op();
     }
 
@@ -252,6 +271,15 @@ function cer_hook_info() {
       'group' => 'cer',
     ),
     'cer_preset_delete' => array(
+      'group' => 'cer',
+    ),
+    'cer_entity_insert' => array(
+      'group' => 'cer',
+    ),
+    'cer_entity_insert' => array(
+      'group' => 'cer',
+    ),
+    'cer_entity_insert' => array(
       'group' => 'cer',
     ),
   );

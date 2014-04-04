@@ -109,3 +109,15 @@ function hook_cer_preset_toggle(CerPreset $preset) {
  */
 function hook_cer_preset_delete(CerPreset $preset) {
 }
+
+function hook_cer_entity_insert(array &$presets, EntityDrupalWrapper $entity) {
+}
+
+function hook_cer_entity_update(array &$presets, EntityDrupalWrapper $entity) {
+}
+
+function hook_cer_entity_delete(array &$presets, EntityDrupalWrapper $entity) {
+}
+
+function hook_cer_entity_bulk_update(array &$presets, EntityDrupalWrapper $entity) {
+}
