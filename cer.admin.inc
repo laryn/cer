@@ -221,7 +221,7 @@ function cer_preset_toggle(CerPreset $preset) {
  * Page callback to invert a preset from the main administration page.
  */
 function cer_preset_invert(CerPreset $original) {
-  if ($original->bidirectional) {
+  if (! $original->bidirectional) {
     ctools_include('export');
 
     $inverse = $original->invert();
