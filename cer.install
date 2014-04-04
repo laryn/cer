@@ -49,6 +49,7 @@ function cer_schema() {
       'key name' => 'Preset ID',
       'object' => 'CerPreset',
       'status' => 'enabled',
+      'can disable' => FALSE, // Don't put the $preset->disabled flag in hook_cer_default_presets()
       'default hook' => 'cer_default_presets',
       'identifier' => 'preset',
       'bulk export' => TRUE,
