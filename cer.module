@@ -9,7 +9,8 @@ function cer_menu() {
 
   $items[$prefix] = array(
     'title' => 'Corresponding References',
-    'page callback' => 'cer_preset_list',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cer_preset_list'),
     'access arguments' => array('administer cer settings'),
     'file' => 'cer.admin.inc',
     'type' => MENU_NORMAL_ITEM,

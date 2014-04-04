@@ -3,53 +3,95 @@
 /**
  * Page callback listing all CER presets.
  */
-function cer_preset_list() {
-  $table = array(
-    '#theme' => 'table',
+function cer_preset_list(array $form, array &$form_state) {
+  $form['cer'] = array(
+    '#type' => 'table',
     '#header' => array(
       t('Active'),
       t('Left Field'),
       t('Right Field'),
       t('Bidirectional'),
+      t('Weight'),
       t('Operations'),
     ),
+    '#tabledrag' => array(
+      array('order', 'sibling', 'weight'),
+    ),
+    '#empty' => t('No presets have been created yet.'),
   );
 
   ctools_include('export');
-  foreach (ctools_export_crud_load_all('cer') as $preset) {
+  foreach (ctools_export_crud_load_all('cer') as $id => $preset) {
     $isEnabled = $preset->enabled();
 
-    $operations = array(
-      'links' => array(
-        'toggle' => array(
-          'title' => ($isEnabled ? t('disable') : t('enable')),
-          'href' => "admin/config/content/cer/presets/toggle/{$preset->id}",
-        ),
-        'delete' => array(
-          'title' => t('delete'),
-          'href' => "admin/config/content/cer/presets/delete/{$preset->id}",
+    $form['cer'][$id] = array(
+      'is_enabled' => array(
+        '#markup' => ($isEnabled ? '&#10003;' : ''),
+      ),
+      'left' => array(
+        '#markup' => sprintf('<strong>%s</strong>: %s', $preset->left->end()->fieldTypeInfo('label'), $preset->left->getLabel()),
+      ),
+      'right' => array(
+        '#markup' => sprintf('<strong>%s</strong>: %s', $preset->right->end()->fieldTypeInfo('label'), $preset->right->getLabel()),
+      ),
+      'bidirectional' => array(
+        '#markup' => ($preset->bidirectional ? '&#10003;' : ''),
+      ),
+      'weight' => array(
+        '#type' => 'weight',
+        '#default_value' => $preset->weight,
+        '#attributes' => array(
+          'class' => array('weight'),
         ),
       ),
+      'operations' => array(
+        '#theme' => 'links__ctools_dropbutton',
+        '#links' => array(
+          'toggle' => array(
+            'title' => ($isEnabled ? t('disable') : t('enable')),
+            'href' => "admin/config/content/cer/presets/toggle/{$id}",
+          ),
+          'delete' => array(
+            'title' => t('delete'),
+            'href' => "admin/config/content/cer/presets/delete/{$id}",
+          ),
+        ),
+      ),
+      '#attributes' => array(
+        'class' => array('draggable'),
+      ),
+      '#weight' => $preset->weight,
     );
     
     // Only one-directional presets can be flipped in the UI.
     if (! $preset->bidirectional) {
-      $operations['links']['invert'] = array(
+      $form['cer'][$id]['operations']['#links']['invert'] = array(
         'title' => t('invert'),
-        'href' => "admin/config/content/cer/presets/invert/{$preset->id}",
+        'href' => "admin/config/content/cer/presets/invert/{$id}",
       );
     }
 
-    $table['#rows'][] = array(
-      ($isEnabled ? '&#10003;' : ''),
-      sprintf('<strong>%s</strong>: %s', $preset->left->end()->fieldTypeInfo('label'), $preset->left->getLabel()),
-      sprintf('<strong>%s</strong>: %s', $preset->right->end()->fieldTypeInfo('label'), $preset->right->getLabel()),
-      ($preset->bidirectional ? '&#10003;' : ''),
-      theme('links__ctools_dropbutton', $operations),
+    $form['actions'] = array(
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Save Changes'),
+      ),
+      '#type' => 'actions',
     );
   }
 
-  return (isset($table['#rows']) ? $table : t('No presets have been created yet.'));
+  return $form;
+}
+
+function cer_preset_list_submit(array $form, array &$form_state) {
+  foreach ($form_state['values']['cer'] as $id => $values) {
+    db_update('cer')
+      ->fields($values)
+      ->condition('id', $id)
+      ->execute();
+  }
+
+  drupal_set_message(t('Saved changes.'));
 }
 
 function cer_add_preset(array $form, array &$form_state) {

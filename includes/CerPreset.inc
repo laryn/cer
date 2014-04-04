@@ -42,6 +42,11 @@ class CerPreset extends StdClass {
    * @var boolean
    */
   protected $bidirectional = TRUE;
+  
+  /**
+   * @var integer
+   */
+  protected $weight = 0;
 
   public function __get($property) {
     switch ($property) {
@@ -79,6 +84,10 @@ class CerPreset extends StdClass {
 
       case 'bidirectional':
         $this->{$property} = (boolean) $value;
+        break;
+
+      case 'weight':
+        $this->{$property} = (int) $value;
         break;
         
       default:

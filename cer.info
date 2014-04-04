@@ -6,6 +6,7 @@ configure = admin/config/content/cer
 
 dependencies[] = ctools
 dependencies[] = entity
+dependencies[] = table_element
 
 files[] = includes/CerEntityContainerInterface.inc
 files[] = includes/CerField.inc
