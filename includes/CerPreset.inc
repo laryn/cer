@@ -99,7 +99,12 @@ class CerPreset extends StdClass {
     $id = $this->__get('id');
     $status = variable_get('default_cer', array());
 
-    return (isset($status[$id]) ? $status[$id] : (! $this->disabled));
+    // The canonical status of the preset lives in the default_cer variable. But, if
+    // this preset isn't mentioned there, the status is determined by whether or not
+    // this preset has been overridden. If it has, it's disabled by default; if not,
+    // it's the inverse of $this->disabled.
+    ctools_include('export');
+    return (isset($status[$id]) ? $status[$id] : ($this->export_type & EXPORT_IN_DATABASE ? FALSE : (! $this->disabled)));
   }
 
   public function invert() {
