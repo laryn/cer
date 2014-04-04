@@ -315,13 +315,6 @@ function cer_preset_load_all($reset = FALSE) {
   if (! isset($presets)) {
     ctools_include('export');
     $presets = ctools_export_load_object('cer', 'all');
-
-    foreach ($weights = variable_get('cer_weight', array()) as $w => $id) {
-      if (isset($presets[$id])) {
-        $presets[$id]->weight = $w;
-      }
-    }
-
     uasort($presets, '_cer_sort_presets');
   }
 

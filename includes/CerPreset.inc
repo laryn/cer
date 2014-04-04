@@ -89,10 +89,14 @@ class CerPreset extends StdClass {
       case 'weight':
         $this->{$property} = (int) $value;
         break;
-        
+
       default:
         break;
     }
+  }
+
+  public function __isset($property) {
+    return property_exists($this, $property);
   }
 
   protected function setChain(&$property, $chain) {

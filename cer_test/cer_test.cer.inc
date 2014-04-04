@@ -15,6 +15,7 @@ function cer_test_cer_default_presets() {
   $preset->a = 'node:page:field_author';
   $preset->b = 'user:user:field_my_content';
   $preset->bidirectional = TRUE;
+  $preset->weight = -6;
   $export['27274aa687fbbdee4cf32ee43d25e613'] = $preset;
 
   $preset = new CerPreset();
@@ -22,6 +23,7 @@ function cer_test_cer_default_presets() {
   $preset->a = 'node:article:field_author';
   $preset->b = 'user:user:field_my_content';
   $preset->bidirectional = TRUE;
+  $preset->weight = -7;
   $export['2c949d3763368ce5c4485da5c28877af'] = $preset;
 
   $preset = new CerPreset();
@@ -29,6 +31,7 @@ function cer_test_cer_default_presets() {
   $preset->a = 'node:article:field_image';
   $preset->b = 'file:image:field_file_usage';
   $preset->bidirectional = TRUE;
+  $preset->weight = -10;
   $export['a1fae6e3fd8e9c81a570625e434d3b33'] = $preset;
 
   $preset = new CerPreset();
@@ -36,6 +39,7 @@ function cer_test_cer_default_presets() {
   $preset->a = 'node:page:field_tags';
   $preset->b = 'taxonomy_term:tags:field_my_content';
   $preset->bidirectional = TRUE;
+  $preset->weight = -9;
   $export['a2b01c099ffb0b9be63a6d03f8b25458'] = $preset;
 
   $preset = new CerPreset();
@@ -43,6 +47,7 @@ function cer_test_cer_default_presets() {
   $preset->a = 'node:page:field_related_articles';
   $preset->b = 'node:article:field_related_pages';
   $preset->bidirectional = TRUE;
+  $preset->weight = -8;
   $export['a5c0fbea67a912b90c50468b9f1f67ba'] = $preset;
 
   return $export;

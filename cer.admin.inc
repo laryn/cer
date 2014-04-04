@@ -89,7 +89,15 @@ function cer_preset_list(array $form, array &$form_state) {
  * @see cer_preset_load_all()
  */
 function cer_preset_list_submit(array $form, array &$form_state) {
-  variable_set('cer_weight', array_keys($form_state['values']['cer']));
+  foreach ($form_state['values']['cer'] as $id => $values) {
+    if ($values['weight'] != $form['cer'][$id]['#weight']) {
+      ctools_include('export');
+
+      $preset = ctools_export_crud_load('cer', $id);
+      $preset->weight = $values['weight'];
+      ctools_export_crud_save('cer', $preset);
+    }
+  }
 
   drupal_set_message(t('Saved changes.'));
 }
