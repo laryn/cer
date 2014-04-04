@@ -22,6 +22,11 @@ class CerPreset extends StdClass {
    * Used only by the CTools Export API.
    */
   public $export_type;
+  
+  /**
+   * CTools Export API will set this in hook_cer_default_presets().
+   */
+  public $disabled = FALSE;
 
   /**
    * @var CerFieldChain
@@ -94,7 +99,7 @@ class CerPreset extends StdClass {
     $id = $this->__get('id');
     $status = variable_get('default_cer', array());
 
-    return (isset($status[$id]) ? $status[$id] : FALSE);
+    return (isset($status[$id]) ? $status[$id] : (! $this->disabled));
   }
 
   public function invert() {

@@ -24,17 +24,3 @@ function cer_features_export($data, &$export, $module) {
 
   return $pipe;
 }
-
-/**
- * Implements component hook_features_rebuild().
- */
-function cer_features_rebuild($module) {
-  ctools_include('export');
-
-  $presets = module_invoke($module, 'cer_default_presets');
-  if ($presets) {
-    foreach ($presets as $preset) {
-      ctools_export_crud_save('cer', $preset);
-    }
-  }
-}

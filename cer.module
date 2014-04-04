@@ -166,6 +166,7 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
   
     ctools_include('export');
 
+    $handlers = array();
     $all = ctools_export_crud_load_all('cer');
     foreach ($all as $preset) {
       // If the preset is disabled, don't use it at all.
