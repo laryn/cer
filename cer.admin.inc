@@ -198,6 +198,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
 
   if (ctools_export_crud_save('cer', $preset)) {
     ctools_export_crud_set_status('cer', $preset, TRUE);
+    module_invoke_all('cer_preset_create', $preset);
     drupal_set_message(t('The preset was saved successfully.'));
   }
   else {
@@ -213,6 +214,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
 function cer_preset_toggle(CerPreset $preset) {
   ctools_include('export');
   ctools_export_crud_set_status('cer', $preset, (! $preset->status()));
+  module_invoke_all('cer_preset_toggle', $preset);
 
   drupal_goto('admin/config/content/cer');
 }
@@ -252,7 +254,10 @@ function cer_delete_preset(array $form, array &$form_state, CerPreset $preset) {
 
 function cer_delete_preset_submit(array $form, array &$form_state) {
   ctools_include('export');
-  ctools_export_crud_delete('cer', $form_state['build_info']['args'][0]);
+  
+  $preset = $form_state['build_info']['args'][0];
+  ctools_export_crud_delete('cer', $preset);
+  module_invoke_all('cer_preset_delete', $preset);
 
   drupal_set_message(t('The preset was deleted.'));
   $form_state['redirect'] = 'admin/config/content/cer';
