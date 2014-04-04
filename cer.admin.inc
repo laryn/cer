@@ -194,10 +194,10 @@ function cer_add_preset_submit(array $form, array &$form_state) {
   $preset->left = $form_state['storage']['cer']['left'];
   $preset->right = CerFieldChain::unpack(end($form_state['values']['right']));
 
-  $preset->enabled = $form_state['values']['enabled'];
   $preset->bidirectional = $form_state['values']['bidirectional'];
 
   if (ctools_export_crud_save('cer', $preset)) {
+    ctools_export_crud_set_status('cer', $preset, TRUE);
     drupal_set_message(t('The preset was saved successfully.'));
   }
   else {

@@ -22,7 +22,7 @@ function cer_get_cer_struct($entity, array $options, $property, $entity_type, ar
  */
 function cer_get_entity_lineage(array $data, array $options, $property, $data_type, array $info) {
   list (, , $bundle) = entity_extract_IDs($data[0], $data[1]);
-  return $data[0] . ":{$bundle}:%";
+  return $data[0] . ":{$bundle}:*";
 }
 
 /**
@@ -67,7 +67,7 @@ function cer_get_field_collection_lineage(array $data, array $options, $property
  */
 function cer_get_field_collection_lineage_array(array $data, array $options, $property, $data_type, array $info) {
   if (! isset($options['lineage'])) {
-    $options['lineage'] = array( 'field_collection_item:' . $data[1]->field_name . ':%' );
+    $options['lineage'] = array( 'field_collection_item:' . $data[1]->field_name . ':*' );
   }
 
   $host_type = $data[1]->hostEntityType();

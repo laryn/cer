@@ -12,7 +12,7 @@ function cer_profile2_entity_property_info_alter(array &$info) {
 }
 
 function cer_profile2_get_profile2_lineage(array $data, array $options, $property, $data_type, array $info) {
-  return 'user:user:profile_' . $data[1]->type . ':profile2:' . $data[1]->type . ':%';
+  return 'user:user:profile_' . $data[1]->type . ':profile2:' . $data[1]->type . ':*';
 }
 
 function cer_profile2_get_profile2_depth(array $data, array $options, $property, $data_type, array $info) {

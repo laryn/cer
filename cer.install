@@ -37,12 +37,6 @@ function cer_schema() {
         'default' => 1,
         'unsigned' => TRUE,
       ),
-      'enabled' => array(
-        'type' => 'int',
-        'size' => 'tiny',
-        'default' => 1,
-        'unsigned' => TRUE,
-      ),
     ),
     'export' => array(
       'key' => 'id',
@@ -148,7 +142,17 @@ function cer_update_7003() {
   }
 }
 
-function _cer_rebuild_preset($key, $enabled = TRUE) {
+/**
+ * Drops the 'enabled' database column in favour of CTools Export API's status
+ * tracking mechanism.
+ */
+function cer_update_7004() {
+  if (db_field_exists('cer', 'enabled')) {
+    db_drop_field('cer', 'enabled');
+  }
+}
+
+function _cer_rebuild_preset($key, $enable = TRUE) {
   ctools_include('export');
 
   $keys = explode('*', $key);
@@ -164,9 +168,11 @@ function _cer_rebuild_preset($key, $enabled = TRUE) {
     $preset->left = CerFieldChain::unpack(implode(':', array_slice($keys, 0, 3)));
     $preset->right = CerFieldChain::unpack(implode(':', array_slice($keys, 3)));
 
-    $preset->enabled = $enabled;
-
     ctools_export_crud_save('cer', $preset);
+
+    if ($enable) {
+      ctools_export_crud_set_status('cer', $preset, TRUE);
+    }
   }
   catch (Exception $e) {
     drupal_set_message(t('Could not rebuild preset %key because one or more of its fields do not exist.', array('%key' => $key)), 'error');
