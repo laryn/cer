@@ -9,7 +9,6 @@ function cer_preset_list(array $form, array &$form_state) {
   $form['cer'] = array(
     '#type' => 'table',
     '#header' => array(
-      t('Active'),
       t('Left Field'),
       t('Right Field'),
       t('Bidirectional'),
@@ -27,9 +26,6 @@ function cer_preset_list(array $form, array &$form_state) {
     $isEnabled = $preset->enabled();
 
     $form['cer'][$id] = array(
-      'is_enabled' => array(
-        '#markup' => ($isEnabled ? '&#10003;' : ''),
-      ),
       'left' => array(
         '#markup' => sprintf('<strong>%s</strong>: %s', $preset->left->end()->fieldTypeInfo('label'), $preset->left->getLabel()),
       ),
@@ -50,7 +46,7 @@ function cer_preset_list(array $form, array &$form_state) {
         '#theme' => 'links__ctools_dropbutton',
         '#links' => array(
           'toggle' => array(
-            'title' => ($isEnabled ? t('disable') : t('enable')),
+            'title' => ($preset->enabled() ? t('disable') : t('enable')),
             'href' => "admin/config/content/cer/presets/toggle/{$id}",
           ),
           'delete' => array(
