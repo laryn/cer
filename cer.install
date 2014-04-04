@@ -72,25 +72,13 @@ function cer_install() {
 function _cer_hijack_cnr() {
   ctools_include('export');
 
-  $result = db_select('corresponding_node_references')->fields('corresponding_node_references')->condition('enabled', 1)->execute();
+  $cnr = db_query('SELECT node_types_content_fields FROM {corresponding_node_references} WHERE enabled = 1')->fetchCol();
+  array_walk($cnr, '_cer_rebuild_preset');
+
+  drupal_set_message(t('Rebuilt CNR presets.'));
   
-  foreach ($result as $row) {
-    $keys = explode('*', $row->node_types_content_fields);
-
-    $left = new CerFieldChain();
-    $left->addField(new CerNodeReferenceField($keys[0], $keys[1], $keys[2]));
-
-    $right = new CerFieldChain();
-    $right->addField(new CerNodeReferenceField($keys[3], $keys[4], $keys[5]));
-
-    $preset = ctools_export_crud_new('cer');
-    $preset->left = $left;
-    $preset->right = $right;
-
-    ctools_export_crud_save('cer', $preset);
-  }
-
-  module_disable(array('corresponding_node_references'));
+  // So long, CNR...
+  module_disable( array('corresponding_node_references') );
 }
 
 /**
@@ -107,7 +95,6 @@ function cer_update_7001() {
  */
 function cer_update_7002() {
   registry_rebuild();
-  ctools_include('export');
 
   $tables = cer_schema();
   $table = $tables['cer'];
@@ -123,23 +110,10 @@ function cer_update_7002() {
     }
   }
 
-  $result = db_select('cer')->fields('cer', array('entity_types_content_fields', 'enabled'))->execute();
+  $result = db_select('cer')->fields('cer')->execute();
 
   foreach ($result as $row) {
-    $keys = explode('*', $row->entity_types_content_fields);
-
-    $left = new CerFieldChain();
-    $left->addField(new CerEntityReferenceField($keys[0], $keys[1], $keys[2]));
-
-    $right = new CerFieldChain();
-    $right->addField(new CerEntityReferenceField($keys[3], $keys[4], $keys[5]));
-
-    $preset = ctools_export_crud_new('cer');
-    $preset->enabled = $row->enabled;
-    $preset->left = $left;
-    $preset->right = $right;
-
-    ctools_export_crud_save('cer', $preset);
+    _cer_rebuild_preset($row->entity_types_content_fields, $row->enabled);
   }
 
   // The old presets will have an empty 'id' field, so delete them all before
@@ -152,5 +126,30 @@ function cer_update_7002() {
 
   if (module_exists('corresponding_node_references')) {
     _cer_hijack_cnr();
+  }
+}
+
+function _cer_rebuild_preset($key, $enabled = TRUE) {
+  ctools_include('export');
+
+  $keys = explode('*', $key);
+
+  // If the preset we're rebuilding refers to any fields which no longer exist,
+  // CerField::getPlugin() (which is called by CerFieldChain::unpack()) will
+  // throw an exception. If that happens, catch it with an error message and bail out.
+  // If this function was called by cer_update_7002(), the bad preset will be
+  // deleted anyway because it will be one of the old ones without an ID.
+  try {
+    $preset = ctools_export_crud_new('cer');
+
+    $preset->left = CerFieldChain::unpack(implode(':', array_slice($keys, 0, 3)));
+    $preset->right = CerFieldChain::unpack(implode(':', array_slice($keys, 3)));
+
+    $preset->enabled = $enabled;
+
+    ctools_export_crud_save('cer', $preset);
+  }
+  catch (Exception $e) {
+    drupal_set_message(t('Could not rebuild preset %key because one or more of its fields do not exist.', array('%key' => $key)), 'error');
   }
 }
