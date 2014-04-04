@@ -48,8 +48,6 @@ function cer_schema() {
       'key' => 'id',
       'key name' => 'Preset ID',
       'object' => 'CerPreset',
-      'status' => 'enabled',
-      'can disable' => FALSE, // Don't put the $preset->disabled flag in hook_cer_default_presets()
       'default hook' => 'cer_default_presets',
       'identifier' => 'preset',
       'bulk export' => TRUE,
@@ -68,6 +66,14 @@ function cer_install() {
   if (module_exists('corresponding_node_references')) {
     _cer_hijack_cnr();
   }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cer_uninstall() {
+  // Delete CTools' preset status variable.
+  variable_del('default_cer');
 }
 
 function _cer_hijack_cnr() {
