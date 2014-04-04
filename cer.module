@@ -182,22 +182,25 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
  * no applicable presets, an empty array is returned.
  */
 function _cer_load_handlers(EntityDrupalWrapper $entity) {
+  ctools_include('export');
+
   $handlers = array();
 
-  $baseQuery = db_select('cer')->fields('cer')->condition('enabled', 1);
+  $baseQuery = db_select('cer')->fields('cer', array('id'))->condition('enabled', 1);
 
   $a = clone $baseQuery;
-  $result = $a->condition('a', $entity->cer->lineage->value(), 'LIKE')->execute();
+  $IDs = $a->condition('a', $entity->cer->lineage->value(), 'LIKE')->execute()->fetchCol();
+  $presets = ctools_export_crud_load_multiple('cer', $IDs);
 
-  foreach ($result as $row) {
-    $handlers[] = new CerPresetHandler(new CerPreset($row), $entity);
+  foreach ($presets as $preset) {
+    $handlers[] = new CerPresetHandler($preset, $entity);
   }
 
   $b = clone $baseQuery;
-  $result = $b->condition('b', $entity->cer->lineage->value(), 'LIKE')->condition('bidirectional', 1)->execute();
+  $IDs = $b->condition('b', $entity->cer->lineage->value(), 'LIKE')->condition('bidirectional', 1)->execute()->fetchCol();
+  $presets = ctools_export_crud_load_multiple('cer', $IDs);
 
-  foreach ($result as $row) {
-    $preset = new CerPreset($row);
+  foreach ($presets as $preset) {
     $handlers[] = new CerPresetHandler($preset->invert(), $entity);
   }
   
