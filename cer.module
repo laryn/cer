@@ -163,24 +163,8 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
     if (! ($entity instanceof EntityDrupalWrapper)) {
       $entity = new EntityDrupalWrapper($entity_type, $entity);
     }
-    $lineage = $entity->cer->lineage->value();
 
-    $presets = array();
-    ctools_include('export');
-    $all = ctools_export_crud_load_all('cer');
-
-    foreach ($all as $preset) {
-      // If the preset is disabled, don't use it at all.
-      if ($preset->enabled()) {
-        if ($preset->bidirectional && strPos($preset->right->__toString(), $lineage) === 0) {
-          $preset = $preset->invert();
-        }
-
-        if (strPos($preset->left->__toString(), $lineage) === 0) {
-          $presets[$preset->id] = $preset;
-        }
-      }
-    }
+    $presets = _cer_filter_presets($entity->cer->lineage->value());
 
     // Before we do the actual processing, allow modules to react and alter
     // the preset list.
@@ -219,6 +203,28 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
   else {
     drupal_set_message(t('CER Error: Could not process @entity_type @entity.', array('@entity_type' => $entity_type, '@entity' => $entity)), 'error');
   }
+}
+
+function _cer_filter_presets($chain) {
+  $presets = array();
+
+  ctools_include('export');
+  $all = ctools_export_crud_load_all('cer');
+
+  foreach ($all as $preset) {
+    // If the preset is disabled, don't use it at all.
+    if ($preset->enabled()) {
+      if ($preset->bidirectional && strPos($preset->right->__toString(), $chain) === 0) {
+        $preset = $preset->invert();
+      }
+
+      if (strPos($preset->left->__toString(), $chain) === 0) {
+        $presets[$preset->id] = $preset;
+      }
+    }
+  }
+  
+  return $presets;
 }
 
 /**
