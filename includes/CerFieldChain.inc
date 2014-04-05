@@ -157,6 +157,8 @@ class CerFieldChain implements SeekableIterator {
   /**
    * Returns an array of every possible field chain for every field defined in
    * hook_cer_fields().
+   *
+   * @return array
    */
   public static function collectAll() {
     $chains = array();
@@ -171,6 +173,8 @@ class CerFieldChain implements SeekableIterator {
   /**
    * Returns an array of every possible field chain for a single field, identified
    * by its key in hook_cer_fields().
+   *
+   * @return array
    */
   public static function collect($identifier) {
     $chains = array();
@@ -184,6 +188,8 @@ class CerFieldChain implements SeekableIterator {
   /**
    * Constructs and returns a CerFieldChain object from an encoded string
    * of field plugin identifiers glued together with ::.
+   *
+   * @return CerFieldChain
    */
   public static function unpack($identifier) {
     $chain = new CerFieldChain();

@@ -104,10 +104,26 @@ class CerPreset extends StdClass {
     }
   }
 
+  /**
+   * CTools uses both property_exists() and isset() when exporting presets,
+   * so this normalizes them.
+   *
+   * @return boolean
+   */
   public function __isset($property) {
     return property_exists($this, $property);
   }
 
+  /**
+   * Setter for $this->a and $this->b.
+   *
+   * @param $property
+   *  A reference to the field to set.
+   *
+   * @param $chain
+   *  Either a CerFieldChain object, or a field chain encoded as a string,
+   *  like in {cer}.a and {cer}.b.
+   */
   protected function setChain(&$property, $chain) {
     if ($chain instanceof CerFieldChain) {
       $property = $chain;
@@ -117,9 +133,18 @@ class CerPreset extends StdClass {
     }
   }
 
+  /**
+   * Checks if this preset is enabled.
+   *
+   * @return boolean
+   */
   public function enabled() {
     ctools_include('export');
 
+    // If this preset lives in the database, {cer}.enabled is its canonical status flag.
+    // Otherwise, we check the default_cer variable, which CTools maintains for us,
+    // and if it doesn't mention this preset, return the inverse of $this->disabled,
+    // which is exported in hook_cer_default_presets().
     if ($this->export_type & EXPORT_IN_DATABASE) {
       return $this->enabled;
     }
@@ -131,6 +156,13 @@ class CerPreset extends StdClass {
     }
   }
 
+  /**
+   * Returns the inverse of this preset (i.e., a new preset with the left and
+   * right field chains flipped). The inverted preset isn't saved to the DB or
+   * anything, it exists only in memory.
+   *
+   * @return CerPreset
+   */
   public function invert() {
     ctools_include('export');
 

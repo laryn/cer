@@ -1,5 +1,6 @@
 name = "CER Profile2"
 core = "7.x"
+description = "Allows CER to relate user references to Profile2 fields."
 dependencies[] = cer
 dependencies[] = profile2
 

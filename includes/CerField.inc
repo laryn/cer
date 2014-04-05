@@ -256,6 +256,16 @@ abstract class CerField {
   /**
    * Returns a single field plugin instance, by its identifier. All plugin instances
    * are statically cached.
+   *
+   * @param string $identifier
+   *  The plugin's identifier, in the format entity_type:bundle:field_name.
+   *
+   * @return CerField
+   *
+   * @throws Exception if there's no plugin for the given identifier. Why so harsh, you
+   * ask? Because CerFieldChain::unpack() utterly depends on being able to get plugin
+   * instances for every field in the chain, and if it can't, it could result in myriad
+   * weird and serious problems. Throwing an exception will head that off at the pass.
    */
   public static function getPlugin($identifier) {
     $instances = &drupal_static(__METHOD__);
