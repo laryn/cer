@@ -90,8 +90,8 @@ function hook_cer_default_presets_alter(array &$presets) {
 }
 
 /**
- * React to the creation of a preset. This hook is invoked after the preset
- * has been saved to the database.
+ * React to the creation of a preset. This hook is invoked before the preset
+ * is saved to the database.
  */
 function hook_cer_preset_create(CerPreset $preset) {
 }

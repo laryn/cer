@@ -50,7 +50,7 @@ function cer_preset_list(array $form, array &$form_state) {
             'href' => "admin/config/content/cer/presets/toggle/{$id}",
           ),
           'delete' => array(
-            'title' => t('delete'),
+            'title' => ($preset->export_type & EXPORT_IN_DATABASE ? t('delete') : t('revert')),
             'href' => "admin/config/content/cer/presets/delete/{$id}",
           ),
         ),
@@ -239,16 +239,19 @@ function _cer_add_preset_cancel(array $form, array &$form_state) {
 
 function cer_add_preset_submit(array $form, array &$form_state) {
   ctools_include('export');
+
   $preset = ctools_export_crud_new('cer', FALSE);
 
   $preset->left = $form_state['storage']['cer']['left'];
   $preset->right = CerFieldChain::unpack(end($form_state['values']['right']));
 
   $preset->bidirectional = $form_state['values']['bidirectional'];
+  $preset->enabled = TRUE;
+
+  // Allow modules to react and/or modify the preset before we save it.
+  module_invoke_all('cer_preset_create', $preset);
 
   if (ctools_export_crud_save('cer', $preset)) {
-    ctools_export_crud_set_status('cer', $preset, TRUE);
-    module_invoke_all('cer_preset_create', $preset);
     drupal_set_message(t('The preset was saved successfully.'));
   }
   else {
@@ -279,8 +282,13 @@ function cer_preset_invert(CerPreset $original) {
     ctools_export_crud_save('cer', $inverse);
 
     // There's no point in having two presets that are inverses of each other,
-    // so delete the original.
-    ctools_export_crud_delete('cer', $original);
+    // so delete and/or disable the original.
+    if ($original->export_type & EXPORT_IN_DATABASE) {
+      ctools_export_crud_delete('cer', $original);
+    }
+    if ($original->export_type & EXPORT_IN_CODE) {
+      ctools_export_crud_set_status('cer', $original, FALSE);
+    }
   }
   else {
     drupal_set_message(t('You cannot invert a bidirectional preset.'), 'error');
@@ -293,22 +301,34 @@ function cer_preset_invert(CerPreset $original) {
  * Confirmation form to delete a preset.
  */
 function cer_delete_preset(array $form, array &$form_state, CerPreset $preset) {
-  $question = t('<i>!left</i> will no longer correspond with <i>!right</i>.', array(
-    '!left' => $preset->left->getLabel(),
-    '!right' => $preset->right->getLabel(),
-  ));
+  ctools_include('export');
 
-  return confirm_form($form, t('Are you sure you want to delete this preset?'), 'admin/config/content/cer', $question, t('Delete'));
+  $variables = array(
+    '!left' =>
+      $preset->left->getLabel(),
+    '!right' =>
+      $preset->right->getLabel(),
+    '!verb' =>
+      ($preset->export_type & EXPORT_IN_CODE ? t('revert') : t('delete')),
+  );
+
+  return confirm_form($form, t('Are you sure you want to !verb this preset?', $variables), 'admin/config/content/cer', t('<i>!left</i> will no longer correspond with <i>!right</i>.', $variables), t('Delete'));
 }
 
 function cer_delete_preset_submit(array $form, array &$form_state) {
-  ctools_include('export');
-  
   $preset = $form_state['build_info']['args'][0];
+
+  // Since the original form includes export.inc, I think it's safe to assume
+  // this function exists.
   ctools_export_crud_delete('cer', $preset);
   module_invoke_all('cer_preset_delete', $preset);
+  
+  $variables = array(
+    '!verb' =>
+      ($preset->export_type & EXPORT_IN_CODE ? t('reverted') : t('deleted')),
+  );
+  drupal_set_message(t('The preset was !verb.', $variables));
 
-  drupal_set_message(t('The preset was deleted.'));
   $form_state['redirect'] = 'admin/config/content/cer';
 }
 
