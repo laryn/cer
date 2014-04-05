@@ -3,12 +3,14 @@
 /**
  * In order to create relationships between reference fields, CER needs to know
  * about what reference fields are available, and how to handle them, which is
- * what this hook is for.
+ * what this hook is for. It should always return an array, even if there are
+ * no fields to expose. The ultimate goal of this hook is to define a flattened
+ * hierarchy of all the reference-type fields that CER can use.
  */
 function hook_cer_fields() {
   return array(
     // The keys should refer to a single field instance on a single bundle of a single
-    // entity type, even for embedded entities like field collections.
+    // entity type, even for embedded entities like field collections (see below).
     'node:article:field_related_pages' => array(
       // At the very least, each field you return here needs to have a 'class' set,
       // which is the class of the plugin which will handle this field. A CER field
@@ -19,6 +21,9 @@ function hook_cer_fields() {
       // files[] array in your module's info file).
       'class' => 'CerEntityReferenceField',
     ),
+    // A field collection field is a type of reference field, so you can expose these
+    // to CER too. If you want to refer to reference fields on field collections, you
+    // must define the parent fields too, as in this example.
     'node:page:field_my_field_collection' => array(
       'class' => 'CerFieldCollectionField',
     ),
@@ -46,6 +51,7 @@ function hook_cer_fields() {
  * Alter the information gathered by hook_cer_fields().
  */
 function hook_cer_fields_alter(array &$fields) {
+  // @todo
 }
 
 /**
@@ -111,14 +117,38 @@ function hook_cer_preset_toggle(CerPreset $preset) {
 function hook_cer_preset_delete(CerPreset $preset) {
 }
 
+/**
+ * Invoked before CER processes an entity insert. This gives modules a chance
+ * to influence which presets are going to be executed.
+ *
+ * $presets is an array of the presets CER has loaded for the entity, keyed
+ * by their computed IDs. You can add presets to the queue, or delete presets
+ * from the queue. $entity is a metadata wrapper around the entity which
+ * will be used for the *left* side of each preset. (In CER terminology, the
+ * "left" entity is the entity that has references to the "right" entities.
+ * Only the right entities are ever modified during processing -- the left
+ * entity is really only used to get to the right entities.)
+ */
 function hook_cer_entity_insert(array &$presets, EntityDrupalWrapper $entity) {
 }
 
+/**
+ * Like hook_cer_entity_insert(), but acts on an entity update via its form, or
+ * via entity_save(). This is NOT the same thing as a bulk update.
+ */
 function hook_cer_entity_update(array &$presets, EntityDrupalWrapper $entity) {
 }
 
+/**
+ * Like hook_cer_entity_insert() and hook_cer_entity_update(), but acts on an entity
+ * after it's been deleted.
+ */
 function hook_cer_entity_delete(array &$presets, EntityDrupalWrapper $entity) {
 }
 
+/**
+ * Like the other hook_cer_entity hooks, but only acts on an entity during a CER bulk
+ * update operation.
+ */
 function hook_cer_entity_bulk_update(array &$presets, EntityDrupalWrapper $entity) {
 }

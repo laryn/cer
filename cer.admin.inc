@@ -31,7 +31,8 @@ function cer_preset_list(array $form, array &$form_state) {
         '#markup' => sprintf('<strong>%s</strong>: %s', $preset->right->end()->fieldTypeInfo('label'), $preset->right->getLabel()),
       ),
       'bidirectional' => array(
-        '#markup' => ($preset->bidirectional ? '&#10003;' : ''),
+        '#type' => 'checkbox',
+        '#default_value' => $preset->bidirectional,
       ),
       'weight' => array(
         '#type' => 'weight',
@@ -56,7 +57,7 @@ function cer_preset_list(array $form, array &$form_state) {
       '#attributes' => array(
         'class' => array('draggable'),
       ),
-      '#weight' => $preset->weight,
+      '#preset' => $preset,
     );
 
     // Only one-directional presets can be flipped in the UI.
@@ -85,11 +86,20 @@ function cer_preset_list(array $form, array &$form_state) {
  */
 function cer_preset_list_submit(array $form, array &$form_state) {
   foreach ($form_state['values']['cer'] as $id => $values) {
-    if ($values['weight'] != $form['cer'][$id]['#weight']) {
-      ctools_include('export');
+    $write = FALSE;
 
-      $preset = ctools_export_crud_load('cer', $id);
+    $preset = $form['cer'][$id]['#preset'];
+    if ($values['weight'] != $preset->weight) {
       $preset->weight = $values['weight'];
+      $write = TRUE;
+    }
+    if ($values['bidirectional'] != $preset->bidirectional) {
+      $preset->bidirectional = $values['bidirectional'];
+      $write = TRUE;
+    }
+    
+    if ($write) {
+      ctools_include('export');
       ctools_export_crud_save('cer', $preset);
     }
   }
