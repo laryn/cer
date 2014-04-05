@@ -77,8 +77,8 @@ function cer_test_field_default_field_bases() {
     'settings' => array(
       'profile2_private' => FALSE,
       'referenceable_types' => array(
-        'article' => 0,
-        'page' => 0,
+        'article' => 'article',
+        'page' => 'page',
       ),
       'view' => array(
         'args' => array(),
