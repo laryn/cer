@@ -136,10 +136,9 @@ class CerPreset extends StdClass {
 
     $inverse = ctools_export_crud_new('cer', FALSE);
 
-    $inverse->bidirectional = $this->bidirectional;
-
     $inverse->left = $this->right;
     $inverse->right = $this->left;
+    $inverse->bidirectional = $this->bidirectional;
     
     return $inverse;
   }

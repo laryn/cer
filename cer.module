@@ -164,22 +164,21 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
       $entity = new EntityDrupalWrapper($entity_type, $entity);
     }
     $lineage = $entity->cer->lineage->value();
-  
-    ctools_include('export');
 
     $presets = array();
+    ctools_include('export');
     $all = ctools_export_crud_load_all('cer');
+
     foreach ($all as $preset) {
       // If the preset is disabled, don't use it at all.
-      if (! $preset->enabled()) {
-        continue;
-      }
+      if ($preset->enabled()) {
+        if ($preset->bidirectional && strPos($preset->right->__toString(), $lineage) === 0) {
+          $preset = $preset->invert();
+        }
 
-      if (strPos($preset->left->__toString(), $lineage) === 0) {
-        $presets[] = $preset;
-      }
-      elseif ($preset->bidirectional && strPos($preset->right->__toString(), $lineage) === 0) {
-        $presets[] = $preset->invert();
+        if (strPos($preset->left->__toString(), $lineage) === 0) {
+          $presets[$preset->id] = $preset;
+        }
       }
     }
 
