@@ -1,6 +1,7 @@
 name = CER Test
 core = 7.x
 hidden = true
+description = "A test environment for CER's unit tests."
 dependencies[] = cer
 dependencies[] = entityreference
 dependencies[] = features
