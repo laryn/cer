@@ -250,7 +250,7 @@ abstract class CerField {
       drupal_alter('cer_fields', $info);
     }
 
-    return ($identifier ? $info[$identifier] : $info);
+    return ($identifier ? (isset($info[$identifier]) ? $info[$identifier] : NULL) : $info);
   }
 
   /**
