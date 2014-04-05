@@ -23,12 +23,6 @@ function cer_cer_fields() {
   if (module_exists('user_reference')) {
     $fields = array_merge($fields, _cer_collect_fields_of_type('user_reference', 'CerUserReferenceField'));
   }
-  if (module_exists('file')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('file', 'CerFileField'));
-  }
-  if (module_exists('image')) {
-    $fields = array_merge($fields, _cer_collect_fields_of_type('image', 'CerFileField'));
-  }
   if (module_exists('field_collection')) {
     $fields = array_merge($fields, _cer_collect_fields_of_type('field_collection', 'CerFieldCollectionField'));
   }

@@ -28,14 +28,6 @@ function cer_test_cer_default_presets() {
 
   $preset = new CerPreset();
   $preset->disabled = FALSE; /* Edit this to true to make a default preset disabled initially */
-  $preset->a = 'node:article:field_image';
-  $preset->b = 'file:image:field_file_usage';
-  $preset->bidirectional = TRUE;
-  $preset->weight = -10;
-  $export['a1fae6e3fd8e9c81a570625e434d3b33'] = $preset;
-
-  $preset = new CerPreset();
-  $preset->disabled = FALSE; /* Edit this to true to make a default preset disabled initially */
   $preset->a = 'node:page:field_tags';
   $preset->b = 'taxonomy_term:tags:field_my_content';
   $preset->bidirectional = TRUE;

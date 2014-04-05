@@ -80,8 +80,8 @@ function cer_install() {
  * Implements hook_uninstall().
  */
 function cer_uninstall() {
-  // Delete CTools' preset status variable.
-  variable_del('default_cer');
+  variable_del('default_cer');  // Delete CTools' preset status variable.
+  variable_del('cer_debug');
 }
 
 function _cer_hijack_cnr() {
