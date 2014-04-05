@@ -76,7 +76,7 @@ function cer_preset_load($id) {
 function cer_permission() {
   return array(
     'administer cer settings' => array(
-      'title' => t('Administer corresponding entity references'),
+      'title' => t('Administer corresponding references'),
     )
   );
 }
@@ -205,7 +205,7 @@ function cer_processing_entity($op, $entity, $entity_type, array &$context = NUL
   }
 }
 
-function _cer_filter_presets($chain) {
+function _cer_filter_presets($filter) {
   $presets = array();
 
   ctools_include('export');
@@ -214,11 +214,11 @@ function _cer_filter_presets($chain) {
   foreach ($all as $preset) {
     // If the preset is disabled, don't use it at all.
     if ($preset->enabled()) {
-      if ($preset->bidirectional && strPos($preset->right->__toString(), $chain) === 0) {
+      if ($preset->bidirectional && strPos($preset->right->__toString(), $filter) === 0) {
         $preset = $preset->invert();
       }
 
-      if (strPos($preset->left->__toString(), $chain) === 0) {
+      if (strPos($preset->left->__toString(), $filter) === 0) {
         $presets[$preset->id] = $preset;
       }
     }
@@ -282,10 +282,10 @@ function cer_hook_info() {
     'cer_entity_insert' => array(
       'group' => 'cer',
     ),
-    'cer_entity_insert' => array(
+    'cer_entity_update' => array(
       'group' => 'cer',
     ),
-    'cer_entity_insert' => array(
+    'cer_entity_bulk_update' => array(
       'group' => 'cer',
     ),
   );
