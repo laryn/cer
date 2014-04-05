@@ -104,8 +104,9 @@ function hook_cer_preset_toggle(CerPreset $preset) {
 }
 
 /**
- * React to the deletion of a preset. This hook is invoked after the preset has
- * been deleted from the database (or reverted to its default state).
+ * React to the deletion of a preset. This hook is only invoked when the preset
+ * is permanently deleted, not when it's reverted to its default state (if it
+ * has one).
  */
 function hook_cer_preset_delete(CerPreset $preset) {
 }

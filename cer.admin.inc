@@ -23,8 +23,6 @@ function cer_preset_list(array $form, array &$form_state) {
 
   ctools_include('export');
   foreach (ctools_export_crud_load_all('cer') as $id => $preset) {
-    $isEnabled = $preset->enabled();
-
     $form['cer'][$id] = array(
       'left' => array(
         '#markup' => sprintf('<strong>%s</strong>: %s', $preset->left->end()->fieldTypeInfo('label'), $preset->left->getLabel()),
@@ -82,11 +80,8 @@ function cer_preset_list(array $form, array &$form_state) {
 }
 
 /**
- * Submit handler. Stuffs the weights of all presets into a variable, so that we can
- * sort presets that are stored in code (similar to the way CTools stores the status
- * of exportable objects).
- *
- * @see cer_preset_load_all()
+ * Submit handler. Writes any preset whose weight has been changed into the database,
+ * possibly overriding it.
  */
 function cer_preset_list_submit(array $form, array &$form_state) {
   foreach ($form_state['values']['cer'] as $id => $values) {
@@ -102,9 +97,14 @@ function cer_preset_list_submit(array $form, array &$form_state) {
   drupal_set_message(t('Saved changes.'));
 }
 
+/**
+ * Page callback to create a new preset.
+ */
 function cer_add_preset(array $form, array &$form_state) {
   drupal_set_title(t('Add a CER preset'));
 
+  // This form depends on Hierarchical Select, so if it's not installed, stop here
+  // with an error.
   if (! module_exists('hierarchical_select')) {
     drupal_set_message(t('You must install the <a href="http://www.drupal.org/project/hierarchical_select">Hierarchical Select</a> module in order to create CER presets.'), 'error');
     return $form;
@@ -227,8 +227,8 @@ function _cer_add_preset_continue(array $form, array &$form_state) {
 }
 
 /**
- * Submit handler. Deletes the cer_left and cer_right hierarchies from the cache and
- * sets the redirect path to the main administration page.
+ * Submit handler. Deletes the left and right field hierarchies from the cache and
+ * redirects to the preset list.
  */
 function _cer_add_preset_cancel(array $form, array &$form_state) {
   CerFieldHierarchy::get('cer_left')->clean();
@@ -237,11 +237,18 @@ function _cer_add_preset_cancel(array $form, array &$form_state) {
   $form_state['redirect'] = 'admin/config/content/cer';
 }
 
+/**
+ * Submit handler. Saves a preset to the database.
+ */
 function cer_add_preset_submit(array $form, array &$form_state) {
   ctools_include('export');
 
   $preset = ctools_export_crud_new('cer', FALSE);
 
+  // The left chain was stored in $form_state['storage'], fully unpacked.
+  // The user will have just selected the right chain, though, so we'll need
+  // to unpack it now, which might throw an exception if there's an invalid
+  // plugin identifier in the chain.
   $preset->left = $form_state['storage']['cer']['left'];
   $preset->right = CerFieldChain::unpack(end($form_state['values']['right']));
 
@@ -258,6 +265,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
     drupal_set_message(t('An error occurred while trying to save the preset.'), 'error');
   }
 
+  // Clean up and redirect
   _cer_add_preset_cancel($form, $form_state);
 }
 
@@ -266,6 +274,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
  */
 function cer_preset_toggle(CerPreset $preset) {
   ctools_include('export');
+  // This will invoke hook_cer_preset_toggle(). @see cer_preset_set_status().
   ctools_export_crud_set_status('cer', $preset, !$preset->enabled());
 
   drupal_goto('admin/config/content/cer');
@@ -279,14 +288,22 @@ function cer_preset_invert(CerPreset $original) {
     ctools_include('export');
 
     $inverse = $original->invert();
+    // Don't invoke hook_cer_preset_create() here, because we don't want some
+    // clever-dick to re-invert the preset before it gets saved.
     ctools_export_crud_save('cer', $inverse);
 
     // There's no point in having two presets that are inverses of each other,
     // so delete and/or disable the original.
     if ($original->export_type & EXPORT_IN_DATABASE) {
       ctools_export_crud_delete('cer', $original);
+
+      // If the original was a database-only preset, invoke hook_cer_preset_delete().
+      if (! ($original->export_type & EXPORT_IN_CODE)) {
+        module_invoke_all('cer_preset_delete', $original);
+      }
     }
     if ($original->export_type & EXPORT_IN_CODE) {
+      // This will invoke hook_cer_preset_toggle().
       ctools_export_crud_set_status('cer', $original, FALSE);
     }
   }
@@ -318,11 +335,14 @@ function cer_delete_preset(array $form, array &$form_state, CerPreset $preset) {
 function cer_delete_preset_submit(array $form, array &$form_state) {
   $preset = $form_state['build_info']['args'][0];
 
-  // Since the original form includes export.inc, I think it's safe to assume
-  // this function exists.
+  // The form builder includes export.inc, so this function should exist.
   ctools_export_crud_delete('cer', $preset);
-  module_invoke_all('cer_preset_delete', $preset);
-  
+
+  // Only invoke hook_cer_preset_delete() if this preset isn't defined in code.
+  if (! ($preset->export_type & EXPORT_IN_CODE)) {
+    module_invoke_all('cer_preset_delete', $preset);
+  }
+
   $variables = array(
     '!verb' =>
       ($preset->export_type & EXPORT_IN_CODE ? t('reverted') : t('deleted')),
