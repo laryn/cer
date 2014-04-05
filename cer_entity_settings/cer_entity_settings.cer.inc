@@ -32,7 +32,7 @@ function cer_entity_settings_cer_entity_bulk_update(array &$presets, EntityDrupa
 
   $entity->set($raw);
 
-  _cer_entity_settings_process(array &$presets, $entity);
+  _cer_entity_settings_process(array $presets, $entity);
 }
 
 function _cer_entity_settings_process(array &$presets, EntityDrupalWrapper $entity) {
