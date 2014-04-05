@@ -35,12 +35,12 @@ function cer_test_field_default_field_bases() {
     'settings' => array(
       'profile2_private' => FALSE,
       'referenceable_roles' => array(
-        2 => 0,
+        2 => 2,
         3 => 0,
       ),
       'referenceable_status' => array(
         0 => 0,
-        1 => 0,
+        1 => 1,
       ),
       'view' => array(
         'args' => array(),
