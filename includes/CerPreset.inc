@@ -19,14 +19,16 @@ class CerPreset extends StdClass {
   protected $id;
 
   /**
-   * Used only by the CTools Export API.
+   * @var integer
+   * Set by the CTools Export API.
    */
-  public $export_type;
-  
+  protected $export_type;
+
   /**
-   * CTools Export API will set this in hook_cer_default_presets().
+   * @var boolean
+   * Set by hook_cer_default_presets().
    */
-  public $disabled = FALSE;
+  protected $disabled = FALSE;
 
   /**
    * @var CerFieldChain
@@ -42,22 +44,26 @@ class CerPreset extends StdClass {
    * @var boolean
    */
   protected $bidirectional = TRUE;
-  
+
   /**
    * @var integer
    */
   protected $weight = 0;
+  
+  /**
+   * @var boolean
+   * This flag is only applicable to presets that live in the database. (@see $this->enabled())
+   */
+  protected $enabled = TRUE;
 
   public function __get($property) {
     switch ($property) {
       case 'id':
         return MD5("{$this->left}*{$this->right}");
 
-      case 'a':
       case 'left':
         return $this->a;
 
-      case 'b':
       case 'right':
         return $this->b;
 
@@ -83,9 +89,12 @@ class CerPreset extends StdClass {
         break;
 
       case 'bidirectional':
+      case 'disabled':
+      case 'enabled':
         $this->{$property} = (boolean) $value;
         break;
 
+      case 'export_type':
       case 'weight':
         $this->{$property} = (int) $value;
         break;
@@ -109,15 +118,17 @@ class CerPreset extends StdClass {
   }
 
   public function enabled() {
-    $id = $this->__get('id');
-    $status = variable_get('default_cer', array());
-
-    // The canonical status of the preset lives in the default_cer variable. But, if
-    // this preset isn't mentioned there, the status is determined by whether or not
-    // this preset has been overridden. If it has, it's disabled by default; if not,
-    // it's the inverse of $this->disabled.
     ctools_include('export');
-    return (isset($status[$id]) ? $status[$id] : ($this->export_type & EXPORT_IN_DATABASE ? FALSE : (! $this->disabled)));
+
+    if ($this->export_type & EXPORT_IN_DATABASE) {
+      return $this->enabled;
+    }
+    else {
+      $id = $this->__get('id');
+      $status = variable_get('default_cer', array());
+
+      return (isset($status[$id]) ? $status[$id] : !$this->disabled);
+    }
   }
 
   public function invert() {

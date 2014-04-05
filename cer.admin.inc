@@ -263,8 +263,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
  */
 function cer_preset_toggle(CerPreset $preset) {
   ctools_include('export');
-  ctools_export_crud_set_status('cer', $preset, (! $preset->enabled()));
-  module_invoke_all('cer_preset_toggle', $preset);
+  ctools_export_crud_set_status('cer', $preset, !$preset->enabled());
 
   drupal_goto('admin/config/content/cer');
 }

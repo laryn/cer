@@ -313,7 +313,6 @@ function cer_preset_load_all($reset = FALSE) {
   $presets = &drupal_static(__FUNCTION__);
 
   if (! isset($presets)) {
-    ctools_include('export');
     $presets = ctools_export_load_object('cer', 'all');
     uasort($presets, '_cer_sort_presets');
   }
@@ -348,6 +347,21 @@ function cer_preset_list_all() {
   }
 
   return $list;
+}
+
+/**
+ * status callback
+ */
+function cer_preset_set_status(CerPreset $preset, $status) {
+  if ($preset->export_type & EXPORT_IN_DATABASE) {
+    $preset->enabled = $status;
+    ctools_export_crud_save('cer', $preset);
+  }
+  else {
+    ctools_export_set_status('cer', $preset, $status);
+  }
+
+  module_invoke_all('cer_preset_toggle', $preset);
 }
 
 /**
