@@ -99,7 +99,6 @@ function cer_preset_list_submit(array $form, array &$form_state) {
     }
     
     if ($write) {
-      ctools_include('export');
       ctools_export_crud_save('cer', $preset);
     }
   }
