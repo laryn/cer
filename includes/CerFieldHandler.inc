@@ -97,8 +97,10 @@ class CerFieldHandler implements Countable, SeekableIterator {
       catch (FieldValidationException $e) {
         foreach ($e->errors as $field) {
           foreach ($field as $language) {
-            foreach ($language as $error) {
-              $this->logError($error['message'], $entity);
+            foreach ($language as $errors) {
+              foreach ($errors as $error) {
+                $this->logError($error['message'], $entity);
+              }
             }
           }
         }
