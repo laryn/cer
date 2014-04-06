@@ -407,7 +407,7 @@ function cer_bulk_update_form_submit($form, &$form_state) {
 
   if (isset($result[$entity_type])) {
     foreach (array_keys($result[$entity_type]) as $entity_id) {
-      $batch['operations'][] = array('cer_processing_entity', array('bulk_update', $entity_id, $entity_type));
+      $batch['operations'][] = array('cer_processing_entity', array('update', $entity_id, $entity_type));
     }
   }
 

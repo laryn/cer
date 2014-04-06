@@ -145,10 +145,3 @@ function hook_cer_entity_update(array &$presets, EntityDrupalWrapper $entity) {
  */
 function hook_cer_entity_delete(array &$presets, EntityDrupalWrapper $entity) {
 }
-
-/**
- * Like the other hook_cer_entity hooks, but only acts on an entity during a CER bulk
- * update operation.
- */
-function hook_cer_entity_bulk_update(array &$presets, EntityDrupalWrapper $entity) {
-}
