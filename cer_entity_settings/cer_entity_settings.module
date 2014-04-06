@@ -36,11 +36,16 @@ function cer_entity_settings_field_widget_form_alter(array &$element, array &$fo
   if (! user_access('override cer settings')) {
     return;
   }
+  
+  // If there's no entity mentioned in the form (e.g., on the field instance's
+  // settings form), bail out here.
+  if (! isset($context['form']['#entity'])) {
+    return;
+  }
 
   $entity_type = $context['instance']['entity_type'];
-  // I'm sort of blindly hoping here that $context['form']['#entity'] exists.
   $entity = new EntityDrupalWrapper($entity_type, $context['form']['#entity']);
-  
+
   // Read settings in the database.
   $settings = db_select('cer_entity_settings', 'ces')
     ->fields('ces', array(
