@@ -24,6 +24,26 @@ class CerInternalsTest extends DrupalWebTestCase {
       ->reload($alice)
       ->reload($article)
       ->assertIdentical($alice->field_my_content[0]->getIdentifier(), $article->getIdentifier(), "Created Article with a reference to Alice, and Alice backreferenced Article.");
+      
+    // field_author is a single-value field, and if there's a conflict, CER should not
+    // overwrite existing references.
+    $bob = $this->createUser();
+    $bob->field_my_content[0]->set($article);
+    $bob->save();
+    $this
+      ->reload($article)
+      ->assertIdentical($article->field_author->getIdentifier(), $alice->getIdentifier(), "Created Bob with a reference to Article, but Article still references Alice.");
+
+    $article->field_author->set(NULL);
+    $article->save();
+    $this
+      ->reload($alice)
+      ->assertIdentical($alice->field_my_content->count(), 0, "Alice's reference to Article was cleared when Article dereferenced Alice.");
+
+    $bob->save();
+    $this
+      ->reload($article)
+      ->assertIdentical($article->field_author->getIdentifier(), $bob->getIdentifier(), "Re-saved Bob with its existing reference to Article, and Article received the reference.");
   }
 
   protected function createNode($type, $save = FALSE) {
