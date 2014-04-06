@@ -115,10 +115,14 @@ class CerPresetHandler {
   protected function load(array $IDs) {
     $refs = array();
 
-    $entity_type = $this->left->end()->getTargetType();
+    $entity_type = $this->right->end()->instanceInfo('entity_type');
     $entities = entity_load($entity_type, $IDs);
     foreach ($entities as $entity) {
-      $refs[] = new EntityDrupalWrapper($entity_type, $entity);
+      $entity = new EntityDrupalWrapper($entity_type, $entity);
+
+      if ($this->right->end()->instanceInfo('bundle') == $entity->getBundle()) {
+        $refs[] = $entity;
+      }
     }
     
     return $refs;
