@@ -400,6 +400,9 @@ function cer_bulk_update_form_submit($form, &$form_state) {
   $entity_type = $form_state['values']['type'];
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', $entity_type);
+  if ($entity_type == 'user') {
+    $query->entityCondition('entity_id', 0, '>');
+  }
   $result = $query->execute();
 
   if (isset($result[$entity_type])) {
