@@ -40,10 +40,20 @@ class CerInternalsTest extends DrupalWebTestCase {
       ->reload($alice)
       ->assertIdentical($alice->field_my_content->count(), 0, "Alice's reference to Article was cleared when Article dereferenced Alice.");
 
+    $alice->delete();
+    $this
+      ->reload($article)
+      ->assertNull($article->field_author->value(), "Article still had no reference to Alice after Alice was deleted.");
+
     $bob->save();
     $this
       ->reload($article)
       ->assertIdentical($article->field_author->getIdentifier(), $bob->getIdentifier(), "Re-saved Bob with its existing reference to Article, and Article received the reference.");
+
+    $article->delete();
+    $this
+      ->reload($bob)
+      ->assertIdentical($bob->field_my_content->count(), 0, "Bob's reference to Article was cleared when Article was deleted.");
   }
 
   protected function createNode($type, $save = FALSE) {

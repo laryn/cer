@@ -37,6 +37,8 @@ class CerPresetHandler {
     $this->right = $preset->right;
     $this->entity = $entity;
 
+    // Store the current set of reference IDs so that we only need to instantiate
+    // the left handler once.
     $this->refIDs = $this->left->getHandler( $entity )->getIDs();
   }
 
@@ -56,7 +58,8 @@ class CerPresetHandler {
       $handler = $this->right->getHandler( $ref );
 
       // Only create the backreference if the reference doesn't already reference
-      // this entity.
+      // this entity (which it might, if there is more than one preset that references
+      // a single field instance).
       if (! in_array($myID, $handler->getIDs())) {
         $handler->add( $this->entity->cer->owner );
       }
