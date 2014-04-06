@@ -29,71 +29,81 @@ function cer_entity_settings_permission() {
 }
 
 /**
- * Implements hook_field_widget_form_alter().
+ * Implements hook_field_attach_form().
  */
-function cer_entity_settings_field_widget_form_alter(array &$element, array &$form_state, array $context) {
+function cer_entity_settings_field_attach_form($entity_type, $entity, &$form, &$form_state, $language) {
   // Don't do anything if the user hasn't got permission.
   if (! user_access('override cer settings')) {
     return;
   }
-  
-  // If there's no entity mentioned in the form (e.g., on the field instance's
-  // settings form), bail out here.
-  if (! isset($context['form']['#entity'])) {
-    return;
-  }
 
-  $entity_type = $context['instance']['entity_type'];
-  $entity = new EntityDrupalWrapper($entity_type, $context['form']['#entity']);
+  foreach (element_children($form) as $key) {
+    if (substr($key, 0, 6) == 'field_') {
+      $identifier = $form['#entity_type'] . ':' . $form['#bundle'] . ":{$key}";
+
+      $plugin = CerField::getPluginInfo($identifier);
+      if ($plugin) {
+        $form[$key]['#process'][] = '_cer_entity_settings_attach';
+      }
+    }
+  }
+}
+
+/**
+ * #process function for the root elements of attached fields.
+ */
+function _cer_entity_settings_attach(array $element, array &$form_state, array $form) {
+  $field = $element['#array_parents'][0];
+  $instance = $form_state['field'][$field][ $element['#language'] ]['instance'];
+
+  $entity = new EntityDrupalWrapper($form['#entity_type'], $form['#entity']);
 
   // Read settings in the database.
   $settings = db_select('cer_entity_settings', 'ces')
     ->fields('ces', array(
       'pid', 'status',
     ))
-    ->condition('entity_type', $entity_type)
+    ->condition('entity_type', $form['#entity_type'])
     ->condition('entity_id', $entity->getIdentifier())
-    ->condition('fiid', $context['instance']['id'])
+    ->condition('fiid', $instance['id'])
     ->execute()
     ->fetchAllKeyed();
 
-  $identifier = "{$entity_type}:" . $context['instance']['bundle'] . ':' . $context['field']['field_name'];
-  $info = CerField::getPluginInfo($identifier);
-  if ($info) {
-    $presets = _cer_filter_presets($entity->cer->lineage->value() . $context['field']['field_name']);
+  $presets = _cer_filter_presets($entity->cer->lineage->value() . $field);
 
-    if ($presets) {
-      $element['cer'] = array(
-        '#type' => 'checkboxes',
-        '#title' => t('Correspond %label with...', array('%label' => $context['instance']['label'])),
-        '#parents' => array(
-          'cer',
-          $context['instance']['id'],
-        ),
-      );
+  if ($presets) {
+    $element['cer'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Correspond %label with...', array('%label' => $instance['label'])),
+      '#parents' => array(
+        'cer',
+        $instance['id'],
+      ),
+    );
 
-      foreach ($presets as $id => $preset) {
-        $element['cer']['#options'][$id] = $preset->right->getLabel();
-        
-        // By default, the preset is enabled...
-        $element['cer']['#default_value'][] = $id;
+    foreach ($presets as $id => $preset) {
+      $element['cer']['#options'][$id] = $preset->right->getLabel();
 
-        // ...and should only be disabled if it's been specifically turned off.
-        if (isset($settings[$id]) && empty($settings[$id])) {
-          $index = array_search($id, $element['cer']['#default_value']);
-          unset($element['cer']['#default_value'][$index]);
-        }
-      }
+      // By default, the preset is enabled...
+      $element['cer']['#default_value'][] = $id;
 
-      $element['cer']['#options']['preserve'] = t('Remember these settings');
-
-      // If there were settings stored in the database, let's assume the user wants
-      // to continue preserving their settings.
-      if ($settings) {
-        $element['cer']['#default_value'][] = 'preserve';
+      // ...and should only be disabled if it's been specifically turned off.
+      if (isset($settings[$id]) && empty($settings[$id])) {
+        $index = array_search($id, $element['cer']['#default_value']);
+        unset($element['cer']['#default_value'][$index]);
       }
     }
+
+    $element['cer']['#options']['preserve'] = t('Remember these settings');
+
+    // If there were settings stored in the database, let's assume the user wants
+    // to continue preserving their settings.
+    if ($settings) {
+      $element['cer']['#default_value'][] = 'preserve';
+    }
   }
+  
+  return $element;
 }
 
 /**
