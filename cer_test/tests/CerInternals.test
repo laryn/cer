@@ -1,0 +1,49 @@
+<?php
+
+class CerInternalsTest extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return [
+      'name' => 'Internals',
+      'group' => 'CER',
+      'description' => "Tests CER's internal logic.",
+    ];
+  }
+
+  public function setUp() {
+    parent::setUp();
+    module_enable(['cer_test'], TRUE);
+  }
+
+  public function test() {
+    $alice = $this->createUser();
+    $article = $this->createNode('article');
+    $article->field_author->set($alice);
+    $article->save();
+    $this
+      ->reload($alice)
+      ->reload($article)
+      ->assertIdentical($alice->field_my_content[0]->getIdentifier(), $article->getIdentifier(), "Created Article with a reference to Alice, and Alice backreferenced Article.");
+  }
+
+  protected function createNode($type, $save = FALSE) {
+    $node = new EntityDrupalWrapper('node', entity_create('node', ['type' => $type]));
+    if ($save) {
+      $node->save();
+      $this->reload($node);
+    }
+    return $node;
+  }
+  
+  protected function createUser() {
+    return new EntityDrupalWrapper('user', $this->drupalCreateUser());
+  }
+
+  protected function reload(EntityDrupalWrapper $entity) {
+    $entities = entity_load($entity->type(), (array) $entity->getIdentifier());
+    $entity->set(reset($entities));
+
+    return $this;
+  }
+
+}

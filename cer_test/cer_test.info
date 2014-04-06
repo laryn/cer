@@ -28,3 +28,5 @@ features[field_instance][] = taxonomy_term-tags-field_my_content
 features[field_instance][] = user-user-field_my_content
 features[taxonomy][] = tags
 project path = sites/all/modules/cer
+
+files[] = tests/CerInternals.test
