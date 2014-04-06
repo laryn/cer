@@ -125,10 +125,9 @@ class CerPresetHandler {
     $query->entityCondition('entity_id', $IDs);
 
     // If the right entity type has bundles, we need to filter by that too. If we don't,
-    // we could run into a bug where, if the right field can reference multiple bundles,
-    // we might try to modify the wrong entity (there are other factors to prevent this,
-    // but we should really make the loading of referenced entities as targeted as
-    // possible). This was originally fixed in commit 787a6de.
+    // we could run into a bug where, if the left field can reference multiple bundles,
+    // we might try to modify the wrong entity. Essentially, the loading of referenced
+    // entities should be as targeted as possible to prevent ambiguities and buggery.
     if ($field->entityInfo('entity keys', 'bundle')) {
       $query->entityCondition('bundle', $field->instanceInfo('bundle'));
     }
