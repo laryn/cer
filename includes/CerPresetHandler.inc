@@ -113,19 +113,39 @@ class CerPresetHandler {
    *  loaded, an empty array is returned.
    */
   protected function load(array $IDs) {
-    $refs = array();
-
-    $entity_type = $this->right->end()->instanceInfo('entity_type');
-    $entities = entity_load($entity_type, $IDs);
-    foreach ($entities as $entity) {
-      $entity = new EntityDrupalWrapper($entity_type, $entity);
-
-      if ($this->right->end()->instanceInfo('bundle') == $entity->getBundle()) {
-        $refs[] = $entity;
-      }
+    if (empty($IDs)) {
+      return array();
     }
-    
-    return $refs;
+
+    $field = $this->right->end();
+    $entity_type = $field->instanceInfo('entity_type');
+
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', $entity_type);
+    $query->entityCondition('entity_id', $IDs);
+
+    // If the right entity type has bundles, we need to filter by that too. If we don't,
+    // we could run into a bug where, if the right field can reference multiple bundles,
+    // we might try to modify the wrong entity (there are other factors to prevent this,
+    // but we should really make the loading of referenced entities as targeted as
+    // possible). This was originally fixed in commit 787a6de.
+    if ($field->entityInfo('entity keys', 'bundle')) {
+      $query->entityCondition('bundle', $field->instanceInfo('bundle'));
+    }
+
+    $result = $query->execute();
+    if (isset($result[$entity_type])) {
+      $result[$entity_type] = entity_load($entity_type, array_keys($result[$entity_type]));
+      
+      foreach ($result[$entity_type] as $id => $entity) {
+        $result[$entity_type][$id] = new EntityDrupalWrapper($entity_type, $entity);
+      }
+
+      return $result[$entity_type];
+    }
+    else {
+      return array();
+    }
   }
 
 } 
