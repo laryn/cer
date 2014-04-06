@@ -103,7 +103,8 @@ class CerPresetHandler {
   }
   
   /**
-   * Loads referenced entities.
+   * Loads referenced entities. This might seem like a convenience method, but it
+   * is a critical part CER's core logic.
    *
    * @param array $IDs
    *  Array of entity IDs to load.
@@ -117,8 +118,9 @@ class CerPresetHandler {
       return array();
     }
 
-    $field = $this->right->end();
-    $entity_type = $field->instanceInfo('entity_type');
+    $this->right->rewind();
+    $right = $this->right->current();
+    $entity_type = $right->instanceInfo('entity_type');
 
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $entity_type);
@@ -128,8 +130,8 @@ class CerPresetHandler {
     // we could run into a bug where, if the left field can reference multiple bundles,
     // we might try to modify the wrong entity. Essentially, the loading of referenced
     // entities should be as targeted as possible to prevent ambiguities and buggery.
-    if ($field->entityInfo('entity keys', 'bundle')) {
-      $query->entityCondition('bundle', $field->instanceInfo('bundle'));
+    if ($right->entityInfo('entity keys', 'bundle')) {
+      $query->entityCondition('bundle', $right->instanceInfo('bundle'));
     }
 
     $result = $query->execute();
