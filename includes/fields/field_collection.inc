@@ -7,6 +7,9 @@
 
 class CerFieldCollectionField extends CerField implements CerEntityContainerInterface {
 
+  /**
+   * Implements CerField::getTargetType().
+   */
   public function getTargetType() {
     return 'field_collection_item';
   }

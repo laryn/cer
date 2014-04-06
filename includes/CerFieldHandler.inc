@@ -47,12 +47,18 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $this->rewind();
   }
 
+  /**
+   * Adds a reference to $entity, validating it first.
+   */
   public function add(EntityDrupalWrapper $entity) {
     if ($this->validate($entity)) {
       $this->write();
     }
   }
 
+  /**
+   * Deletes all references to $entity.
+   */
   public function delete(EntityDrupalWrapper $entity) {
     $entityID = $entity->getIdentifier();
 
@@ -69,7 +75,15 @@ class CerFieldHandler implements Countable, SeekableIterator {
 
     $this->write();
   }
-  
+
+  /**
+   * Validates a possible reference to $entity. After doing a cardinality check,
+   * the reference is validated through the Field Attach API, allowing the module
+   * which owns the field to do its normal validation logic. If validation fails,
+   * the error(s) are logged.
+   *
+   * @return boolean
+   */
   protected function validate(EntityDrupalWrapper $entity) {
     // Before we do anything else, check that the field has enough space to add the
     // reference. If there isn't, bail out so we don't blindly overwrite existing
@@ -87,7 +101,9 @@ class CerFieldHandler implements Countable, SeekableIterator {
         $this->value->set( $entity->value() );
       }
 
-      // Leverage the Field Attach API to validate the reference.
+      // Leverage the Field Attach API to validate the reference. If errors occur,
+      // field_attach_validate() throws FieldValidationException, containing an array
+      // of every validation error.
       try {
         // Only validate this field.
         field_attach_validate($this->entity->type(), $this->entity->value(), array('field_name' => $this->field->fieldInfo('field_name')));
@@ -114,6 +130,11 @@ class CerFieldHandler implements Countable, SeekableIterator {
     return FALSE;
   }
 
+  /**
+   * Checks that there are enough slots in the field to add a reference.
+   *
+   * @return boolean
+   */
   protected function checkCardinality() {
     $cardinality = $this->field->fieldInfo('cardinality');
 
@@ -168,7 +189,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
       drupal_set_message(t($message, $variables), 'error');
     }
   }
-  
+
   public function getIDs() {
     $IDs = array();
 
@@ -184,6 +205,9 @@ class CerFieldHandler implements Countable, SeekableIterator {
     return array_unique(array_filter($IDs));
   }
 
+  /**
+   * Implements Countable::count().
+   */
   public function count() {
     if ($this->isMultiValue) {
       return sizeof($this->value);
@@ -193,6 +217,9 @@ class CerFieldHandler implements Countable, SeekableIterator {
     }
   }
 
+  /**
+   * Implements SeekableIterator::seek().
+   */
   public function seek($position) {
     $length = $this->count();
 
@@ -208,22 +235,37 @@ class CerFieldHandler implements Countable, SeekableIterator {
     }
   }
 
+  /**
+   * Implements Iterator::current().
+   */
   public function current() {
     return ($this->isMultiValue ? $this->value[$this->delta] : $this->value);
   }
 
+  /**
+   * Implements Iterator::key().
+   */
   public function key() {
     return $this->current()->getIdentifier();
   }
 
+  /**
+   * Implements Iterator::next().
+   */
   public function next() {
     $this->delta++;
   }
   
+  /**
+   * Implements Iterator::rewind().
+   */
   public function rewind() {
     $this->delta = 0;
   }
 
+  /**
+   * Implements Iterator::valid().
+   */
   public function valid() {
     return ($this->delta < $this->count());
   }

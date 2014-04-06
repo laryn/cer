@@ -49,7 +49,7 @@ abstract class CerField {
   protected $child;
   
   /**
-   * Gets the type of entity that can be referenced by this field.
+   * Gets the type of entity that can be referenced by this field, e.g. 'node'.
    *
    * @return string
    */

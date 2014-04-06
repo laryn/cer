@@ -2,13 +2,13 @@
 
 /**
  * @file
- *  Contains the CerPresetHandler object.
+ *  Contains CerPresetHandler.
  */
 
 /**
  * @class
- *  Contains the logic for performing CRUD operations on a single entity,
- *  using a single preset.
+ * Contains the logic for performing CER operations on a single entity, 
+ * using a single preset.
  */
 class CerPresetHandler {
 

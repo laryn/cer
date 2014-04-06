@@ -7,10 +7,16 @@
  
 class CerTaxonomyTermReferenceField extends CerField {
 
+  /**
+   * Implements CerField::getTargetType().
+   */
   public function getTargetType() {
     return 'taxonomy_term';
   }
   
+  /**
+   * @override CerField::getTargetBundles().
+   */
   public function getTargetBundles() {
     $bundles = array();
 

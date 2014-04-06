@@ -7,10 +7,16 @@
  
 class CerNodeReferenceField extends CerField {
   
+  /**
+   * Implements CerField::getTargetType().
+   */
   public function getTargetType() {
     return 'node';
   }
 
+  /**
+   * @override CerField::getTargetBundles().
+   */
   public function getTargetBundles() {
     $bundles = array();
 

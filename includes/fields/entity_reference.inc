@@ -7,10 +7,16 @@
  
 class CerEntityReferenceField extends CerField {
 
+  /**
+   * Implements CerField::getTargetType().
+   */
   public function getTargetType() {
     return $this->fieldInfo('settings', 'target_type');
   }
   
+  /**
+   * @override CerField::getTargetBundles().
+   */
   public function getTargetBundles() {
     $bundles = array();
 
