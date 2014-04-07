@@ -88,6 +88,12 @@ function _cer_hijack_cnr() {
   ctools_include('export');
 
   $cnr = db_query('SELECT node_types_content_fields FROM {corresponding_node_references} WHERE enabled = 1')->fetchCol();
+  foreach ($cnr as $index => $key) {
+    // Prepend 'node*' to each side of the preset. CNR, sensibly enough, assumes everything
+    // is on a node, but CER needs this specified explicitly.
+    $key = explode('*', $key);
+    $cnr[$index] = 'node*' . $key[0] . '*' . $key[1] . '*node*' . $key[2] . '*' . $key[3];
+  }
   array_walk($cnr, '_cer_rebuild_preset');
 
   drupal_set_message(t('Rebuilt CNR presets.'));
