@@ -12,31 +12,27 @@ By “reference-type fields”, I mean any kind of field that references an enti
 - Entity Reference
 - Node Reference
 - User Reference
-- File (or Image)
-- Field Collection
 - Taxonomy Term Reference
-- Commerce Product Reference
 
 CER has an object-oriented API you can use to integrate other kinds of fields, if you need to.
 
 DEPENDENCIES
 
-- Drupal core 7.15 or higher
 - Entity API
+- CTools
+- Table Element
 
 In order to create presets, Hierarchical Select is required. If it isn't installed, the preset creation form will complain and refuse to appear. Everything else will work properly, though.
 
 CREATING PRESETS
 
-CER won’t do anything until you create at least one preset. To create a preset, visit admin/config/content/cer and click Add Preset. You will need Hierarchical Select installed to continue.
+CER won’t do anything until you create at least one preset. To create a preset, visit admin/config/content/cer and click “Add a preset”. You will need Hierarchical Select installed to continue.
 
 Use the hierarchical select widget to drill down to the field you want to use for the left side of the preset, then click Continue. You’ll see another hierarchical select widget show up; use that to drill down to the field to use for the right side of the preset. Click Save, and you’re all set!
 
 THINGS YOU SHOULD KNOW
 
 - If you’re updating from CER 1.x or 2.x, you MUST clear all your caches *before* running update.php so that new classes can be registered with the autoloader! If you don’t do this, you are likely to receive fatal errors during the update.
-
-- At the moment, exporting CER presets to Features is not supported (it is supported in 1.x and 2.x). I’ll restore this functionality soon.
 
 - If you have Corresponding Node References installed, CER will disable it and take over its field relationships.
 
@@ -48,8 +44,7 @@ ROAD MAP
 
 If any of this stuff interests you, I wholeheartedly encourage you to submit patches or contribute in any way you can!
 
-- Full test coverage
-- Features integration
+- Moar automated test coverage
 - Performance enhancement
 - Documentation
 
