@@ -155,8 +155,11 @@ class CerFieldHandler implements Countable, SeekableIterator {
     field_attach_presave($entity_type, $entity);
     field_attach_update($entity_type, $entity);
 
-    // Reload the entity we just saved, and force a refresh of the static cache.
-    $entities = entity_load($entity_type, (array) $entityID, NULL, TRUE);
+    // Issue #2225071
+    entity_get_controller($entity_type)->resetCache((array) $entityID);
+
+    // Reload the entity we just saved and cleared from the static cache.
+    $entities = entity_load($entity_type, (array) $entityID);
     $this->entity->set($entities[$entityID]);
 
     $this->__construct($this->field, $this->entity);
