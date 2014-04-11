@@ -41,7 +41,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
   public function __construct(CerField $field, EntityDrupalWrapper $entity) {
     $this->field = $field;
     $this->entity = $entity;
-    $this->value = $entity->{ $field->fieldInfo('field_name') };
+    $this->value = $entity->{ $field->name };
     $this->isMultiValue = ($this->value instanceof EntityListWrapper);
 
     $this->rewind();
@@ -106,7 +106,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
       // of every validation error.
       try {
         // Only validate this field.
-        field_attach_validate($this->entity->type(), $this->entity->value(), array('field_name' => $this->field->fieldInfo('field_name')));
+        field_attach_validate($this->entity->type(), $this->entity->value(), array('field_name' => $this->field->name));
 
         return TRUE;
       }
@@ -167,7 +167,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
 
   protected function logError($message, EntityDrupalWrapper $entity = NULL) {
     $variables = array(
-      '!field_name' => $this->field->fieldInfo('field_name'),
+      '!field_name' => $this->field->name,
       '!field_type' => $this->field->fieldTypeInfo('label'),
       '!field_label' => $this->field->instanceInfo('label'),
     );

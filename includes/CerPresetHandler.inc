@@ -123,7 +123,7 @@ class CerPresetHandler {
 
     $this->right->rewind();
     $right = $this->right->current();
-    $entity_type = $right->instanceInfo('entity_type');
+    $entity_type = $right->entityType;
 
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $entity_type);
