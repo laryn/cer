@@ -22,19 +22,13 @@ abstract class CerField {
    * @var string
    *  The entity type this instance is bound to.
    */
-  public $entityType;
+  protected $entityType;
   
   /**
    * @var string
    *  The bundle this instance is bound to.
    */
-  public $bundle;
-  
-  /**
-   * @var string
-   *  The machine name of the field.
-   */
-  public $name;
+  protected $bundle;
   
   /**
    * @var string
@@ -67,7 +61,7 @@ abstract class CerField {
   public function __construct($entityType, $bundle, $field) {
     $this->entityType = $entityType;
     $this->bundle = $bundle;
-    $this->field = $this->name = $field;
+    $this->field = $field;
   }
 
   /**
