@@ -29,13 +29,13 @@ abstract class CerField {
    *  The bundle this instance is bound to.
    */
   public $bundle;
-  
+
   /**
    * @var string
    *  The machine name of the field.
    */
   public $name;
-  
+
   /**
    * @var string
    *  The internal name of the field.
@@ -54,6 +54,20 @@ abstract class CerField {
    */
   protected $child;
   
+  protected $entityTypeInfo;
+  
+  protected $fieldTypeInfo;
+  
+  protected $fieldInfo;
+  
+  protected $instanceInfo;
+  
+  public $cardinality;
+  
+  public $typeLabel;
+  
+  public $label;
+  
   /**
    * Gets the type of entity that can be referenced by this field, e.g. 'node'.
    *
@@ -68,6 +82,14 @@ abstract class CerField {
     $this->entityType = $entityType;
     $this->bundle = $bundle;
     $this->field = $this->name = $field;
+    
+    $this->entityTypeInfo = entity_get_info($entityType);
+    $this->fieldInfo = field_info_field($field);
+    $this->fieldTypeInfo = field_info_field_types($this->fieldInfo['type']);
+    $this->instanceInfo = field_info_instance($entityType, $field, $bundle);
+
+    $this->cardinality = $this->fieldInfo['cardinality'];
+    $this->typeLabel = $this->fieldTypeInfo['label'];
   }
 
   /**
@@ -99,6 +121,10 @@ abstract class CerField {
   public function getTargetBundles() {
     $info = entity_get_info($this->getTargetType());
     return array_keys($info['bundles']);
+  }
+  
+  public function bundleable() {
+    return isset($this->entityTypeInfo['entity keys']['bundle']);
   }
   
   /**
@@ -153,8 +179,7 @@ abstract class CerField {
    * @return mixed
    */
   public function fieldTypeInfo() {
-    $info = field_info_field_types($this->fieldInfo('type'));
-    return drupal_array_get_nested_value($info, func_get_args());
+    return drupal_array_get_nested_value($this->fieldTypeInfo, func_get_args());
   }
 
   /**
@@ -166,8 +191,7 @@ abstract class CerField {
    * @return mixed
    */
   public function entityInfo() {
-    $info = entity_get_info($this->entityType);
-    return drupal_array_get_nested_value($info, func_get_args());
+    return drupal_array_get_nested_value($this->entityTypeInfo, func_get_args());
   }
   
   /**
@@ -179,8 +203,7 @@ abstract class CerField {
    * @return mixed
    */
   public function fieldInfo() {
-    $info = field_info_field($this->field);
-    return drupal_array_get_nested_value($info, func_get_args());
+    return drupal_array_get_nested_value($this->fieldInfo, func_get_args());
   }
 
   /**
@@ -192,8 +215,7 @@ abstract class CerField {
    * @return mixed
    */
   public function instanceInfo() {
-    $info = field_info_instance($this->entityType, $this->field, $this->bundle);
-    return drupal_array_get_nested_value($info, func_get_args());
+    return drupal_array_get_nested_value($this->instanceInfo, func_get_args());
   }
 
   /**
@@ -206,15 +228,15 @@ abstract class CerField {
     $label = '';
 
     if (! $this->pluginInfo('require parent')) {
-      $label .= $this->entityInfo('label');
+      $label .= $this->entityInfo['label'];
       $label .= ' &raquo; ';
 
-      if ($this->entityInfo('entity keys', 'bundle')) {
-        $label .= $this->entityInfo('bundles', $this->bundle, 'label');
+      if ($this->bundleable()) {
+        $label .= $this->entityInfo['bundles'][$this->bundle]['label'];
         $label .= ' &raquo; ';
       }
     }    
-    $label .= $this->instanceInfo('label');
+    $label .= $this->instanceInfo['label'];
 
     return $label;
   }
@@ -231,7 +253,7 @@ abstract class CerField {
     $pipe = array();
 
     $pipe['field_base'][] = $this->field;
-    $pipe['field_instance'][] = "{$this->entityType}-{$this->bundle}-{$this->field}";
+    $pipe['field_instance'][] = "{$this->entityType}-{$this->bundle}-{$this->name}";
 
     return $pipe;
   }

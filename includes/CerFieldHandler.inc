@@ -136,14 +136,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
    * @return boolean
    */
   protected function checkCardinality() {
-    $cardinality = $this->field->fieldInfo('cardinality');
-
-    if ($cardinality == FIELD_CARDINALITY_UNLIMITED) {
-      return TRUE;
-    }
-    else {
-      return ($cardinality > $this->count());
-    }
+    return ($this->field->cardinality == FIELD_CARDINALITY_UNLIMITED ? TRUE : ($this->field->cardinality > $this->count()));
   }
 
   protected function write() {
@@ -168,8 +161,8 @@ class CerFieldHandler implements Countable, SeekableIterator {
   protected function logError($message, EntityDrupalWrapper $entity = NULL) {
     $variables = array(
       '!field_name' => $this->field->name,
-      '!field_type' => $this->field->fieldTypeInfo('label'),
-      '!field_label' => $this->field->instanceInfo('label'),
+      '!field_type' => $this->field->typeLabel,
+      '!field_label' => $this->field->label,
     );
 
     $variables['!this_type'] = $this->entity->type();
