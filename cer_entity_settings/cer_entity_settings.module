@@ -53,10 +53,14 @@ function cer_entity_settings_field_attach_form($entity_type, $entity, &$form, &$
  * #process function for the root elements of attached fields.
  */
 function _cer_entity_settings_attach(array $element, array &$form_state, array $form) {
+  $language = $element['#language'];
   $field = $element['#array_parents'][0];
-  $instance = $form_state['field'][$field][ $element['#language'] ]['instance'];
+  $instance = $form_state['field'][$field][$language]['instance'];
 
-  $entity = new EntityDrupalWrapper($form['#entity_type'], $form['#entity']);
+  // Issue #2236973: Oooh, is this a gotcha. Depending on the circumstances, the entity could
+  // be in $form['#entity'] or $element[$language]['#entity']. The decision is made by the core
+  // field_default_form() function, according to a couple of different factors.
+  $entity = new EntityDrupalWrapper($form['#entity_type'], (isset($element[$language]['#entity']) ? $element[$language]['#entity'] : $form['#entity']));
 
   // Read settings in the database.
   $settings = db_select('cer_entity_settings', 'ces')
