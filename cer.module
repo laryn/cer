@@ -333,10 +333,34 @@ function cer_features_api() {
 
   // Defer to the Features' integration with CTools exportables.
   $API = ctools_component_features_api('cer');
-  $API['cer']['file'] = drupal_get_path('module', 'cer') . '/cer.features.inc';
   $API['cer']['default_filename'] = 'cer';  // Put presets in MODULE.cer.inc.
 
   return $API;
+}
+
+/**
+ * Implements component hook_features_export().
+ */
+function cer_features_export($data, &$export, $module) {
+  $pipe = array();
+
+  $export['dependencies']['cer'] = 'cer';
+
+  ctools_include('export');
+  $presets = ctools_export_crud_load_multiple('cer', $data);
+
+  foreach ($presets as $preset) {
+    $export['features']['cer'][$preset->id] = $preset->id;
+    
+    foreach ($preset->left as $field) {
+      $pipe = array_merge_recursive($pipe, $field->getExportPipe($export));
+    }
+    foreach ($preset->right as $field) {
+      $pipe = array_merge_recursive($pipe, $field->getExportPipe($export));
+    }
+  }
+
+  return $pipe;
 }
 
 /**
@@ -504,11 +528,4 @@ module_load_include('inc', 'cer', 'cer.properties');
 // as Hierarchical Select implements hook_hook_info(), I'll get rid of it.
 if (module_exists('hierarchical_select')) {
   module_load_include('inc', 'cer', 'cer.hierarchical_select');
-}
-
-// Include CER's Features API implementation. The reason we can't let Features auto-load
-// it is because Features tries to automatically implement cer_features_export() before
-// it tries to autoload the file, resulting in a "function already declared" fatal error. 
-if (module_exists('features')) {
-  module_load_include('inc', 'cer', 'cer.features');
 }
