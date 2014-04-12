@@ -15,6 +15,13 @@ class CerFieldCollectionField extends CerField implements CerEntityContainerInte
   }
 
   /**
+   * @override CerField::getTargetBundles().
+   */
+  public function getTargetBundles() {
+    return array($this->name);
+  }
+
+  /**
    * Implements CerEntityContainerInterface::createInnerEntity().
    */
   public function createInnerEntity(EntityDrupalWrapper $owner) {

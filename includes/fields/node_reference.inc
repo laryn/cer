@@ -24,9 +24,9 @@ class CerNodeReferenceField extends CerField {
     if ($view) {
       $view = views_get_view($view);
       $view->set_display($this->fieldInfo('settings', 'view', 'view_display'));
-      
-      $bundle_key = $this->entityInfo('entity keys', 'bundle');
-      if ($bundle_key && $handler = $view->display_handler->get_handler('filter', $bundle_key)) {
+
+      $handler = $view->display_handler->get_handler('filter', 'type');
+      if ($handler) {
         $bundles = $handler->value;
       }
     }

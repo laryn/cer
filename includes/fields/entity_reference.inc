@@ -37,9 +37,12 @@ class CerEntityReferenceField extends CerField {
       $view = views_get_view($this->fieldInfo('settings', 'handler_settings', 'view', 'view_name'));
       $view->set_display($this->fieldInfo('settings', 'handler_settings', 'view', 'display_name'));
 
-      $bundle_key = $this->entityInfo('entity keys', 'bundle');
-      if ($bundle_key && $handler = $view->display_handler->get_handler('filter', $bundle_key)) {
-        $bundles = $handler->value;
+      $info = entity_get_info($this->getTargetType());
+      if (isset($info['entity keys']['bundle'])) {
+        $handler = $view->display_handler->get_handler('filter', $info['entity keys']['bundle'])
+        if ($handler) {
+          $bundles = $handler->value;
+        }
       }
     }
     else {
