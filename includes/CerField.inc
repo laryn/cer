@@ -47,7 +47,7 @@ abstract class CerField {
    *  Field instance contained by this one, if any.
    */
   protected $child;
-  
+
   /**
    * Gets the type of entity that can be referenced by this field, e.g. 'node'.
    *
@@ -71,6 +71,14 @@ abstract class CerField {
    */
   public function __toString() {
     return "{$this->entityType}:{$this->bundle}:{$this->field}";
+  }
+
+  /**
+   * Magic getter to allow read-only access to protected properties.
+   */
+  public function __get($property) {
+    // Allow read-only access to protected properties.
+    return $this->{$property};
   }
 
   /**

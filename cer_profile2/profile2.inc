@@ -67,9 +67,6 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
    */
   public function instanceInfo() {
     $info = array(
-      'entity_type' => $this->entityType,
-      'bundle' => $this->bundle,
-      'field_name' => $this->field,
       'label' => $this->profileType->label,
     );
     return drupal_array_get_nested_value($info, func_get_args());

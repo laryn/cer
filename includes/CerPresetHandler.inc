@@ -123,7 +123,7 @@ class CerPresetHandler {
 
     $this->right->rewind();
     $right = $this->right->current();
-    $entity_type = $right->instanceInfo('entity_type');
+    $entity_type = $right->entityType;
 
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $entity_type);
@@ -134,7 +134,7 @@ class CerPresetHandler {
     // we might try to modify the wrong entity. Essentially, the loading of referenced
     // entities should be as targeted as possible to prevent ambiguities and buggery.
     if ($right->entityInfo('entity keys', 'bundle')) {
-      $query->entityCondition('bundle', $right->instanceInfo('bundle'));
+      $query->entityCondition('bundle', $right->bundle);
     }
 
     $result = $query->execute();
