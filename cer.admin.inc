@@ -48,9 +48,9 @@ function cer_preset_list(array $form, array &$form_state) {
             'title' => ($preset->enabled() ? t('disable') : t('enable')),
             'href' => "admin/config/content/cer/presets/toggle/{$id}",
           ),
-          'delete' => array(
-            'title' => ($preset->export_type & EXPORT_IN_DATABASE ? t('delete') : t('revert')),
-            'href' => "admin/config/content/cer/presets/delete/{$id}",
+          'revert_delete' => array(
+            'title' => ($preset->export_type & EXPORT_IN_CODE ? t('revert') : t('delete')),
+            'href' => "admin/config/content/cer/presets/revert-delete/{$id}",
           ),
         ),
       ),
@@ -326,22 +326,31 @@ function cer_preset_invert(CerPreset $original) {
 /**
  * Confirmation form to delete a preset.
  */
-function cer_delete_preset(array $form, array &$form_state, CerPreset $preset) {
+function cer_revert_delete_preset(array $form, array &$form_state, CerPreset $preset) {
   ctools_include('export');
+  
+  $variables = array();
+  
+  if ($preset->export_type & EXPORT_IN_CODE) {
+    $variables['!verb'] = t('revert');
+    $info = t('Any customizations will be lost.');
+  }
+  else {
+    $variables = array(
+      '!left' =>
+        $preset->left->getLabel(),
+      '!right' =>
+        $preset->right->getLabel(),
+      '!verb' =>
+        t('delete'),
+    );
+    $info = t('<i>!left</i> will no longer correspond with <i>!right</i>.', $variables);
+  }
 
-  $variables = array(
-    '!left' =>
-      $preset->left->getLabel(),
-    '!right' =>
-      $preset->right->getLabel(),
-    '!verb' =>
-      ($preset->export_type & EXPORT_IN_CODE ? t('revert') : t('delete')),
-  );
-
-  return confirm_form($form, t('Are you sure you want to !verb this preset?', $variables), 'admin/config/content/cer', t('<i>!left</i> will no longer correspond with <i>!right</i>.', $variables), t('Delete'));
+  return confirm_form($form, t('Are you sure you want to !verb this preset?', $variables), 'admin/config/content/cer', $info, ucFirst($variables['!verb']));
 }
 
-function cer_delete_preset_submit(array $form, array &$form_state) {
+function cer_revert_delete_preset_submit(array $form, array &$form_state) {
   $preset = $form_state['build_info']['args'][0];
 
   // The form builder includes export.inc, so this function should exist.
