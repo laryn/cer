@@ -39,7 +39,7 @@ class CerEntityReferenceField extends CerField {
 
       $info = entity_get_info($this->getTargetType());
       if (isset($info['entity keys']['bundle'])) {
-        $handler = $view->display_handler->get_handler('filter', $info['entity keys']['bundle'])
+        $handler = $view->display_handler->get_handler('filter', $info['entity keys']['bundle']);
         if ($handler) {
           $bundles = $handler->value;
         }
