@@ -96,8 +96,6 @@ class CerFieldHierarchy implements Countable {
   }
 
   public function addField(CerField $field) {
-    $fieldName = $field->fieldInfo('field_name');
-
     $bundle_key = "{$field->entityType}:{$field->bundle}";
 
     if ($field->entityInfo('entity keys', 'bundle')) {
@@ -108,7 +106,7 @@ class CerFieldHierarchy implements Countable {
       $this->add($bundle_key, $field->entityInfo('label'));
     }
 
-    $field_key = "{$bundle_key}:{$fieldName}";
+    $field_key = "{$bundle_key}:{$field->name}";
     $this->add($field_key, $field->instanceInfo('label'), $bundle_key);
   }
 

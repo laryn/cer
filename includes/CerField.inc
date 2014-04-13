@@ -34,7 +34,7 @@ abstract class CerField {
    * @var string
    *  The internal name of the field.
    */
-  protected $field;
+  protected $name;
   
   /**
    * @var CerField
@@ -61,7 +61,7 @@ abstract class CerField {
   public function __construct($entityType, $bundle, $field) {
     $this->entityType = $entityType;
     $this->bundle = $bundle;
-    $this->field = $field;
+    $this->name = $field;
   }
 
   /**
@@ -70,7 +70,7 @@ abstract class CerField {
    * @return string
    */
   public function __toString() {
-    return "{$this->entityType}:{$this->bundle}:{$this->field}";
+    return "{$this->entityType}:{$this->bundle}:{$this->name}";
   }
 
   /**
@@ -181,7 +181,7 @@ abstract class CerField {
    * @return mixed
    */
   public function fieldInfo() {
-    $info = field_info_field($this->field);
+    $info = field_info_field($this->name);
     return drupal_array_get_nested_value($info, func_get_args());
   }
 
@@ -194,7 +194,7 @@ abstract class CerField {
    * @return mixed
    */
   public function instanceInfo() {
-    $info = field_info_instance($this->entityType, $this->field, $this->bundle);
+    $info = field_info_instance($this->entityType, $this->name, $this->bundle);
     return drupal_array_get_nested_value($info, func_get_args());
   }
 
@@ -232,8 +232,8 @@ abstract class CerField {
   public function getExportPipe(array &$export) {
     $pipe = array();
 
-    $pipe['field_base'][] = $this->field;
-    $pipe['field_instance'][] = "{$this->entityType}-{$this->bundle}-{$this->field}";
+    $pipe['field_base'][] = $this->name;
+    $pipe['field_instance'][] = "{$this->entityType}-{$this->bundle}-{$this->name}";
 
     return $pipe;
   }
