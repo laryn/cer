@@ -71,6 +71,42 @@ function cer_preset_load($id) {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function cer_theme() {
+  return array(
+    'cer_field_label' => array(
+      'variables' => array(
+        'field' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Renders a human-readable label for a CER field.
+ * e.g. Node >> Page >> Related Content.
+ */
+function theme_cer_field_label(array $variables) {
+  $label = '';
+  $field = $variables['field'];
+
+  if ($field->entityType != 'field_collection_item') {
+    $info = entity_get_info($field->entityType);
+
+    $label .= $info['label'];
+
+    if (isset($info['entity keys']['bundle'])) {
+      $label .= ' &raquo; ';
+      $label .= $info['bundles'][$field->bundle]['label'];
+      $label .= ' &raquo; ';
+    }
+  }
+
+  return $label . $field->instanceInfo('label');
+}
+
+/**
  * Implements hook_permission().
  */
 function cer_permission() {
