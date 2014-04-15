@@ -59,16 +59,6 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
   }
 
   /**
-   * @override CerField::instanceInfo().
-   */
-  public function instanceInfo() {
-    $info = array(
-      'label' => $this->profileType->label,
-    );
-    return drupal_array_get_nested_value($info, func_get_args());
-  }
-
-  /**
    * @override CerField::getExportPipe().
    */
   public function getExportPipe(array &$export) {

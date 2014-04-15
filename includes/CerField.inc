@@ -197,19 +197,6 @@ abstract class CerField {
   }
 
   /**
-   * Gets information about the field instance definition.
-   *
-   * @param [...]
-   *  The array keys to fetch, or nothing to fetch all instance info.
-   *
-   * @return mixed
-   */
-  public function instanceInfo() {
-    $info = field_info_instance($this->entityType, $this->name, $this->bundle);
-    return drupal_array_get_nested_value($info, func_get_args());
-  }
-
-  /**
    * Generates a human-readable label for this field instance. By default,
    * this is in the form of Entity Type >> Bundle >> Label.
    *
