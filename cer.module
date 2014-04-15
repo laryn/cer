@@ -103,7 +103,7 @@ function theme_cer_field_label(array $variables) {
     }
   }
 
-  return $label . $field->instanceInfo('label');
+  return $label . $field->label;
 }
 
 /**

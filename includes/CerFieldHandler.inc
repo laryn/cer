@@ -169,7 +169,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $variables = array(
       '!field_name' => $this->field->name,
       '!field_type' => $this->field->fieldTypeInfo('label'),
-      '!field_label' => $this->field->instanceInfo('label'),
+      '!field_label' => $this->field->label,
     );
 
     $variables['!this_type'] = $this->entity->type();

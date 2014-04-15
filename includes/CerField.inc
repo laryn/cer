@@ -47,6 +47,12 @@ abstract class CerField {
    *  Field instance contained by this one, if any.
    */
   protected $child;
+  
+  /**
+   * @var string
+   * The field instance's label.
+   */
+  protected $label;
 
   /**
    * Gets the type of entity that can be referenced by this field, e.g. 'node'.
@@ -62,6 +68,9 @@ abstract class CerField {
     $this->entityType = $entityType;
     $this->bundle = $bundle;
     $this->name = $field;
+
+    $instance = field_info_instance($entityType, $field, $bundle);
+    $this->label = $instance['label'];
   }
 
   /**
@@ -215,7 +224,7 @@ abstract class CerField {
         $label .= ' &raquo; ';
       }
     }    
-    $label .= $this->instanceInfo('label');
+    $label .= $this->label;
 
     return $label;
   }
