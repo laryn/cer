@@ -22,6 +22,8 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     // Load the Profile2 type information
     $this->profileType = profile2_get_types(subStr($field, 8));
     $this->label = $this->profileType->label;
+
+    $this->cardinality = FIELD_CARDINALITY_UNLIMITED;
   }
 
   /**

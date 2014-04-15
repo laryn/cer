@@ -55,6 +55,11 @@ abstract class CerField {
   protected $label;
 
   /**
+   * @var integer
+   */
+  protected $cardinality;
+
+  /**
    * Gets the type of entity that can be referenced by this field, e.g. 'node'.
    *
    * @return string
@@ -68,6 +73,9 @@ abstract class CerField {
     $this->entityType = $entityType;
     $this->bundle = $bundle;
     $this->name = $field;
+
+    $fieldInfo = field_info_field($field);
+    $this->cardinality = $fieldInfo['cardinality'];
 
     $instance = field_info_instance($entityType, $field, $bundle);
     $this->label = $instance['label'];
