@@ -285,10 +285,14 @@ function _cer_filter_presets($filter) {
   foreach ($all as $preset) {
     // If the preset is disabled, don't use it at all.
     if ($preset->enabled()) {
+      // If the preset is bidrectional AND the right chain matches the filter, create
+      // an inverted copy of the preset and add it to the list.
       if ($preset->bidirectional && strPos($preset->right->__toString(), $filter) === 0) {
-        $preset = $preset->invert();
+        $inverse = $preset->invert();
+        $presets[$inverse->id] = $inverse;
       }
 
+      // Add the original preset to the list only if the left chain matches the filter.
       if (strPos($preset->left->__toString(), $filter) === 0) {
         $presets[$preset->id] = $preset;
       }

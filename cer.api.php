@@ -65,7 +65,7 @@ function hook_cer_default_presets() {
   // A CER preset consists of a left field chain, and a right field chain. A field chain
   // is really just a glorified array of field plugins.
   $left = new CerFieldChain();
-  
+
   // You can use CerField::getPlugin() to fetch a field plugin for any field that has
   // been defined in hook_cer_fields(). You can also do it the hard way:
   //
@@ -97,14 +97,15 @@ function hook_cer_default_presets_alter(array &$presets) {
 
 /**
  * React to the creation of a preset. This hook is invoked before the preset
- * is saved to the database.
+ * is saved to the database, so you can alter its properties by reference.
  */
 function hook_cer_preset_create(CerPreset $preset) {
 }
 
 /**
  * React to a preset being enabled or disabled. This hook is invoked after the 
- * preset's status has been changed.
+ * preset's status has been changed. The preset's new status (boolean) will be
+ * in $preset->enabled.
  */
 function hook_cer_preset_toggle(CerPreset $preset) {
 }
@@ -133,8 +134,8 @@ function hook_cer_entity_insert(array &$presets, EntityDrupalWrapper $entity) {
 }
 
 /**
- * Like hook_cer_entity_insert(), but acts on an entity update via its form, or
- * via entity_save(). This is NOT the same thing as a bulk update.
+ * Like hook_cer_entity_insert(), but acts only on entity update, including CER's
+ * bulk update.
  */
 function hook_cer_entity_update(array &$presets, EntityDrupalWrapper $entity) {
 }

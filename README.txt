@@ -13,8 +13,10 @@ By “reference-type fields”, I mean any kind of field that references an enti
 - Node Reference
 - User Reference
 - Taxonomy Term Reference
+- Profile2 (using the cer_profile2 add-on module)
+- Commerce Product Reference (using the cer_commerce add-on module)
 
-CER has an object-oriented API you can use to integrate other kinds of fields, if you need to.
+CER has an object-oriented API you can use to integrate other kinds of fields, if you need to. For more information, see cer.api.php.
 
 DEPENDENCIES
 
@@ -32,13 +34,14 @@ Use the hierarchical select widget to drill down to the field you want to use fo
 
 THINGS YOU SHOULD KNOW
 
-- If you’re updating from CER 1.x or 2.x, you MUST clear all your caches *before* running update.php so that new classes can be registered with the autoloader! If you don’t do this, you are likely to receive fatal errors during the update.
+* If you’re updating from CER 1.x or 2.x, you MUST clear all your caches *before* running update.php so that new classes can be registered with the autoloader! If you don’t do this, you are likely to receive fatal errors during the update.
 
-- If you have Corresponding Node References installed, CER will disable it and take over its field relationships.
+* If you have Corresponding Node References installed, CER will disable it and take over its field relationships.
 
-- Everything CER does, it does in a normal security context. This can lead to unexpected behavior if you’re not aware of it. In other words, if you don’t have the permission to view a specific node, don’t expect CER to be able to reference it when logged in as you. Be mindful of your entity/field permissions!
+* Everything CER does, it does in a normal security context. This can lead to unexpected behavior if you’re not aware of it. In other words, if you don’t have the permission to view a specific node, don’t expect CER to be able to reference it when logged in as you. Be mindful of your entity/field permissions!
   
-- devel_generate does not play nicely with CER, especially where field collections are concerned. The results are utterly unpredictable.
+* devel_generate does not play nicely with CER, especially where field collections are concerned. The results are utterly unpredictable.
+
 
 ROAD MAP
 

@@ -77,7 +77,6 @@ abstract class CerField {
    * Magic getter to allow read-only access to protected properties.
    */
   public function __get($property) {
-    // Allow read-only access to protected properties.
     return $this->{$property};
   }
 
