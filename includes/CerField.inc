@@ -171,19 +171,6 @@ abstract class CerField {
   }
 
   /**
-   * Gets information about this field type.
-   *
-   * @param [string...]
-   *  Array keys to fetch, or nothing to return all field type info.
-   *
-   * @return mixed
-   */
-  public function fieldTypeInfo() {
-    $info = field_info_field_types($this->fieldInfo('type'));
-    return drupal_array_get_nested_value($info, func_get_args());
-  }
-
-  /**
    * Gets information about the entity type this field instance is bound to.
    *
    * @param [string...]

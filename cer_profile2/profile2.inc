@@ -19,6 +19,8 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     $this->bundle = $bundle;
     $this->name = $field;
 
+    $this->fieldTypeLabel = t('Profile');
+
     // Load the Profile2 type information
     $this->profileType = profile2_get_types(subStr($field, 8));
     $this->label = $this->profileType->label;
@@ -42,18 +44,6 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     // This field can only "reference" one type of profile. There'll be
     // a separate instance of this plugin for each Profile2 type.
     return (array) $this->profileType->type;
-  }
-
-  /**
-   * @override CerField::fieldTypeInfo().
-   */
-  public function fieldTypeInfo() {
-    // Profile2 'fields' aren't really fields, so I'll only provide the information
-    // that I know is used by CER's core.
-    $info = array(
-      'label' => t('Profile2'),
-    );
-    return drupal_array_get_nested_value($info, func_get_args());
   }
 
   /**
