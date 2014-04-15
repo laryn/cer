@@ -136,7 +136,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
    * @return boolean
    */
   protected function checkCardinality() {
-    return ($field->cardinality == FIELD_CARDINALITY_UNLIMITED ? TRUE : ($field->cardinality > $this->count()));
+    return ($this->field->cardinality == FIELD_CARDINALITY_UNLIMITED ? TRUE : ($this->field->cardinality > $this->count()));
   }
 
   protected function write() {
