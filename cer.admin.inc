@@ -25,10 +25,10 @@ function cer_preset_list(array $form, array &$form_state) {
   foreach (ctools_export_crud_load_all('cer') as $id => $preset) {
     $form['cer'][$id] = array(
       'left' => array(
-        '#markup' => sprintf('<strong>%s</strong>: %s', $preset->left->end()->fieldTypeInfo('label'), $preset->left->getLabel()),
+        '#markup' => sprintf('<strong>%s</strong>: %s', $preset->left->end()->fieldTypeLabel, $preset->left->getLabel()),
       ),
       'right' => array(
-        '#markup' => sprintf('<strong>%s</strong>: %s', $preset->right->end()->fieldTypeInfo('label'), $preset->right->getLabel()),
+        '#markup' => sprintf('<strong>%s</strong>: %s', $preset->right->end()->fieldTypeLabel, $preset->right->getLabel()),
       ),
       'bidirectional' => array(
         '#type' => 'checkbox',
