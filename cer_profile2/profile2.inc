@@ -23,7 +23,8 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     $this->profileType = profile2_get_types(subStr($field, 8));
     $this->label = $this->profileType->label;
 
-    $this->cardinality = FIELD_CARDINALITY_UNLIMITED;
+    // A user account can only have one profile of this type.
+    $this->cardinality = 1;
   }
 
   /**
