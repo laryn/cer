@@ -168,15 +168,25 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $variables['!this_type'] = $this->entity->type();
     $variables['!this_label'] = $this->entity->label();
 
-    $variables['!this_url'] = $this->entity->url->value();
-    $variables['!this_link'] = '<a href="' . $variables['!this_url'] . '">' . $variables['!this_label'] . '</a>';
+    if ($this->entity->getPropertyInfo('url')) {
+      $variables['!this_url'] = $this->entity->url->value();
+      $variables['!this_link'] = '<a href="' . $variables['!this_url'] . '">' . $variables['!this_label'] . '</a>';
+    }
+    else {
+      $variables['!this_link'] = $variables['!this_label'];
+    }
 
     if ($entity) {
       $variables['!that_type'] = $entity->type();
       $variables['!that_label'] = $entity->label();
 
-      $variables['!that_url'] = $entity->url->value();
-      $variables['!that_link'] = '<a href="' . $variables['!that_url'] . '">' . $variables['!that_label'] . '</a>';
+      if ($entity->getPropertyInfo('url')) {
+        $variables['!that_url'] = $entity->url->value();
+        $variables['!that_link'] = '<a href="' . $variables['!that_url'] . '">' . $variables['!that_label'] . '</a>';
+      }
+      else {
+        $variables['!that_link'] = $variables['!that_label'];
+      }
     }
 
     watchdog('cer', $message, $variables, WATCHDOG_ERROR);
