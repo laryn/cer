@@ -15,7 +15,7 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
    * @override CerField::__construct().
    */
   public function __construct($entity_type, $bundle, $field) {
-    $this->entityType = $entityType;
+    $this->entityType = $entity_type;
     $this->bundle = $bundle;
     $this->name = $field;
 

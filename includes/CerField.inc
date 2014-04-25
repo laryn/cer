@@ -235,7 +235,7 @@ abstract class CerField {
 
     return $pipe;
   }
-  
+
   /**
    * Returns information about a particular field plugin, by its identifier, or all
    * available plugins (i.e., defined by hook_cer_fields()) if no identifier is given.

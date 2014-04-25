@@ -12,9 +12,7 @@
  * that's what this returns.
  */ 
 function cer_get_cer_struct($entity, array $options, $property, $entity_type, array $info) {
-  return array(
-    $entity_type, $entity,
-  );
+  return array( $entity_type, $entity );
 }
 
 /**
