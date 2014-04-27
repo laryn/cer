@@ -10,7 +10,9 @@
   <li>Taxonomy Term Reference (core)</li>
 </ul>
 
-<p>CER includes a pair of add-on modules that support <a href="http://drupal.org/project/profile2">Profile2</a> and <a href="http://drupal.org/project/commerce">Commerce Product Reference</a> as well. It also has an object-oriented API that you can use to support other kinds of reference fields, if you need to.</p>
+<p>CER includes a pair of add-on modules that support <a href="http://drupal.org/project/profile2">Profile2</a> and <a href="http://drupal.org/project/commerce">Commerce Product Reference</a> as well. It also has an object-oriented API that you can use to support other kinds of reference fields, if you need to. Although it's an advanced use case, the API is even flexible enough that you can twist CER's arm into treating things like fields that are not, in fact, fields. A prime example of this is the <code>cer_profile2</code> add-on.</p>
+
+<p>More information about CER's API can be found in <code>cer.api.php</code>.</p>
 
 <h3>Presets</h3>
 
@@ -18,13 +20,17 @@
 
 <p>To use the example above, let's say you have a user reference field called Author, and it lives on Page nodes. You also have a node reference field called My Pages, and it lives on users. You can set up a preset which looks like this:</p>
 
-<p>Node: Page: Author &lt;&gt; User: My Pages</p>
+<p>Node: Page: Author &lt;--&gt; User: My Pages</p>
 
 <p>In this case, Author is the left field and My Pages is the right field. When the Author field changes on a Page node, the referenced user(s) will be updated with a back-reference to the page.</p>
 
-<p>By default, presets are <dfn>bidirectional</dfn>. This means that a change on either side of the preset will affect the other side. You could change Author or My Pages, and the other side would react properly. It's possible, however, to make a preset <dfn>one-directional</dfn>, which means that the right side will react when the left side changes, but it not the other way around. In a one-directional preset, changes to the right side will NOT affect the left side.</p>
+<p>By default, presets are <dfn>bidirectional</dfn>. This means that a change on either side of the preset will affect the other side. The example above is bidirectional: you can change Author or My Pages, and the other side will react accordingly.</p>
 
-<p>So this means that, in bidirectional presets, it doesn't really matter which field is on the left and which one is on the right &ndash; they'll affect each other equally. But in a one-directional preset, it <em>does</em> matter which side you're on. CER easily lets you &quot;invert&quot; (flip) a one-directional preset.</p>
+<p>It's possible, however, to make a preset <dfn>one-directional</dfn>, which means that the right side will react when the left side changes, but not the other way around&mdash;changes to the right side of a one-directional preset do NOT affect the left side. A one-directional version of our example would act like this:</p>
+
+<p>Node: Page: Author --&gt; User: My Pages</p>
+
+<p>So, in a bidirectional preset, it doesn't really matter which field is on the left and which one is on the right &ndash; they'll affect each other equally. But in a one-directional preset, it <em>does</em> matter which side you're on. CER easily lets you &quot;invert&quot; (flip) a one-directional preset.</p>
 
 <p>Internally, CER treats all reference-type fields the same way, so you can put a different kind of field on either side of a preset. For instance, a node reference field on the left side could relate to a user reference or entity reference field on the right side &ndash; as long as that user or entity reference field exists on nodes (and, more specifically, one of the node types that the left field is able to reference). CER won't let you create relationships between fields that can't actually relate.</p>
 
