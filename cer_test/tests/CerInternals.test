@@ -3,16 +3,16 @@
 class CerInternalsTest extends DrupalWebTestCase {
 
   public static function getInfo() {
-    return [
+    return array(
       'name' => 'Internals',
       'group' => 'CER',
       'description' => "Tests CER's internal logic.",
-    ];
+    );
   }
 
   public function setUp() {
     parent::setUp();
-    module_enable(['cer_test'], TRUE);
+    module_enable(array('cer_test'), TRUE);
   }
 
   public function test() {
@@ -57,7 +57,7 @@ class CerInternalsTest extends DrupalWebTestCase {
   }
 
   protected function createNode($type, $save = FALSE) {
-    $node = new EntityDrupalWrapper('node', entity_create('node', ['type' => $type]));
+    $node = new EntityDrupalWrapper('node', entity_create('node', array('type' => $type)));
     if ($save) {
       $node->save();
       $this->reload($node);
