@@ -13,9 +13,14 @@ function cer_entity_settings_cer_entity_insert(array &$presets, EntityDrupalWrap
 function cer_entity_settings_cer_entity_update(array &$presets, EntityDrupalWrapper $entity) {
   $raw = $entity->value();
 
-  // If $raw->original isn't set, this is probably a bulk update, so load in any existing
-  // entity settings from the database.
-  if (! isset($raw->original)) {  
+  // If $raw->original exists, we can be pretty certain that this hook is not
+  // being invoked during a bulk update. Otherwise, we'll try to load any
+  // stored settings for this entity; if settings exist, we modify the preset
+  // list, and if they don't, we're done.
+  if (isset($raw->original)) {
+    _cer_entity_settings_process($presets, $entity);
+  }
+  else {
     $raw->cer = db_select('cer_entity_settings', 'ces')
       ->fields('ces', array(
         'pid',
@@ -25,11 +30,12 @@ function cer_entity_settings_cer_entity_update(array &$presets, EntityDrupalWrap
       ->condition('status', 1)
       ->execute()
       ->fetchCol();
-
-    $entity->set($raw);
+      
+    if ($raw->cer) {
+      $entity->set($raw);
+      _cer_entity_settings_process($presets, $entity);
+    }
   }
-
-  _cer_entity_settings_process($presets, $entity);
 }
 
 function _cer_entity_settings_process(array &$presets, EntityDrupalWrapper $entity) {
