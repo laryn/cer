@@ -41,19 +41,19 @@ abstract class CerField {
    *  The internal name of the field.
    */
   protected $name;
-  
+
   /**
    * @var CerField
    *  The field instance which contains this one, if any.
    */
   protected $parent;
-  
+
   /**
    * @var CerField
    *  Field instance contained by this one, if any.
    */
   protected $child;
-  
+
   /**
    * @var string
    * The field instance's label.
@@ -239,10 +239,10 @@ abstract class CerField {
     if (! isset($info)) {
       $info = module_invoke_all('cer_fields');
 
-      foreach ($info as $identifier => &$field) {
+      foreach ($info as $key => &$field) {
         $field += array(
           'identifier' =>
-            $identifier,
+            $key,
           'parents' =>
             array(),
           'require parent' =>
