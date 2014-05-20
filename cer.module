@@ -28,6 +28,14 @@ function cer_menu() {
     'file' => 'cer.admin.inc',
     'type' => MENU_LOCAL_ACTION,
   );
+  $items["{$prefix}/presets/import"] = array(
+    'title' => 'Import a preset',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cer_import_preset'),
+    'access arguments' => array('administer cer settings'),
+    'file' => 'cer.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+  );
   $items["{$prefix}/presets/toggle/%cer_preset"] = array(
     'page callback' => 'cer_preset_toggle',
     'page arguments' => array(6),
@@ -45,6 +53,14 @@ function cer_menu() {
   $items["{$prefix}/presets/revert-delete/%cer_preset"] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cer_revert_delete_preset', 6),
+    'access arguments' => array('administer cer settings'),
+    'file' => 'cer.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items["{$prefix}/presets/export/%cer_preset"] = array(
+    'title' => 'Export Preset',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cer_export_preset', 6),
     'access arguments' => array('administer cer settings'),
     'file' => 'cer.admin.inc',
     'type' => MENU_CALLBACK,

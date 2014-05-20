@@ -52,6 +52,10 @@ function cer_preset_list(array $form, array &$form_state) {
             'title' => ($preset->export_type & EXPORT_IN_CODE ? t('revert') : t('delete')),
             'href' => "admin/config/content/cer/presets/revert-delete/{$id}",
           ),
+          'export' => array(
+            'title' => t('export'),
+            'href' => "admin/config/content/cer/presets/export/{$id}",
+          ),
         ),
       ),
       '#attributes' => array(
@@ -321,6 +325,64 @@ function cer_preset_invert(CerPreset $original) {
   }
 
   drupal_goto('admin/config/content/cer');
+}
+
+/**
+ * Form builder. Provides a text area for exported preset code.
+ */
+function cer_import_preset(array $form, array &$form_state) {
+  $form['code'] = array(
+    '#type' => 'textarea',
+    '#required' => TRUE,
+    '#rows' => 10,
+  );
+
+  $form['actions'] = array(
+    'import' => array(
+      '#type' => 'submit',
+      '#value' => t('Import'),
+    ),
+    '#type' => 'actions',
+  );
+
+  $form['#redirect'] = 'admin/config/content/cer';
+
+  return $form;
+}
+
+/**
+ * Submit handler. Imports a preset from code.
+ */
+function cer_import_preset_submit(array $form, array &$form_state) {
+  ctools_include('export');
+  eval($form_state['values']['code']);
+
+  if (isset($preset) && $preset instanceof CerPreset) {
+    if (ctools_export_crud_save('cer', $preset)) {
+      drupal_set_message(t('The preset was imported successfully.'));
+    }
+    else {
+      drupal_set_message(t('An error occurred while trying to save the preset.'), 'error');
+    }
+  }
+  else {
+    drupal_set_message(t('The exported preset is not valid.'), 'error');
+  }
+}
+
+/**
+ * Form builder. Exports a preset in a textarea.
+ */
+function cer_export_preset(array $form, array &$form_state, CerPreset $preset) {
+  ctools_include('export');
+  
+  $form['export'] = array(
+    '#type' => 'textarea',
+    '#rows' => 10,
+    '#default_value' => ctools_export_object('cer', $preset),
+  );
+
+  return $form;
 }
 
 /**
