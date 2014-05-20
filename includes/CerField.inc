@@ -171,8 +171,12 @@ abstract class CerField {
    * @return mixed
    */
   public function entityInfo() {
+    // We can't pass func_get_args() directly into drupal_array_get_nested_value(),
+    // because PHP 5.2 and older will throw a fatal error. Ugh.
+    $keys = func_get_args();
     $info = entity_get_info($this->entityType);
-    return drupal_array_get_nested_value($info, func_get_args());
+
+    return drupal_array_get_nested_value($info, $keys);
   }
   
   /**
@@ -184,8 +188,11 @@ abstract class CerField {
    * @return mixed
    */
   public function fieldInfo() {
+    // See the comment in $this->entityInfo().
+    $keys = func_get_args();
     $info = field_info_field($this->name);
-    return drupal_array_get_nested_value($info, func_get_args());
+
+    return drupal_array_get_nested_value($info, $keys);
   }
 
   /**
