@@ -22,13 +22,13 @@ class CerPreset extends StdClass {
    * @var integer
    * Set by the CTools Export API.
    */
-  protected $export_type;
+  public $export_type;
 
   /**
    * @var boolean
    * Set by hook_cer_default_presets().
    */
-  protected $disabled = FALSE;
+  public $disabled = FALSE;
 
   /**
    * @var CerFieldChain
@@ -43,18 +43,17 @@ class CerPreset extends StdClass {
   /**
    * @var boolean
    */
-  protected $bidirectional = TRUE;
+  public $bidirectional = TRUE;
 
   /**
    * @var integer
    */
-  protected $weight = 0;
-  
+  public $weight = 0;
   /**
    * @var boolean
    * This flag is only applicable to presets that live in the database. (@see $this->enabled())
    */
-  protected $enabled = TRUE;
+  public $enabled = TRUE;
 
   public function __get($property) {
     switch ($property) {
@@ -86,17 +85,6 @@ class CerPreset extends StdClass {
       case 'b':
       case 'right':
         $this->setChain($this->b, $value);
-        break;
-
-      case 'bidirectional':
-      case 'disabled':
-      case 'enabled':
-        $this->{$property} = (boolean) $value;
-        break;
-
-      case 'export_type':
-      case 'weight':
-        $this->{$property} = (int) $value;
         break;
 
       default:
