@@ -1,6 +1,23 @@
 <?php
 
 /**
+ * Implements hook_cer_preset_create().
+ */
+function cer_entity_settings_cer_preset_create(CerPreset $preset) {
+  _cer_entity_settings_create_instance($preset->left->end());
+  _cer_entity_settings_create_instance($preset->right->end());
+}
+
+/**
+ * Implements hook_cer_preset_delete().
+ */
+function cer_entity_settings_cer_preset_delete(CerPreset $preset) {
+  _cer_entity_settings_delete_instance($preset->left->end());
+  _cer_entity_settings_delete_instance($preset->right->end());
+}
+
+
+/**
  * Implements hook_cer_entity_insert().
  */
 function cer_entity_settings_cer_entity_insert(array &$presets, EntityDrupalWrapper $entity) {

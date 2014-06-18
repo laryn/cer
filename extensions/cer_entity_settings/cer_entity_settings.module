@@ -1,19 +1,37 @@
 <?php
 
 /**
- * Implements hook_entity_delete().
+ * Implements hook_field_info().
  */
-function cer_entity_settings_entity_delete($entity, $type) {
-  list ($id, ,) = entity_extract_IDs($type, $entity);
-
-  db_delete('cer_entity_settings')->condition('entity_type', $type)->condition('entity_id', $id)->execute();
+function cer_entity_settings_field_info() {
+  return array(
+    'cer' => array(
+      'label' => t('CER Settings'),
+      'no ui' => TRUE,
+    ),
+  );
 }
 
-/**
- * Implements hook_field_delete_instance().
- */
-function cer_entity_settings_field_delete_instance(array $instance) {
-  db_delete('cer_entity_settings')->condition('fiid', $instance['id'])->execute();
+function _cer_entity_settings_create_instance(CerField $field) {
+  $instance = field_info_instance($field->entityType, 'cer', $field->bundle);
+
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => 'cer',
+      'entity_type' => $field->entityType,
+      'bundle' => $field->bundle,
+      'label' => t('CER Settings'),
+    );
+    field_create_instance($instance);
+  }
+}
+
+function _cer_entity_settings_delete_instance(CerField $field) {
+  $instance = field_info_instance($field->entityType, 'cer', $field->bundle);
+
+  if ($instance) {
+    field_delete_instance($instance);
+  }
 }
 
 /**
