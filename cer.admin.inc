@@ -116,19 +116,13 @@ function cer_preset_list_submit(array $form, array &$form_state) {
 function cer_add_preset(array $form, array &$form_state) {
   drupal_set_title(t('Add a CER preset'));
 
-  // This form depends on Hierarchical Select, so if it's not installed, stop here
-  // with an error.
-  if (! module_exists('hierarchical_select')) {
-    drupal_set_message(t('You must install the <a href="http://www.drupal.org/project/hierarchical_select">Hierarchical Select</a> module in order to create CER presets.'), 'error');
-    return $form;
-  }
-
   $form['actions'] = array(
     '#type' => 'actions',
   );
   $form['actions']['cancel'] = array(
     '#type' => 'submit',
     '#value' => t('Cancel'),
+    '#limit_validation_errors' => array(),  // Don't validate when canceling.
     '#submit' => array(
       '_cer_add_preset_cancel',
     ),
@@ -137,7 +131,7 @@ function cer_add_preset(array $form, array &$form_state) {
 
   // Either create a new hierarchy to choose the left field, or load it from
   // the cache if the form is being rebuilt.
-  $left = CerFieldHierarchy::get('cer_left');
+  $left = CerHierarchy::get('cer_left');
 
   // If the hierarchy is empty, add every available field chain to it.
   if (sizeof($left) == 0) {
@@ -149,7 +143,7 @@ function cer_add_preset(array $form, array &$form_state) {
   // If the hierarchy now has data, generate a hierarchical_select field and add
   // it to the form. Otherwise, fail with an error message.
   if (sizeof($left) > 0) {
-    $form['left'] = $left->getHierarchicalSelect(array('save_lineage' => TRUE));
+    $form['left'] = $left->build();
     $form['left']['#required'] = TRUE;
     $form['left']['#title'] = t('Choose a field...');
   }
@@ -168,7 +162,7 @@ function cer_add_preset(array $form, array &$form_state) {
     $left_re = $left->regex();
 
     // Create, or get from the cache, a hierarchy for the right field chain.
-    $right = CerFieldHierarchy::get('cer_right');
+    $right = CerHierarchy::get('cer_right');
 
     // Loop through every possible field chain and test it against the left
     // chain's regex. If it matches, we can add the chain to the right hierarchy.
@@ -187,7 +181,7 @@ function cer_add_preset(array $form, array &$form_state) {
         '#markup' => sprintf('%s', $left->getLabel()),
       );
 
-      $form['right'] = $right->getHierarchicalSelect(array('save_lineage' => TRUE));
+      $form['right'] = $right->build();
       $form['right']['#title'] = t('Choose a corresponding field...');
 
       $form['advanced'] = array(
@@ -235,7 +229,7 @@ function cer_add_preset(array $form, array &$form_state) {
  * the form so the user can choose the right field.
  */
 function _cer_add_preset_continue(array $form, array &$form_state) {
-  $form_state['storage']['cer']['left'] = CerFieldChain::unpack(end($form_state['values']['left']));  
+  $form_state['storage']['cer']['left'] = $form['left']['#controller']->unpack($form_state['values']['left']);  
   $form_state['rebuild'] = TRUE;
 }
 
@@ -244,8 +238,8 @@ function _cer_add_preset_continue(array $form, array &$form_state) {
  * redirects to the preset list.
  */
 function _cer_add_preset_cancel(array $form, array &$form_state) {
-  CerFieldHierarchy::get('cer_left')->clean();
-  CerFieldHierarchy::get('cer_right')->clean();
+  CerHierarchy::get('cer_left')->clean();
+  CerHierarchy::get('cer_right')->clean();
 
   $form_state['redirect'] = 'admin/config/content/cer';
 }
@@ -263,7 +257,7 @@ function cer_add_preset_submit(array $form, array &$form_state) {
   // to unpack it now, which might throw an exception if there's an invalid
   // plugin identifier in the chain.
   $preset->left = $form_state['storage']['cer']['left'];
-  $preset->right = CerFieldChain::unpack(end($form_state['values']['right']));
+  $preset->right = $form['right']['#controller']->unpack($form_state['values']['right']);
 
   $preset->bidirectional = $form_state['values']['bidirectional'];
   $preset->enabled = TRUE;

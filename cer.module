@@ -578,10 +578,3 @@ function cer_entity_property_info_alter(array &$info) {
 
 // Include property callback functions
 module_load_include('inc', 'cer', 'cer.properties');
-
-// Load CER's implementation of the Hierarchical Select API if Hierarchical Select
-// is installed. It's a bit ugleh to include it globally like this, but as soon
-// as Hierarchical Select implements hook_hook_info(), I'll get rid of it.
-if (module_exists('hierarchical_select')) {
-  module_load_include('inc', 'cer', 'cer.hierarchical_select');
-}

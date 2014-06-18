@@ -24,13 +24,11 @@ DEPENDENCIES
 - CTools
 - Table Element
 
-In order to create presets, Hierarchical Select is required. If it isn't installed, the preset creation form will complain and refuse to appear. Everything else will work properly, though.
-
 CREATING PRESETS
 
 CER won’t do anything until you create at least one preset. To create a preset, visit admin/config/content/cer and click “Add a preset”. You will need Hierarchical Select installed to continue.
 
-Use the hierarchical select widget to drill down to the field you want to use for the left side of the preset, then click Continue. You’ll see another hierarchical select widget show up; use that to drill down to the field to use for the right side of the preset. Click Save, and you’re all set!
+Select the field you want to use for the left side of the preset, then click Continue. Another select field will appear; use it to choose the field to use for the right side of the preset. Click Save, and you’re all set!
 
 THINGS YOU SHOULD KNOW
 
@@ -41,7 +39,6 @@ THINGS YOU SHOULD KNOW
 * Everything CER does, it does in a normal security context. This can lead to unexpected behavior if you’re not aware of it. In other words, if you don’t have the permission to view a specific node, don’t expect CER to be able to reference it when logged in as you. Be mindful of your entity/field permissions!
   
 * devel_generate does not play nicely with CER, especially where field collections are concerned. The results are utterly unpredictable.
-
 
 ROAD MAP
 
