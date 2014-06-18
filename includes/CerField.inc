@@ -35,7 +35,7 @@ abstract class CerField {
    *  The bundle this instance is bound to.
    */
   protected $bundle;
-  
+
   /**
    * @var string
    *  The internal name of the field.
@@ -55,6 +55,21 @@ abstract class CerField {
   protected $child;
 
   /**
+   * @var boolean
+   */
+  protected $isBundleable;
+
+  /**
+   * @var string
+   */
+  protected $entityTypeLabel;
+
+  /**
+   * @var string
+   */
+  protected $bundleLabel;
+
+  /**
    * @var string
    * The field instance's label.
    */
@@ -69,7 +84,7 @@ abstract class CerField {
    * @var string
    */
   protected $fieldTypeLabel;
-  
+
   /**
    * @var array
    */
@@ -88,6 +103,16 @@ abstract class CerField {
   public function __construct(array $plugin) {
     $this->plugin = $plugin;
     list ($this->entityType, $this->bundle, $this->name) = explode(':', $plugin['identifier']);
+
+    $info = entity_get_info($this->entityType);
+    if ($info['entity keys']['bundle']) {
+      $this->isBundleable = TRUE;
+      $this->bundleLabel = $info['bundles'][$this->bundle]['label'];
+    }
+    else {
+      $this->isBundleable = FALSE;
+    }
+    $this->entityTypeLabel = $info['label'];
 
     $info = field_info_field($this->name);
     $this->cardinality = $info['cardinality'];
@@ -114,7 +139,7 @@ abstract class CerField {
   }
 
   /**
-   * Magic getter to allow read-only access to protected properties.
+   * Magic getter allowing read-only access to protected properties.
    */
   public function __get($property) {
     return $this->{$property};
@@ -173,23 +198,6 @@ abstract class CerField {
   }
 
   /**
-   * Gets information about the entity type this field instance is bound to.
-   *
-   * @param [string...]
-   *  Array keys to fetch, or nothing to fetch all entity type info.
-   *
-   * @return mixed
-   */
-  public function entityInfo() {
-    // We can't pass func_get_args() directly into drupal_array_get_nested_value(),
-    // because PHP 5.2 and older will throw a fatal error. Ugh.
-    $keys = func_get_args();
-    $info = entity_get_info($this->entityType);
-
-    return drupal_array_get_nested_value($info, $keys);
-  }
-
-  /**
    * Generates a human-readable label for this field instance. By default,
    * this is in the form of Entity Type >> Bundle >> Label.
    *
@@ -199,12 +207,10 @@ abstract class CerField {
     $label = '';
 
     if (! $this->plugin['require parent']) {
-      $label .= $this->entityInfo('label');
-      $label .= ' &raquo; ';
+      $label .= "{$this->entityTypeLabel} &raquo; ";
 
-      if ($this->entityInfo('entity keys', 'bundle')) {
-        $label .= $this->entityInfo('bundles', $this->bundle, 'label');
-        $label .= ' &raquo; ';
+      if ($this->isBundleable) {
+        $label .= "{$this->bundleLabel} &raquo; ";
       }
     }    
     $label .= $this->label;

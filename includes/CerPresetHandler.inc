@@ -133,7 +133,7 @@ class CerPresetHandler {
     // we could run into a bug where, if the left field can reference multiple bundles,
     // we might try to modify the wrong entity. Essentially, the loading of referenced
     // entities should be as targeted as possible to prevent ambiguities and buggery.
-    if ($right->entityInfo('entity keys', 'bundle')) {
+    if ($right->isBundleable) {
       $query->entityCondition('bundle', $right->bundle);
     }
 
