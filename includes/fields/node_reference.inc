@@ -6,7 +6,7 @@
  */
  
 class CerNodeReferenceField extends CerField {
-  
+
   /**
    * Implements CerField::getTargetType().
    */
@@ -20,10 +20,10 @@ class CerNodeReferenceField extends CerField {
   public function getTargetBundles() {
     $bundles = array();
 
-    $view = $this->fieldInfo('settings', 'view', 'view_name');
+    $view = $this->settings['view']['view_name'];
     if ($view) {
       $view = views_get_view($view);
-      $view->set_display($this->fieldInfo('settings', 'view', 'view_display'));
+      $view->set_display($this->settings['view']['view_display']);
 
       $handler = $view->display_handler->get_handler('filter', 'type');
       if ($handler) {
@@ -31,7 +31,7 @@ class CerNodeReferenceField extends CerField {
       }
     }
     else {
-      $bundles = array_filter($this->fieldInfo('settings', 'referenceable_types'));
+      $bundles = array_filter($this->settings['referenceable_types']);
     }
 
     return ($bundles ? $bundles : parent::getTargetBundles());

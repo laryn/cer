@@ -20,7 +20,7 @@ class CerTaxonomyTermReferenceField extends CerField {
   public function getTargetBundles() {
     $bundles = array();
 
-    foreach ($this->fieldInfo('settings', 'allowed_values') as $item) {
+    foreach ($this->settings['allowed_values'] as $item) {
       $bundles[] = $item['vocabulary'];
     }
 

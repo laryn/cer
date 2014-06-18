@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the CerHierarchy object.
+ * Contains the CerHierarchy class.
  */
 
 class CerHierarchy implements Countable {
@@ -61,6 +61,9 @@ class CerHierarchy implements Countable {
     cache_clear_all($this->cacheID, 'cache');
   }
 
+  /**
+   * Add an item of any type to the hierarchy.
+   */
   public function add($item_key, $label = NULL, $parent = CerHierarchy::ROOT) {
     if (!array_key_exists($item_key, $this->data)) {
       $this->data[$item_key]['label'] = isset($label) ? $label : $item_key;
@@ -75,6 +78,9 @@ class CerHierarchy implements Countable {
     }
   }
 
+  /**
+   * Adds a single field plugin to the hierarchy.
+   */
   public function addField(CerField $field) {
     $bundle_key = "{$field->entityType}:{$field->bundle}";
 
@@ -90,6 +96,9 @@ class CerHierarchy implements Countable {
     $this->add($field_key, $field->label, $bundle_key);
   }
 
+  /**
+   * Adds an entire field chain to the hierarchy.
+   */
   public function addChain(CerFieldChain $chain) {
     $parents = array();
 

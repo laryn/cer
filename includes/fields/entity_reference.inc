@@ -11,7 +11,7 @@ class CerEntityReferenceField extends CerField {
    * Implements CerField::getTargetType().
    */
   public function getTargetType() {
-    return $this->fieldInfo('settings', 'target_type');
+    return $this->settings['target_type'];
   }
   
   /**
@@ -33,9 +33,9 @@ class CerEntityReferenceField extends CerField {
     // function could then be deprecated, which would be a more flexible, future-proof
     // method of finding a field's target bundles.
     //
-    if ($this->fieldInfo('settings', 'handler') == 'views') {
-      $view = views_get_view($this->fieldInfo('settings', 'handler_settings', 'view', 'view_name'));
-      $view->set_display($this->fieldInfo('settings', 'handler_settings', 'view', 'display_name'));
+    if ($this->settings['handler'] == 'views') {
+      $view = views_get_view($this->settings['handler_settings']['view']['view_name']);
+      $view->set_display($this->settings['handler_settings']['view']['display_name']);
 
       $info = entity_get_info($this->getTargetType());
       if (isset($info['entity keys']['bundle'])) {
@@ -46,7 +46,7 @@ class CerEntityReferenceField extends CerField {
       }
     }
     else {
-      $bundles = $this->fieldInfo('settings', 'handler_settings', 'target_bundles');
+      $bundles = $this->settings['handler_settings']['target_bundles'];
     }
 
     return ($bundles ? $bundles : parent::getTargetBundles());

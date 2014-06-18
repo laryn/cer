@@ -69,6 +69,11 @@ abstract class CerField {
    * @var string
    */
   protected $fieldTypeLabel;
+  
+  /**
+   * @var array
+   */
+  protected $settings;
 
   /**
    * Gets the type of entity that can be referenced by this field, e.g. 'node'.
@@ -84,11 +89,16 @@ abstract class CerField {
     $this->plugin = $plugin;
     list ($this->entityType, $this->bundle, $this->name) = explode(':', $plugin['identifier']);
 
-    $fieldInfo = field_info_field($this->name);
-    $this->cardinality = $fieldInfo['cardinality'];
+    $info = field_info_field($this->name);
+    $this->cardinality = $info['cardinality'];
 
-    $fieldType = field_info_field_types($fieldInfo['type']);
-    $this->fieldTypeLabel = $fieldType['label'];
+    // Store a copy of the field settings for convenience. At the time of this
+    // writing, this is needed by the Entity Reference, Node Reference,
+    // and Term Reference plugins.
+    $this->settings = $info['settings'];
+
+    $type = field_info_field_types($info['type']);
+    $this->fieldTypeLabel = $type['label'];
 
     $instance = field_info_instance($this->entityType, $this->name, $this->bundle);
     $this->label = $instance['label'];
@@ -175,22 +185,6 @@ abstract class CerField {
     // because PHP 5.2 and older will throw a fatal error. Ugh.
     $keys = func_get_args();
     $info = entity_get_info($this->entityType);
-
-    return drupal_array_get_nested_value($info, $keys);
-  }
-  
-  /**
-   * Gets information about the global field definition.
-   *
-   * @param [string...]
-   *  Array keys to fetch, or nothing to fetch all field info.
-   *
-   * @return mixed
-   */
-  public function fieldInfo() {
-    // See the comment in $this->entityInfo().
-    $keys = func_get_args();
-    $info = field_info_field($this->name);
 
     return drupal_array_get_nested_value($info, $keys);
   }
