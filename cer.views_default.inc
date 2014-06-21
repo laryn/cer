@@ -3,7 +3,8 @@
 /**
  * Implements hook_views_default_views().
  */
-function cer_views_default_views() {  $view = new view();
+function cer_views_default_views() {
+  $view = new view();
   $view->name = 'cer_presets';
   $view->description = '';
   $view->tag = 'CER';
@@ -47,7 +48,7 @@ function cer_views_default_views() {  $view = new view();
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 1,
-      'label' => 'Delete selected',
+      'label' => 'Delete selected presets',
     ),
     'action::views_bulk_operations_delete_revision' => array(
       'selected' => 0,
@@ -56,19 +57,19 @@ function cer_views_default_views() {  $view = new view();
       'override_label' => 0,
       'label' => '',
     ),
-    'rules_component::rules_disable_cer_preset' => array(
+    'rules_component::cer_disable_preset' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 1,
-      'label' => 'Disable selected',
+      'label' => 'Disable selected presets',
     ),
-    'rules_component::rules_enable_cer_preset' => array(
+    'rules_component::cer_enable_preset' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 1,
-      'label' => 'Enable selected',
+      'label' => 'Enable selected presets',
     ),
     'action::views_bulk_operations_script_action' => array(
       'selected' => 0,
@@ -77,14 +78,21 @@ function cer_views_default_views() {  $view = new view();
       'override_label' => 0,
       'label' => '',
     ),
-    'rules_component::rules_make_cer_preset_bidirectional' => array(
+    'rules_component::cer_invert_preset' => array(
+      'selected' => 0,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 0,
+      'label' => '',
+    ),
+    'rules_component::cer_make_preset_bidirectional' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
       'override_label' => 1,
-      'label' => 'Make selected presets bidirectional',
+      'label' => 'Make selected presets bi-directional',
     ),
-    'rules_component::rules_make_cer_preset_one_directional' => array(
+    'rules_component::cer_make_preset_one_directional' => array(
       'selected' => 1,
       'postpone_processing' => 0,
       'skip_confirmation' => 0,
@@ -110,6 +118,13 @@ function cer_views_default_views() {  $view = new view();
       'settings' => array(
         'url' => '',
       ),
+    ),
+    'rules_component::cer_replace_preset_with_inverse' => array(
+      'selected' => 1,
+      'postpone_processing' => 0,
+      'skip_confirmation' => 0,
+      'override_label' => 1,
+      'label' => 'Invert selected presets',
     ),
     'action::system_send_email_action' => array(
       'selected' => 0,
