@@ -83,7 +83,8 @@ function cer_default_rules_configuration() {
             },
             "PROVIDE" : { "entity_created" : { "inverse" : "Inverse" } }
           }
-        }
+        },
+        { "data_set" : { "data" : [ "inverse:cer-bidirectional" ], "value" : 0 } }
       ],
       "PROVIDES VARIABLES" : [ "original" ]
     }
