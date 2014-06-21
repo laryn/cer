@@ -29,6 +29,7 @@ function field_reference_field_info() {
       'default_widget' => 'options_select',
       'default_formatter' => 'field_reference_default',
       'no_ui' => TRUE,
+      'property_type' => 'text',
     ),
   );
 }
