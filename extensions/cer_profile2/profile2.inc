@@ -9,8 +9,6 @@
 
 class CerProfile2Field extends CerField implements CerEntityContainerInterface {
 
-  protected $isBundleable = TRUE;
-  
   /**
    * A user account can only have one profile of this type.
    */
@@ -28,6 +26,7 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     list ($this->entityType, $this->bundle, $this->name) = explode(':', $plugin['identifier']);
 
     $info = entity_get_info($this->entityType);
+    $this->isBundleable = (boolean) $info['entity keys']['bundle'];
     $this->entityTypeLabel = $info['label'];
     $this->bundleLabel = $info['bundles'][$this->bundle]['label'];
 

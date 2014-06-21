@@ -104,16 +104,13 @@ abstract class CerField {
     $this->plugin = $plugin;
     list ($this->entityType, $this->bundle, $this->name) = explode(':', $plugin['identifier']);
 
+    // Get info about the entity type and bundle hosting this field instance.
     $info = entity_get_info($this->entityType);
-    if ($info['entity keys']['bundle']) {
-      $this->isBundleable = TRUE;
-      $this->bundleLabel = $info['bundles'][$this->bundle]['label'];
-    }
-    else {
-      $this->isBundleable = FALSE;
-    }
+    $this->isBundleable = (boolean) $info['entity keys']['bundle'];
     $this->entityTypeLabel = $info['label'];
+    $this->bundleLabel = $info['bundles'][$this->bundle]['label'];
 
+    // Get global info about the field.
     $info = field_info_field($this->name);
     $this->cardinality = $info['cardinality'];
 
@@ -122,9 +119,11 @@ abstract class CerField {
     // and Term Reference plugins.
     $this->settings = $info['settings'];
 
+    // Get info about the field type.
     $type = field_info_field_types($info['type']);
     $this->fieldTypeLabel = $type['label'];
 
+    // Finally, get info about the field instance.
     $instance = field_info_instance($this->entityType, $this->name, $this->bundle);
     $this->label = $instance['label'];
   }
