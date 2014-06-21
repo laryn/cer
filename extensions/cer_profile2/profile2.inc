@@ -9,6 +9,15 @@
 
 class CerProfile2Field extends CerField implements CerEntityContainerInterface {
 
+  protected $isBundleable = TRUE;
+  
+  /**
+   * A user account can only have one profile of this type.
+   */
+  protected $cardinality = 1;
+
+  protected $fieldTypeLabel = t('Profile');
+
   protected $profileType;
 
   /**
@@ -18,14 +27,13 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     $this->plugin = $plugin;
     list ($this->entityType, $this->bundle, $this->name) = explode(':', $plugin['identifier']);
 
-    $this->fieldTypeLabel = t('Profile');
+    $info = entity_get_info($this->entityType);
+    $this->entityTypeLabel = $info['label'];
+    $this->bundleLabel = $info['bundles'][$this->bundle]['label'];
 
     // Load the Profile2 type information
     $this->profileType = profile2_get_types(subStr($this->name, 8));
     $this->label = $this->profileType->label;
-
-    // A user account can only have one profile of this type.
-    $this->cardinality = 1;
   }
 
   /**
@@ -43,18 +51,6 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     // This field can only "reference" one type of profile. There'll be
     // a separate instance of this plugin for each Profile2 type.
     return (array) $this->profileType->type;
-  }
-
-  /**
-   * @override CerField::fieldInfo().
-   */
-  public function fieldInfo() {
-    $info = array(
-      'field_name' => $this->name,
-      // Each user account can only have one profile of each type.
-      'cardinality' => 1,
-    );
-    return drupal_array_get_nested_value($info, func_get_args());
   }
 
   /**
