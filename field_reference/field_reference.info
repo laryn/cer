@@ -1,0 +1,7 @@
+name = "Field Reference"
+description = "Provides a field type that can refer to field instances."
+
+core = "7.x"
+hidden = true
+
+dependencies[] = options

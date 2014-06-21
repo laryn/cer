@@ -1,0 +1,176 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function field_reference_theme() {
+  return array(
+    'field_reference_label' => array(
+      'variables' => array(
+        'field' => array(),
+        'instance' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_info().
+ */
+function field_reference_field_info() {
+  return array(
+    'field_reference' => array(
+      'label' => t('Field Reference'),
+      'description' => t('Refers to a field instance.'),
+      'settings' => array(),
+      'instance_settings' => array(
+        'function' => NULL,
+      ),
+      'default_widget' => 'options_select',
+      'default_formatter' => 'field_reference_default',
+      'no_ui' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_info_alter().
+ */
+function field_reference_field_widget_info_alter(array &$info) {
+  $info['options_select']['field types'][] = 'field_reference';
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function field_reference_field_formatter_info() {
+  return array(
+    'field_reference_label' => array(
+      'label' => t('Label'),
+      'description' => t("The field instance's label."),
+      'field types' => array('field_reference'),
+      'settings' => array(
+        'display_field_type' => TRUE,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function field_reference_field_is_empty(array $item, array $field) {
+  return empty($item['path']);
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function field_reference_field_formatter_view($entity_type, $entity, array $field, array $instance, $language, array $items, array $display) {
+  $element = array();
+
+  foreach ($items as $delta => $item) {
+    $label = array();
+    $path = _field_reference_expand_path($item['path']);
+
+    foreach ($path as $i) {
+      $label[] = theme('field_reference_label', $i);
+    }
+
+    $label = implode(' &raquo; ', $label);
+
+    if ($display['settings']['display_field_type']) {
+      $end = end($path);
+      $field_type = field_info_field_types($end['field']['type']);
+      $label = '<strong>' . $field_type['label'] . ":</strong> {$label}";
+    }
+
+    $element[$delta]['#markup'] = $label;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function field_reference_field_formatter_settings_form(array $field, array $instance, $view_mode, array $form, array &$form_state) {
+  $elements = array();
+
+  $elements['display_field_type'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show field type'),
+    '#default_value' => $instance['display'][$view_mode]['settings']['display_field_type'],
+  );
+
+  return $elements;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function field_reference_field_formatter_settings_summary(array $field, array $instance, $view_mode) {
+  $summary = '';
+
+  if ($instance['display'][$view_mode]['settings']['display_field_type']) {
+    $summary .= t('Show field type');
+  }
+
+  return $summary;
+}
+
+/**
+ * Implements hook_options_list().
+ */
+function field_reference_options_list(array $field, array $instance, $entity_type, $entity) {
+  $function = $instance['settings']['function'];
+
+  if ($function && function_exists($function)) {
+    return $function($field, $instance, $entity_type, $entity);
+  }
+  else {
+    return array();
+  }
+}
+
+/**
+ * Renders a human-readable label for a field instance, including the entity
+ * type and (if applicable) bundle that hosts it.
+ */
+function theme_field_reference_label(array $variables) {
+  $instance = $variables['instance'];
+
+  $output = '';
+
+  if ($variables['field']['type'] !== 'field_collection') {
+    $entity_type = entity_get_info($instance['entity_type']);
+    $output = $entity_type['label'] . ' &raquo; ';
+
+    if ($entity_type['entity keys']['bundle']) {
+      $output .= $entity_type['bundles'][ $instance['bundle'] ]['label'] . ' &raquo; ';
+    }
+  }
+
+  return $output . $instance['label'];
+}
+
+/**
+ * Helper function. Expands a field reference's path value into an array
+ * of field and instance definitions.
+ */
+function _field_reference_expand_path($path) {
+  $output = array();
+
+  foreach (explode('::', $path) as $instance) {
+    list ($entity_type, $bundle, $field) = explode(':', $instance);
+
+    $output[] = array(
+      'field' =>
+        field_info_field($field),
+      'instance' =>
+        field_info_instance($entity_type, $field, $bundle),
+    );
+  }
+
+  return $output;
+}
