@@ -7,6 +7,13 @@
  */
 
 /**
+ * Unpacks the cer_left and cer_right values into a CerFieldChain object.
+ */
+function cer_unpack_field_chain($data, array $options, $proerty, $entity_type, array $info) {
+  return CerFieldChain::unpack($data);
+}
+
+/**
  * Creates a parent struct for the lineage, depth, owner, and original properties.
  * All that these other callbacks really need is the entity type and object, so
  * that's what this returns.
