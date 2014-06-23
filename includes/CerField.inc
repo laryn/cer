@@ -81,11 +81,6 @@ abstract class CerField {
   protected $cardinality;
 
   /**
-   * @var string
-   */
-  protected $fieldTypeLabel;
-
-  /**
    * @var array
    */
   protected $settings;
@@ -118,10 +113,6 @@ abstract class CerField {
     // writing, this is needed by the Entity Reference, Node Reference,
     // and Term Reference plugins.
     $this->settings = $info['settings'];
-
-    // Get info about the field type.
-    $type = field_info_field_types($info['type']);
-    $this->fieldTypeLabel = $type['label'];
 
     // Finally, get info about the field instance.
     $instance = field_info_instance($this->entityType, $this->name, $this->bundle);
@@ -194,44 +185,6 @@ abstract class CerField {
       $this->child = $child;
     }
     return $this->child;
-  }
-
-  /**
-   * Generates a human-readable label for this field instance. By default,
-   * this is in the form of Entity Type >> Bundle >> Label.
-   *
-   * @return string
-   */
-  public function getLabel() {
-    $label = '';
-
-    if (! $this->plugin['require parent']) {
-      $label .= "{$this->entityTypeLabel} &raquo; ";
-
-      if ($this->isBundleable) {
-        $label .= "{$this->bundleLabel} &raquo; ";
-      }
-    }    
-    $label .= $this->label;
-
-    return $label;
-  }
-
-  /**
-   * Returns the export pipe for this field when exporting to Features. Anything
-   * this particular field needs in order to be properly exported, it should add
-   * to the pipe. The full export definition is passed by reference so dependencies
-   * can be added.
-   *
-   * @return array
-   */
-  public function getExportPipe(array &$export) {
-    $pipe = array();
-
-    $pipe['field_base'][] = $this->name;
-    $pipe['field_instance'][] = "{$this->entityType}-{$this->bundle}-{$this->name}";
-
-    return $pipe;
   }
 
   /**

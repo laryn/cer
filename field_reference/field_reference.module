@@ -145,10 +145,10 @@ function theme_field_reference_label(array $variables) {
 
   if ($variables['field']['type'] !== 'field_collection') {
     $entity_type = entity_get_info($instance['entity_type']);
-    $output = $entity_type['label'] . ' &raquo; ';
+    $output = $entity_type['label'] . ' » ';
 
     if ($entity_type['entity keys']['bundle']) {
-      $output .= $entity_type['bundles'][ $instance['bundle'] ]['label'] . ' &raquo; ';
+      $output .= $entity_type['bundles'][ $instance['bundle'] ]['label'] . ' » ';
     }
   }
 

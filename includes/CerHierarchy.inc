@@ -6,12 +6,6 @@
  */
 
 class CerHierarchy implements Countable {
-
-  /**
-   * @var string
-   *  Cache ID for this hierarchy.
-   */
-  protected $cacheID;
   
   /**
    * @var array
@@ -21,44 +15,26 @@ class CerHierarchy implements Countable {
 
   const ROOT = 'root';
 
-  /**
-   * Constructor.
-   */
-  public function __construct($cacheID) {
-    $this->cacheID = $cacheID;
-  }
-
   public function __get($property) {
     return $this->{$property};
   }
 
-  /**
-   * Returns a form element for this hierarchy.
-   *
-   * @return array
-   */
-  public function build() {
-    $class = variable_get('cer_hierarchy_widget', 'CerHierarchySelectWidget');
-    $controller = new $class($this);
+  public function options($key = CerHierarchy::ROOT, $parent = NULL, $depth = -1) {
+    $options = array();
+
+    $item = $this->data[$key];
+
+    if (isset($item['label'])) {
+      $options[$key] = str_repeat('-', $depth) . $item['label'];
+    }
+
+    if (isset($item['children'])) {
+      foreach ($item['children'] as $child) {
+        $options = array_merge($options, $this->options($child, $key, $depth + 1));
+      }
+    }
     
-    $element = $controller->build();
-    $element['#controller'] = $controller;
-
-    return $element;
-  }
-
-  /**
-   * Writes this hierarchy into the cache.
-   */
-  public function cache() {
-    cache_set($this->cacheID, $this, 'cache', CACHE_TEMPORARY);
-  }
-
-  /**
-   * Deletes this hierarchy from the cache.
-   */
-  public function clean() {
-    cache_clear_all($this->cacheID, 'cache');
+    return $options;
   }
 
   /**
@@ -114,20 +90,6 @@ class CerHierarchy implements Countable {
       }
 
       $parents[] = $field->__toString();
-    }
-  }
-
-  /**
-   * Returns a cached FieldHierarchy object, or a new instance if there is no cached
-   * instance with the given cache ID.
-   */
-  public static function get($cacheID) {
-    if ($c = cache_get($cacheID)) {
-      return $c->data;
-    }
-    else {
-      $class = __CLASS__;
-      return new $class($cacheID);
     }
   }
 

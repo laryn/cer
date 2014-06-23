@@ -21,7 +21,7 @@ class CerPresetHandler {
    * @var CerFieldChain
    */
   protected $right;
-  
+
   /**
    * @var EntityDrupalWrapper
    */
@@ -33,8 +33,8 @@ class CerPresetHandler {
   protected $refIDs;
 
   public function __construct(CerPreset $preset, EntityDrupalWrapper $entity) {
-    $this->left = $preset->left;
-    $this->right = $preset->right;
+    $this->left = $preset->wrapper->cer_left->chain->value();
+    $this->right = $preset->wrapper->cer_right->chain->value();
     $this->entity = $entity;
 
     // Store the current set of reference IDs so that we only need to instantiate

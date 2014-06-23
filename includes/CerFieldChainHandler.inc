@@ -77,9 +77,14 @@ class CerFieldChainHandler {
     $owner = $this->entity;
 
     foreach ($this->chain as $field) {
+      // If the current field implements CerEntityContainerInterface, we can
+      // create an entity on-the-fly to receive the reference, if there isn't
+      // one already.
       if ($field instanceof CerEntityContainerInterface) {
         $items = $field->getHandler($owner);
 
+        // If there is are items which could receive the reference, seek to the
+        // last one. Otherwise, create one.
         if (sizeof($items) == 0) {
           $owner = $field->createInnerEntity($owner);
         }

@@ -14,8 +14,6 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
    */
   protected $cardinality = 1;
 
-  protected $fieldTypeLabel = t('Profile');
-
   protected $profileType;
 
   /**

@@ -61,21 +61,6 @@ class CerFieldChain implements SeekableIterator {
   }
 
   /**
-   * Generates a human-readable label for the chain.
-   *
-   * @return string
-   */
-  public function getLabel() {
-    $label = array();
-
-    foreach ($this->chain as $field) {
-      $label[] = $field->getLabel();
-    }
-
-    return implode(' &raquo; ', $label);
-  }
-
-  /**
    * Gets a regular expression to match field chain identifiers that this chain can
    * reference, e.g. /^node:(page|article):/
    */

@@ -53,32 +53,3 @@ function hook_cer_fields() {
 function hook_cer_fields_alter(array &$fields) {
   // @todo
 }
-
-/**
- * Invoked before CER processes an entity insert. This gives modules a chance
- * to influence which presets are going to be executed.
- *
- * $presets is an array of the presets CER has loaded for the entity, keyed
- * by their computed IDs. You can add presets to the queue, or delete presets
- * from the queue. $entity is a metadata wrapper around the entity which
- * will be used for the *left* side of each preset. (In CER terminology, the
- * "left" entity is the entity that has references to the "right" entities.
- * Only the right entities are ever modified during processing -- the left
- * entity is really only used to get to the right entities.)
- */
-function hook_cer_entity_insert(array &$presets, EntityDrupalWrapper $entity) {
-}
-
-/**
- * Like hook_cer_entity_insert(), but acts only on entity update, including CER's
- * bulk update.
- */
-function hook_cer_entity_update(array &$presets, EntityDrupalWrapper $entity) {
-}
-
-/**
- * Like hook_cer_entity_insert() and hook_cer_entity_update(), but acts on an entity
- * after it's been deleted.
- */
-function hook_cer_entity_delete(array &$presets, EntityDrupalWrapper $entity) {
-}

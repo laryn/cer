@@ -2,165 +2,92 @@
 
 /**
  * @file
- * Contains the CerPreset object.
+ * Contains the entity class for CER presets.
  */
 
-/**
- * @class
- *  Encapsulates a single CER preset, which consists of two CerFieldChain objects.
- */
-class CerPreset extends StdClass {
-
-  /**
-   * This is always computed by __get(). But it needs to be here so that
-   * property_exists($preset, 'id') will return TRUE, which is how
-   * drupal_write_record() finds record properties.
-   */
-  protected $id;
+class CerPreset extends Entity {
 
   /**
    * @var integer
-   * Set by the CTools Export API.
+   * The preset's numeric ID in the database.
    */
-  public $export_type;
+  public $pid;
 
   /**
-   * @var boolean
-   * Set by hook_cer_default_presets().
+   * @var string
+   * The export identifier, in the format $this->cer_left*$this->cer_right.
    */
-  public $disabled = FALSE;
+  public $identifier;
 
   /**
-   * @var CerFieldChain
+   * @var EntityMetadataWrapper
+   * A metadata wrapper around this preset, for convenience.
    */
-  protected $a;
-
-  /**
-   * @var CerFieldChain
-   */
-  protected $b;
-
-  /**
-   * @var boolean
-   */
-  public $bidirectional = TRUE;
+  public $wrapper;
 
   /**
    * @var integer
-   */
-  public $weight = 0;
+   * The exportable status of this preset.
+   */  
+  public $status = 0x01;  // ENTITY_CUSTOM
+
   /**
-   * @var boolean
-   * This flag is only applicable to presets that live in the database. (@see $this->enabled())
+   * @var string
+   * The module exporting this preset.
    */
-  public $enabled = TRUE;
+  public $module = 'cer';
 
-  public function __get($property) {
-    switch ($property) {
-      case 'id':
-        return MD5("{$this->left}*{$this->right}");
-
-      case 'left':
-        return $this->a;
-
-      case 'right':
-        return $this->b;
-
-      // This constant is used by ctools_export_set_object_status().
-      case 'table':
-        return 'cer';
-
-      default:
-        return $this->{$property};
-    }
-  }
-
-  public function __set($property, $value) {
-    switch ($property) {
-      case 'a':
-      case 'left':
-        $this->setChain($this->a, $value);
-        break;
-
-      case 'b':
-      case 'right':
-        $this->setChain($this->b, $value);
-        break;
-
-      default:
-        break;
-    }
+  /**
+   * Overrides Entity::__construct().
+   */
+  public function __construct(array $values = array()) {
+    parent::__construct($values, 'cer');
+    $this->wrapper = new EntityDrupalWrapper('cer', $this);
   }
 
   /**
-   * CTools uses both property_exists() and isset() when exporting presets,
-   * so this normalizes them.
-   *
-   * @return boolean
+   * Overrides Entity::label().
    */
-  public function __isset($property) {
-    return property_exists($this, $property);
+  public function label() {
+    $label = '';
+
+    if ($this->pid) {
+      foreach (_field_reference_expand_path($this->wrapper->cer_left->value()) as $field) {
+        $label .= theme('field_reference_label', $field);
+      }
+
+      $label .= ' <> ';
+
+      foreach (_field_reference_expand_path($this->wrapper->cer_right->value()) as $field) {
+        $label .= theme('field_reference_label', $field);
+      }
+    }
+
+    return $label;
   }
 
   /**
-   * Setter for $this->a and $this->b.
-   *
-   * @param $property
-   *  A reference to the field to set.
-   *
-   * @param $chain
-   *  Either a CerFieldChain object, or a field chain encoded as a string,
-   *  like in {cer}.a and {cer}.b.
+   * Overrides Entity::save().
    */
-  protected function setChain(&$property, $chain) {
-    if ($chain instanceof CerFieldChain) {
-      $property = $chain;
-    }
-    elseif (is_string($chain) && $chain) {
-      $property = CerFieldChain::unpack($chain);
-    }
+  public function save() {
+    // Generate the export identifier automagically before saving.
+    $this->identifier = $this->wrapper->cer_left->value() . '*' . $this->wrapper->cer_right->value();
+    parent::save();
   }
 
-  /**
-   * Checks if this preset is enabled.
-   *
-   * @return boolean
-   */
-  public function enabled() {
-    ctools_include('export');
-
-    // If this preset lives in the database, {cer}.enabled is its canonical status flag.
-    // Otherwise, we check the default_cer variable, which CTools maintains for us,
-    // and if it doesn't mention this preset, return the inverse of $this->disabled,
-    // which is exported in hook_cer_default_presets().
-    if ($this->export_type & EXPORT_IN_DATABASE) {
-      return $this->enabled;
-    }
-    else {
-      $id = $this->__get('id');
-      $status = variable_get('default_cer', array());
-
-      return (isset($status[$id]) ? $status[$id] : !$this->disabled);
-    }
-  }
-
-  /**
-   * Returns the inverse of this preset (i.e., a new preset with the left and
-   * right field chains flipped). The inverted preset isn't saved to the DB or
-   * anything, it exists only in memory.
-   *
-   * @return CerPreset
-   */
   public function invert() {
-    ctools_include('export');
+    // Disguise this as a new preset by clearing the ID and setting $this->is_new.
+    $this->pid = NULL;
+    $this->is_new = TRUE;
 
-    $inverse = ctools_export_crud_new('cer', FALSE);
+    // Regenerate the identifier and reinitialize the wrapper.
+    $this->__construct();
 
-    $inverse->left = $this->right;
-    $inverse->right = $this->left;
-    $inverse->bidirectional = $this->bidirectional;
-    
-    return $inverse;
+    // Swap the left and right fields.
+    $buffer = $this->wrapper->cer_left->value();
+    $this->wrapper->cer_left->set($this->wrapper->cer_right->value());
+    $this->wrapper->cer_right->set($buffer);
+
+    return $this;
   }
-
 }
