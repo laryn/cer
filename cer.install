@@ -427,26 +427,35 @@ function cer_update_7005() {
   // Create fields and field instances
   cer_install();
 
-  // If the legacy {cer} table exists, convert its presets to entities.
-  if (db_table_exists('cer')) {
-    ctools_include('export');
+  // Convert legacy presets to entities.
+  $old = db_select('cer')->fields('cer')->execute()->fetchAll();
+  $old = array_merge($old, module_invoke_all('cer_default_presets'));
 
-    foreach (ctools_export_load_object('cer', 'all') as $id => $preset) {
-      if ($preset->export_type & EXPORT_IN_DATABASE) {
-        $entity = new CerPreset();
+  foreach ($old as $p) {
+    // In here, $p is either going to be an StdClass (a row fetched from the
+    // database) or a CerPreset instance (retured from an implementation of
+    // hook_cer_default_presets()). Most properties are exposed directly (more
+    // or less)...
+    $preset = new CerPreset();
 
-        $entity->wrapper->cer_left->set($preset->left->__toString());
-        $entity->wrapper->cer_right->set($preset->right->__toString());
-        $entity->wrapper->cer_bidirectional->set($preset->bidirectional);
-        $entity->wrapper->cer_weight->set($preset->weight);
-        $entity->wrapper->cer_enabled->set($preset->enabled);
+    $preset->wrapper->cer_left->set($p->a);
+    $preset->wrapper->cer_right->set($p->b);
+    $preset->wrapper->cer_bidirectional->set($p->bidirectional);
+    $preset->wrapper->cer_weight->set($p->weight);
 
-        $entity->save();
-      }
+    // ...but the enabled flag is weird. It will only exist if the preset was
+    // read from the database, not from code.
+    if (isset($p->enabled)) {
+      $preset->wrapper->cer_enabled->set($p->enabled);
+    }
+    else {
+      $preset->wrapper->cer_enabled->set(! $p->disabled);
     }
 
-    db_drop_table('cer');
+    $preset->save();
   }
+
+  db_drop_table('cer');
 
   // Delete defunct variables.
   variable_del('default_cer');

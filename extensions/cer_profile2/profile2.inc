@@ -24,6 +24,9 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     list ($this->entityType, $this->bundle, $this->name) = explode(':', $plugin['identifier']);
 
     $info = entity_get_info($this->entityType);
+    // These "fields" can only be instantiated on user accounts, which are
+    // normally not bundleable. However, there could be a module in the wild
+    // which makes accounts bundleable, so let's not be presumptuous here.
     $this->isBundleable = (boolean) $info['entity keys']['bundle'];
     $this->entityTypeLabel = $info['label'];
     $this->bundleLabel = $info['bundles'][$this->bundle]['label'];
