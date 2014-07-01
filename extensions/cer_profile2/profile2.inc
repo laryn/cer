@@ -3,8 +3,8 @@
 /**
  * @file
  * Contains a CER field plugin for referencing Profile2 entities. These references
- * are not actually fields at all, so this plugin is really more of a bridge to fool
- * CER into thinking that Profile2 is a reference field.
+ * are not actually fields at all, so this plugin is really more of a bridge to
+ * trick CER into thinking that Profile2 is a reference field.
  */
 
 class CerProfile2Field extends CerField implements CerEntityContainerInterface {
@@ -51,21 +51,6 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
     // This field can only "reference" one type of profile. There'll be
     // a separate instance of this plugin for each Profile2 type.
     return (array) $this->profileType->type;
-  }
-
-  /**
-   * @override CerField::getExportPipe().
-   */
-  public function getExportPipe(array &$export) {
-    $export['dependencies']['cer_profile2'] = 'cer_profile2';
-
-    // Make Features export the Profile2 type, so that cer_profile2_cer_fields()
-    // will be able to find it.
-    return array(
-      'profile2_type' => array(
-        $this->profileType->type,
-      ),
-    );
   }
 
   /**
