@@ -33,7 +33,7 @@ class CerHierarchy implements Countable {
         $options = array_merge($options, $this->options($child, $key, $depth + 1));
       }
     }
-    
+
     return $options;
   }
 

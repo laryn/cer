@@ -4,7 +4,7 @@
  * Implements hook_entity_info().
  */
 function cer_entity_info() {
-  return array(
+  $info = array(
     'cer' => array(
       'label' => t('CER Preset'),
       'entity class' => 'CerPreset',
@@ -27,6 +27,12 @@ function cer_entity_info() {
       'access callback' => 'cer_access',
     ),
   );
+
+  if (variable_get('cer_enable_field_ui', FALSE)) {
+    $info['cer']['bundles']['cer']['admin']['path'] = $info['cer']['admin ui']['path'];
+  }
+
+  return $info;
 }
 
 /**
