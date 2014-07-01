@@ -278,6 +278,12 @@ function cer_hook_info() {
     'cer_fields_alter' => array(
       'group' => 'cer',
     ),
+    // This is not used except when rebuilding legacy presets. It's here to
+    // ensure that MODULE.cer.inc is auto-loaded when loading legacy presets
+    // from code. (@see cer_update_7005())
+    'cer_default_presets' => array(
+      'group' => 'cer',
+    ),
   );
 }
 
