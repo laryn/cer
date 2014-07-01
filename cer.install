@@ -434,7 +434,7 @@ function cer_update_7005() {
 function _cer_rebuild_preset($old) {
   if (isset($old->entity_types_content_fields)) {
     $keys = explode('*', $old->entity_types_content_fields);
-    
+
     $old->a = implode(':', array_slice($keys, 0, 3));
     $old->b = implode(':', array_slice($keys, 3));
   }
@@ -460,7 +460,7 @@ function _cer_rebuild_preset($old) {
   }
   catch (Exception $e) {
     $variables = array(
-      '%key' => "{$legacy->a}*{$legacy->b}",
+      '%key' => "{$old->a}*{$old->b}",
     );
     return drupal_set_message(t('Could not rebuild preset %key because it refers to invalid fields.', $variables), 'error');
   }
