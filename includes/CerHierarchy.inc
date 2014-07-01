@@ -6,7 +6,7 @@
  */
 
 class CerHierarchy implements Countable {
-  
+
   /**
    * @var array
    *  The flattened hierarchy data.

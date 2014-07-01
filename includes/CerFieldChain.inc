@@ -87,6 +87,20 @@ class CerFieldChain implements SeekableIterator {
       }
     }
   }
+
+  /**
+   * Returns a Features export pipe for this chain, including every field and
+   * field instance in it.
+   */  
+  public function export() {
+    $pipe = array();
+
+    foreach ($this->chain as $field) {
+      $pipe['field_instance'][] = "{$field->entityType}-{$field->bundle}-{$field->name}";
+    }
+
+    return $pipe;
+  }
   
   public function end() {
     return end($this->chain);

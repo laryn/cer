@@ -83,7 +83,7 @@ function cer_bulk_update_form(array $form, array &$form_state) {
 /**
  * The update form. Allows bulk updating of current entities.
  */
-function cer_bulk_update_form_submit($form, &$form_state) {
+function cer_bulk_update_form_submit(array $form, array &$form_state) {
   $batch = array(
     'finished' => 'cer_batch_update_existing_finished',
     'title' => t('Processing'),

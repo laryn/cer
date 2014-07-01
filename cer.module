@@ -23,6 +23,7 @@ function cer_entity_info() {
         'controller class' => 'CerUIController',
       ),
       'exportable' => TRUE,
+      'features controller class' => 'CerPresetFeaturesController',
       'access callback' => 'cer_access',
     ),
   );
@@ -304,7 +305,7 @@ function cer_weight_options() {
   for ($i = -50; $i <= 50; $i++) {
     $options[$i] = $i;
   }
-  
+
   return $options;
 }
 
