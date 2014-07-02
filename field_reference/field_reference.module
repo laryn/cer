@@ -124,14 +124,7 @@ function field_reference_field_formatter_settings_summary(array $field, array $i
  * Implements hook_options_list().
  */
 function field_reference_options_list(array $field, array $instance, $entity_type, $entity) {
-  $function = $instance['settings']['function'];
-
-  if ($function && function_exists($function)) {
-    return $function($field, $instance, $entity_type, $entity);
-  }
-  else {
-    return array();
-  }
+  return _field_reference_build_hierarchy($field, $instance, $entity_type, $entity)->options();
 }
 
 /**
@@ -153,6 +146,26 @@ function theme_field_reference_label(array $variables) {
   }
 
   return $output . $instance['label'];
+}
+
+/**
+ * Helper function. Builds a FieldHierarchy object for the widget builder.
+ */
+function _field_reference_build_hierarchy(array $field, array $instance, $entity_type, $entity) {
+  $hierarchy = new FieldHierarchy();
+
+  // The instance should define a function which returns an array of FieldChain
+  // objects to be added to the hierarchy.
+  $function = $instance['settings']['function'];
+
+  if ($function && is_callable($function)) {
+    $arguments = func_get_args();
+    $chains = (array) call_user_func_array($function, $arguments);
+
+    array_walk($chains, array($hierarchy, 'addChain'));
+  }
+
+  return $hierarchy;
 }
 
 /**

@@ -306,7 +306,7 @@ function _cer_field_instance_definitions() {
     'label' => 'Left Field',
     'required' => 1,
     'settings' => array(
-      'function' => 'cer_field_reference_options',
+      'function' => 'CerFieldChain::collectAll',
     ),
     'widget' => array(
       'active' => 1,
@@ -336,7 +336,7 @@ function _cer_field_instance_definitions() {
     'label' => 'Right Field',
     'required' => 1,
     'settings' => array(
-      'function' => 'cer_field_reference_options',
+      'function' => 'CerFieldChain::collectAll',
     ),
     'widget' => array(
       'active' => 1,

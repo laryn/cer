@@ -16,69 +16,13 @@
  * @class
  * Represents a single field instance.
  */
-abstract class CerField {
+abstract class CerField extends FieldInstance {
 
   /**
    * @var array
    * The plugin definition.
    */
   protected $plugin;
-
-  /**
-   * @var string
-   *  The entity type this instance is bound to.
-   */
-  protected $entityType;
-  
-  /**
-   * @var string
-   *  The bundle this instance is bound to.
-   */
-  protected $bundle;
-
-  /**
-   * @var string
-   *  The internal name of the field.
-   */
-  protected $name;
-
-  /**
-   * @var CerField
-   *  The field instance which contains this one, if any.
-   */
-  protected $parent;
-
-  /**
-   * @var CerField
-   *  Field instance contained by this one, if any.
-   */
-  protected $child;
-
-  /**
-   * @var boolean
-   */
-  protected $isBundleable;
-
-  /**
-   * @var string
-   */
-  protected $entityTypeLabel;
-
-  /**
-   * @var string
-   */
-  protected $bundleLabel;
-
-  /**
-   * @var string
-   * The field instance's label.
-   */
-  protected $label;
-
-  /**
-   * @var integer
-   */
-  protected $cardinality;
 
   /**
    * @var array
@@ -96,43 +40,17 @@ abstract class CerField {
    * Constructor. Pretty self-explanatory!
    */
   public function __construct(array $plugin) {
+    // Store a copy of our plugin definition.
     $this->plugin = $plugin;
-    list ($this->entityType, $this->bundle, $this->name) = explode(':', $plugin['identifier']);
 
-    // Get info about the entity type and bundle hosting this field instance.
-    $info = entity_get_info($this->entityType);
-    $this->isBundleable = (boolean) $info['entity keys']['bundle'];
-    $this->entityTypeLabel = $info['label'];
-    $this->bundleLabel = $info['bundles'][$this->bundle]['label'];
-
-    // Get global info about the field.
-    $info = field_info_field($this->name);
-    $this->cardinality = $info['cardinality'];
+    list ($entity_type, $bundle, $field_name) = explode(':', $plugin['identifier']);
+    parent::__construct($entity_type, $bundle, $field_name);
 
     // Store a copy of the field settings for convenience. At the time of this
     // writing, this is needed by the Entity Reference, Node Reference,
     // and Term Reference plugins.
+    $info = field_info_field($this->name);
     $this->settings = $info['settings'];
-
-    // Finally, get info about the field instance.
-    $instance = field_info_instance($this->entityType, $this->name, $this->bundle);
-    $this->label = $instance['label'];
-  }
-
-  /**
-   * Generates an identifier for this field instance.
-   * 
-   * @return string
-   */
-  public function __toString() {
-    return "{$this->entityType}:{$this->bundle}:{$this->name}";
-  }
-
-  /**
-   * Magic getter allowing read-only access to protected properties.
-   */
-  public function __get($property) {
-    return $this->{$property};
   }
 
   /**
@@ -158,33 +76,17 @@ abstract class CerField {
   }
 
   /**
-   * Gets or sets the parent of this field.
-   *
-   * @param CerField
-   *  (optional) The field to set as this one's parent.
-   *
-   * @return CerField
+   * Overridden.
    */
-  public function parent(CerField $parent = NULL) {
-    if ($parent) {
-      $this->parent = $parent;
-    }
-    return $this->parent;
+  public function requireParent() {
+    return $this->plugin['require parent'];
   }
 
   /**
-   * Gets or sets the child of this field.
-   *
-   * @param CerField
-   *  (optional) The field to set as this one's child.
-   *
-   * @return CerField
+   * Overridden.
    */
-  public function child(CerField $child = NULL) {
-    if ($child) {
-      $this->child = $child;
-    }
-    return $this->child;
+  public function getParents() {
+    return array_map('CerField::getPlugin', $this->plugin['parents']);
   }
 
   /**

@@ -294,21 +294,6 @@ function cer_hook_info() {
 }
 
 /**
- * Returns an array of select options representing the hierarchical tree of
- * every field exposed by hook_cer_fields(). This is used to generate the
- * options for the cer_left and cer_right fields.
- */
-function cer_field_reference_options() {
-  $hierarchy = new CerHierarchy();
-
-  foreach (CerFieldChain::collectAll() as $chain) {
-    $hierarchy->addChain($chain);
-  }
-
-  return $hierarchy->options();
-}
-
-/**
  * Returns options for the cer_weight field.
  */
 function cer_weight_options() {

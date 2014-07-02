@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains the CerHierarchy class.
+ * Contains the FieldHierarchy class.
  */
 
-class CerHierarchy implements Countable {
+class FieldHierarchy implements Countable {
 
   /**
    * @var array
@@ -19,7 +19,7 @@ class CerHierarchy implements Countable {
     return $this->{$property};
   }
 
-  public function options($key = CerHierarchy::ROOT, $parent = NULL, $depth = -1) {
+  public function options($key = FieldHierarchy::ROOT, $parent = NULL, $depth = -1) {
     $options = array();
 
     $item = $this->data[$key];
@@ -40,7 +40,7 @@ class CerHierarchy implements Countable {
   /**
    * Add an item of any type to the hierarchy.
    */
-  public function add($item_key, $label = NULL, $parent = CerHierarchy::ROOT) {
+  public function add($item_key, $label = NULL, $parent = FieldHierarchy::ROOT) {
     if (!array_key_exists($item_key, $this->data)) {
       $this->data[$item_key]['label'] = isset($label) ? $label : $item_key;
     }
@@ -57,7 +57,7 @@ class CerHierarchy implements Countable {
   /**
    * Adds a single field plugin to the hierarchy.
    */
-  public function addField(CerField $field) {
+  public function addField(FieldInstance $field) {
     $bundle_key = "{$field->entityType}:{$field->bundle}";
 
     if ($field->isBundleable) {
@@ -75,11 +75,11 @@ class CerHierarchy implements Countable {
   /**
    * Adds an entire field chain to the hierarchy.
    */
-  public function addChain(CerFieldChain $chain) {
+  public function addChain(FieldChain $chain) {
     $parents = array();
 
     foreach ($chain as $field) {
-      if ($field->plugin['require parent']) {
+      if ($field->requireParent()) {
         $parent_key = implode('::', $parents);
         $field_key = "{$parent_key}::{$field}";
 

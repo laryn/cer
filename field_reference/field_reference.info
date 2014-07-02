@@ -5,3 +5,7 @@ core = "7.x"
 hidden = true
 
 dependencies[] = options
+
+files[] = includes/FieldChain.inc
+files[] = includes/FieldHierarchy.inc
+files[] = includes/FieldInstance.inc
