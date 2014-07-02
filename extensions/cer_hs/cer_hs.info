@@ -1,8 +1,0 @@
-name = "CER Hierarchical Select"
-core = "7.x"
-description = "Provides a hierarchical select widget for creating CER presets."
-dependencies[] = cer
-dependencies[] = hierarchical_select
-
-files[] = includes/CerHierarchyHS.inc
-files[] = includes/CerHierarchyHSWidget.inc
