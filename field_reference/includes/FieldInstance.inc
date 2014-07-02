@@ -2,25 +2,25 @@
 
 class FieldInstance {
 
-  protected $entityType;
+  public $entityType;
 
-  protected $bundle;
+  public $bundle;
 
-  protected $name;
+  public $name;
 
-  protected $isBundleable;
+  public $isBundleable;
 
-  protected $entityTypeLabel;
+  public $entityTypeLabel;
 
-  protected $bundleLabel;
+  public $bundleLabel;
 
-  protected $cardinality;
+  public $cardinality;
 
-  protected $label;
+  public $label;
 
-  protected $parent;
+  public $parent;
 
-  protected $child;
+  public $child;
 
   public function __construct($entity_type, $bundle, $field_name) {
     $this->entityType = $entity_type;
@@ -42,14 +42,13 @@ class FieldInstance {
     $this->label = $instance['label'];
   }
 
-  public function __get($property) {
-    return $this->{$property};
-  }
-
   public function __toString() {
     return "{$this->entityType}:{$this->bundle}:{$this->name}";
   }
 
+  /**
+   * Get or set the parent of this field instance.
+   */
   public function parent(FieldInstance $parent = NULL) {
     if ($parent) {
       $this->parent = $parent;
@@ -57,6 +56,9 @@ class FieldInstance {
     return $this->parent;
   }
 
+  /**
+   * Get or set the child of this field instance.
+   */
   public function child(FieldInstance $child = NULL) {
     if ($child) {
       $this->child = $child;
@@ -64,10 +66,19 @@ class FieldInstance {
     return $this->child;
   }
 
+  /**
+   * Determine if this field requires a parent. An example of this would be
+   * a field that is instantiated on a field collection (which is itself
+   * a field).
+   */
   public function requireParent() {
     return FALSE;
   }
 
+  /**
+   * Return the parents of this field instance as an array of FieldInstance
+   * objects. If there are no parents, return an empty array.
+   */
   public function getParents() {
     return array();
   }

@@ -7,7 +7,7 @@
 
 /**
  * @class
- * A glorified array of doubly-linked FieldInstance objects.
+ * A doubly linked list of FieldInstance objects.
  */
 class FieldChain implements SeekableIterator {
 
@@ -17,7 +17,8 @@ class FieldChain implements SeekableIterator {
 
   /**
    * Magic post-unserialization callback. Provides every field in the chain
-   * with a reference to its parent (if any) and child (if any).
+   * with a reference to its parent (if any) and child (if any), effectively
+   * turning $this->chain into a doubly linked list.
    */
   public function __wakeup() {
     foreach ($this->chain as $field) {
