@@ -43,7 +43,7 @@ class FieldChain implements SeekableIterator {
    * try to find the parents of the field instance and recurse upwards, building
    * a tree of 'paths' to the field instance.
    */
-  public function addField(CerField $field, array &$completed = NULL) {
+  public function addField(FieldInstance $field, array &$completed = NULL) {
     array_unshift($this->chain, $field);
     $this->__wakeup();
 
