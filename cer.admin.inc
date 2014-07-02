@@ -39,7 +39,7 @@ function cer_update_right(array &$form, array &$form_state) {
   $left_identifier = $left->__toString();
   $left_re = $left->regex();
 
-  $hierarchy = new CerHierarchy();
+  $hierarchy = new FieldHierarchy();
   foreach (CerFieldChain::collectAll() as $chain) {
     if (preg_match($left_re, $chain->__toString()) && preg_match($chain->regex(), $left_identifier)) {
       $hierarchy->addChain($chain);
