@@ -5,6 +5,7 @@ package = Fields
 configure = admin/config/content/cer
 
 dependencies[] = ctools
+dependencies[] = list
 dependencies[] = entity
 dependencies[] = field_reference
 
