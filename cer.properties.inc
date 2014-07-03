@@ -9,7 +9,7 @@
 /**
  * Unpacks the cer_left and cer_right values into a CerFieldChain object.
  */
-function cer_unpack_field_chain($data, array $options, $proerty, $entity_type, array $info) {
+function cer_unpack_field_chain($data, array $options, $property, $entity_type, array $info) {
   return CerFieldChain::unpack($data);
 }
 
