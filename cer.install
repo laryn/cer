@@ -150,10 +150,10 @@ function _cer_field_definitions() {
     ),
     'indexes' => array(),
     'locked' => 1,
-    'module' => 'field_reference',
+    'module' => 'field_object',
     'settings' => array(),
     'translatable' => 0,
-    'type' => 'field_reference',
+    'type' => 'field_object',
   );
 
   $field_bases[] = array(
@@ -172,10 +172,10 @@ function _cer_field_definitions() {
     ),
     'indexes' => array(),
     'locked' => 1,
-    'module' => 'field_reference',
+    'module' => 'field_object',
     'settings' => array(),
     'translatable' => 0,
-    'type' => 'field_reference',
+    'type' => 'field_object',
   );
 
   return $field_bases;
@@ -294,10 +294,10 @@ function _cer_field_instance_definitions() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => NULL,
         'settings' => array(),
-        'type' => 'field_reference_default',
+        'type' => 'field_object_default',
         'weight' => 5,
       ),
     ),
@@ -324,10 +324,10 @@ function _cer_field_instance_definitions() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => NULL,
         'settings' => array(),
-        'type' => 'field_reference_default',
+        'type' => 'field_object_default',
         'weight' => 6,
       ),
     ),
@@ -404,8 +404,8 @@ function cer_update_7005() {
   db_create_table('cer_preset', $tables['cer_preset']);
 
   // Install Field Reference, which powers the cer_left and cer_right fields.
-  if (! module_exists('field_reference')) {
-    module_enable(array('field_reference'));
+  if (! module_exists('field_object')) {
+    module_enable(array('field_object'));
   }
 
   // Create preset entities' fields.

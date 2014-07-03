@@ -7,7 +7,7 @@ configure = admin/config/content/cer
 dependencies[] = ctools
 dependencies[] = list
 dependencies[] = entity
-dependencies[] = field_reference
+dependencies[] = field_object
 
 files[] = includes/CerEndPointIterator.inc
 files[] = includes/CerEntityContainerInterface.inc

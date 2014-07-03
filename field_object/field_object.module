@@ -3,9 +3,9 @@
 /**
  * Implements hook_theme().
  */
-function field_reference_theme() {
+function field_object_theme() {
   return array(
-    'field_reference_label' => array(
+    'field_object_label' => array(
       'variables' => array(
         'field' => array(),
         'instance' => array(),
@@ -17,9 +17,9 @@ function field_reference_theme() {
 /**
  * Implements hook_field_info().
  */
-function field_reference_field_info() {
+function field_object_field_info() {
   return array(
-    'field_reference' => array(
+    'field_object' => array(
       'label' => t('Field Reference'),
       'description' => t('Refers to a field instance.'),
       'settings' => array(),
@@ -27,7 +27,7 @@ function field_reference_field_info() {
         'function' => NULL,
       ),
       'default_widget' => 'options_select',
-      'default_formatter' => 'field_reference_default',
+      'default_formatter' => 'field_object_label',
       'no_ui' => TRUE,
       'property_type' => 'text',
     ),
@@ -37,19 +37,19 @@ function field_reference_field_info() {
 /**
  * Implements hook_field_widget_info_alter().
  */
-function field_reference_field_widget_info_alter(array &$info) {
-  $info['options_select']['field types'][] = 'field_reference';
+function field_object_field_widget_info_alter(array &$info) {
+  $info['options_select']['field types'][] = 'field_config_reference';
 }
 
 /**
  * Implements hook_field_formatter_info().
  */
-function field_reference_field_formatter_info() {
+function field_object_field_formatter_info() {
   return array(
-    'field_reference_label' => array(
+    'field_object_label' => array(
       'label' => t('Label'),
       'description' => t("The field instance's label."),
-      'field types' => array('field_reference'),
+      'field types' => array('field_object'),
       'settings' => array(
         'display_field_type' => TRUE,
       ),
@@ -60,30 +60,30 @@ function field_reference_field_formatter_info() {
 /**
  * Implements hook_field_is_empty().
  */
-function field_reference_field_is_empty(array $item, array $field) {
+function field_object_field_is_empty(array $item, array $field) {
   return empty($item['path']);
 }
 
 /**
  * Implements hook_field_formatter_view().
  */
-function field_reference_field_formatter_view($entity_type, $entity, array $field, array $instance, $language, array $items, array $display) {
+function field_object_field_formatter_view($entity_type, $entity, array $field, array $instance, $language, array $items, array $display) {
   $element = array();
 
   foreach ($items as $delta => $item) {
-    $label = array();
-    $path = _field_reference_expand_path($item['path']);
+    $fields = _field_object_expand_path($item['path']);
 
-    foreach ($path as $i) {
-      $label[] = theme('field_reference_label', $i);
+    $label = array();
+    foreach ($fields as $f) {
+      $label[] = theme('field_object_label', $f);
     }
 
-    $label = implode(' &raquo; ', $label);
+    $label = implode(' » ', $label);
 
     if ($display['settings']['display_field_type']) {
-      $end = end($path);
-      $field_type = field_info_field_types($end['field']['type']);
-      $label = '<strong>' . $field_type['label'] . ":</strong> {$label}";
+      $end = end($fields);
+      $type_info = field_info_field_types($end['field']['type']);
+      $label = '<strong>' . $type_info['label'] . ":</strong> {$label}";
     }
 
     $element[$delta]['#markup'] = $label;
@@ -95,7 +95,7 @@ function field_reference_field_formatter_view($entity_type, $entity, array $fiel
 /**
  * Implements hook_field_formatter_settings_form().
  */
-function field_reference_field_formatter_settings_form(array $field, array $instance, $view_mode, array $form, array &$form_state) {
+function field_object_field_formatter_settings_form(array $field, array $instance, $view_mode, array $form, array &$form_state) {
   $elements = array();
 
   $elements['display_field_type'] = array(
@@ -110,7 +110,7 @@ function field_reference_field_formatter_settings_form(array $field, array $inst
 /**
  * Implements hook_field_formatter_settings_summary().
  */
-function field_reference_field_formatter_settings_summary(array $field, array $instance, $view_mode) {
+function field_object_field_formatter_settings_summary(array $field, array $instance, $view_mode) {
   $summary = '';
 
   if ($instance['display'][$view_mode]['settings']['display_field_type']) {
@@ -123,15 +123,15 @@ function field_reference_field_formatter_settings_summary(array $field, array $i
 /**
  * Implements hook_options_list().
  */
-function field_reference_options_list(array $field, array $instance, $entity_type, $entity) {
-  return _field_reference_build_hierarchy($field, $instance, $entity_type, $entity)->options();
+function field_object_options_list(array $field, array $instance, $entity_type, $entity) {
+  return _field_object_build_hierarchy($field, $instance, $entity_type, $entity)->options();
 }
 
 /**
  * Renders a human-readable label for a field instance, including the entity
  * type and (if applicable) bundle that hosts it.
  */
-function theme_field_reference_label(array $variables) {
+function theme_field_object_label(array $variables) {
   $instance = $variables['instance'];
 
   $output = '';
@@ -151,7 +151,7 @@ function theme_field_reference_label(array $variables) {
 /**
  * Helper function. Builds a FieldHierarchy object for the widget builder.
  */
-function _field_reference_build_hierarchy(array $field, array $instance, $entity_type, $entity) {
+function _field_object_build_hierarchy(array $field, array $instance, $entity_type, $entity) {
   $hierarchy = new FieldHierarchy();
 
   // The instance should define a function which returns an array of FieldChain
@@ -172,7 +172,7 @@ function _field_reference_build_hierarchy(array $field, array $instance, $entity
  * Helper function. Expands a field reference's path value into an array
  * of field and instance definitions.
  */
-function _field_reference_expand_path($path) {
+function _field_object_expand_path($path) {
   $output = array();
 
   foreach (explode('::', $path) as $instance) {
