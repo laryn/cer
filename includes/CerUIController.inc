@@ -44,6 +44,12 @@ class CerUIController extends EntityDefaultUIController {
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
     $fields = field_attach_view($this->entityType, $entity, 'default');
 
+    $fields['cer_left']['#label_display'] = 'inline';
+    $fields['cer_left']['#title'] = $entity->wrapper->cer_left->chain->value()->end()->fieldTypeLabel;
+
+    $fields['cer_right']['#label_display'] = 'inline';
+    $fields['cer_right']['#title'] = $entity->wrapper->cer_right->chain->value()->end()->fieldTypeLabel;
+
     $row[] = $entity->wrapper->cer_enabled->value() ? '&#10003;' : '';
     $row[] = render($fields['cer_left']);
     $row[] = render($fields['cer_right']);

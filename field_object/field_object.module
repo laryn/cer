@@ -50,9 +50,7 @@ function field_object_field_formatter_info() {
       'label' => t('Label'),
       'description' => t("The field instance's label."),
       'field types' => array('field_object'),
-      'settings' => array(
-        'display_field_type' => TRUE,
-      ),
+      'settings' => array(),
     ),
   );
 }
@@ -71,53 +69,16 @@ function field_object_field_formatter_view($entity_type, $entity, array $field, 
   $element = array();
 
   foreach ($items as $delta => $item) {
-    $fields = _field_object_expand_path($item['path']);
-
     $label = array();
-    foreach ($fields as $f) {
-      $label[] = theme('field_object_label', $f);
+
+    foreach (_field_object_expand_path($item['path']) as $field) {
+      $label[] = theme('field_object_label', $field);
     }
 
-    $label = implode(' » ', $label);
-
-    if ($display['settings']['display_field_type']) {
-      $end = end($fields);
-      $type_info = field_info_field_types($end['field']['type']);
-      $label = '<strong>' . $type_info['label'] . ":</strong> {$label}";
-    }
-
-    $element[$delta]['#markup'] = $label;
+    $element[$delta]['#markup'] = implode(' » ', $label);
   }
 
   return $element;
-}
-
-/**
- * Implements hook_field_formatter_settings_form().
- */
-function field_object_field_formatter_settings_form(array $field, array $instance, $view_mode, array $form, array &$form_state) {
-  $elements = array();
-
-  $elements['display_field_type'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Show field type'),
-    '#default_value' => $instance['display'][$view_mode]['settings']['display_field_type'],
-  );
-
-  return $elements;
-}
-
-/**
- * Implements hook_field_formatter_settings_summary().
- */
-function field_object_field_formatter_settings_summary(array $field, array $instance, $view_mode) {
-  $summary = '';
-
-  if ($instance['display'][$view_mode]['settings']['display_field_type']) {
-    $summary .= t('Show field type');
-  }
-
-  return $summary;
 }
 
 /**

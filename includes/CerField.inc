@@ -28,6 +28,11 @@ abstract class CerField extends FieldInstance {
    * @var array
    */
   protected $settings;
+  
+  /**
+   * @var string
+   */
+  public $fieldTypeLabel;
 
   /**
    * Gets the type of entity that can be referenced by this field, e.g. 'node'.
@@ -51,6 +56,9 @@ abstract class CerField extends FieldInstance {
     // and Term Reference plugins.
     $info = field_info_field($this->name);
     $this->settings = $info['settings'];
+
+    $type_info = field_info_field_types($info['type']);
+    $this->fieldTypeLabel = $type_info['label'];
   }
 
   /**
