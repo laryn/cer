@@ -10,7 +10,7 @@ class CerUIController extends EntityDefaultUIController {
 
     $this->setTitle($items["{$this->path}/add"], t('Add preset'));
     $this->setTitle($items["{$this->path}/import"], t('Import preset'));
- 
+
     // Don't provide a page for cloning a preset.
     unset($items["{$this->path}/manage/%entity_object/clone"]);
 
@@ -25,6 +25,16 @@ class CerUIController extends EntityDefaultUIController {
     unset($item['title callback'], $item['title arguments']);
   }
 
+  public function operationForm($form, &$form_state, $entity, $action) {
+    switch ($action) {
+      case 'delete':
+        return confirm_form($form, t('Are you sure you want to delete this preset?'), $this->path, t('@left will no longer synchronize with @right.', $entity->labelVariables()));
+
+      default:
+        return parent::operationForm($form, $form_state, $entity, $action);
+    }
+  }
+
   protected function overviewTableHeaders($conditions, $rows, $additional_header = array()) {
     $header = array(
       t('Enabled'),
@@ -34,7 +44,7 @@ class CerUIController extends EntityDefaultUIController {
       t('Status'),
       array(
         'data' => t('Operations'),
-        'colspan' => $this->operationCount(),
+        'colspan' => 3,
       ),
     );
 

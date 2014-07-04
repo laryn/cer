@@ -49,10 +49,20 @@ class CerPreset extends Entity {
    * Overrides Entity::label().
    */
   public function label() {
-    if ($this->pid) {
-      $fields = field_attach_view('cer', $this, 'default');
-      return render($fields['cer_left'][0]) . ' <> ' . render($fields['cer_right'][0]);
-    }
+    return t('@left !operator @right', $this->labelVariables());
+  }
+
+  public function labelVariables() {
+    $fields = field_attach_view('cer', $this, 'default');
+
+    return array(
+      '@left' =>
+        render($fields['cer_left'][0]),
+      '@right' =>
+        render($fields['cer_right'][0]),
+      '!operator' =>
+        $this->wrapper->cer_bidirectional->value() ? '<>' : '>',
+    );
   }
 
   /**
