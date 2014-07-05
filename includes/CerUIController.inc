@@ -11,32 +11,26 @@ class CerUIController extends EntityDefaultUIController {
     $this->setTitle($items["{$this->path}/add"], t('Add preset'));
     $this->setTitle($items["{$this->path}/import"], t('Import preset'));
 
-    $items["{$this->path}/manage/%entity_object/toggle"] = array(
-      'type' => MENU_CALLBACK,
-      'page callback' => 'cer_toggle_preset',
-      'page arguments' => array(5),
-      'load arguments' => array('cer'),
-      'access callback' => 'entity_access',
-      'access arguments' => array('update', 'cer'),
-      'file' => 'cer.admin.inc',
-      'file path' => drupal_get_path('module', 'cer'),
-    );
-
-    $items["{$this->path}/manage/%entity_object/invert"] = array(
-      'type' => MENU_CALLBACK,
-      'page callback' => 'cer_invert_preset',
-      'page arguments' => array(5),
-      'load arguments' => array('cer'),
-      'access callback' => 'entity_access',
-      'access arguments' => array('create', 'cer'),
-      'file' => 'cer.admin.inc',
-      'file path' => drupal_get_path('module', 'cer'),
-    );
+    $items["{$this->path}/manage/%entity_object/toggle"] = $this->createCallback('cer_toggle_preset', 'update');
+    $items["{$this->path}/manage/%entity_object/invert"] = $this->createCallback('cer_invert_preset', 'create');
 
     // Don't provide a page for cloning a preset.
     unset($items["{$this->path}/manage/%entity_object/clone"]);
 
     return $items;
+  }
+
+  private function createCallback($function, $operation, array $init = array()) {
+    return $init + array(
+      'type' => MENU_CALLBACK,
+      'page callback' => $function,
+      'page arguments' => array(5),
+      'load arguments' => array('cer'),
+      'access callback' => 'entity_access',
+      'access arguments' => array($operation, 'cer'),
+      'file' => 'cer.admin.inc',
+      'file path' => drupal_get_path('module', 'cer'),
+    );
   }
 
   /**
@@ -107,6 +101,7 @@ class CerUIController extends EntityDefaultUIController {
       ),
     );
 
+    // If the preset is one-directional, expose a link to invert it.
     if (! $entity->wrapper->cer_bidirectional->value()) {
       $links['invert'] = array(
         'title' => t('invert'),
@@ -114,6 +109,7 @@ class CerUIController extends EntityDefaultUIController {
         'query' => drupal_get_destination(),
       );
     }
+
     if (entity_has_status($this->entityType, $entity, ENTITY_OVERRIDDEN)) {
       $links['revert'] = array(
         'title' => t('revert'),
