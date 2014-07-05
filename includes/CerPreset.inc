@@ -75,18 +75,14 @@ class CerPreset extends Entity {
   }
 
   public function invert() {
-    // Disguise this as a new preset by clearing the ID and setting $this->is_new.
-    $this->pid = NULL;
-    $this->is_new = TRUE;
+    $init = get_object_vars($this);
 
-    // Regenerate the identifier and reinitialize the wrapper.
-    $this->__construct();
+    unset($init['pid'], $init['wrapper'], $init['identifier'], $init['status']);
 
-    // Swap the left and right fields.
-    $buffer = $this->wrapper->cer_left->value();
-    $this->wrapper->cer_left->set($this->wrapper->cer_right->value());
-    $this->wrapper->cer_right->set($buffer);
+    $buf = $init['cer_left'];
+    $init['cer_left'] = $init['cer_right'];
+    $init['cer_right'] = $buf;
 
-    return $this;
+    return entity_create('cer', $init);
   }
 }

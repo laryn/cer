@@ -58,6 +58,28 @@ function cer_update_right(array &$form, array &$form_state) {
 }
 
 /**
+ * Enables or disables a preset, depending on its current status. This callback
+ * is defined by CerUIController::hook_menu().
+ */
+function cer_toggle_preset(CerPreset $preset) {
+  $preset->wrapper->cer_enabled->set(! $preset->wrapper->cer_enabled->value());
+  $preset->save();
+
+  drupal_goto(isset($_GET['destination']) ? $_GET['destination'] : 'admin/config/content/cer');
+}
+
+/**
+ * Permanently inverts a preset (i.e., deletes the original). This callback
+ * is defined by CerUIController::hook_menu().
+ */
+function cer_invert_preset(CerPreset $original) {
+  $original->invert()->save();
+  $original->delete();
+
+  drupal_goto(isset($_GET['destination']) ? $_GET['destination'] : 'admin/config/content/cer');
+}
+
+/**
  * Allows batch updating of existing entities.
  */
 function cer_bulk_update_form(array $form, array &$form_state) {

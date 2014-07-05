@@ -11,6 +11,28 @@ class CerUIController extends EntityDefaultUIController {
     $this->setTitle($items["{$this->path}/add"], t('Add preset'));
     $this->setTitle($items["{$this->path}/import"], t('Import preset'));
 
+    $items["{$this->path}/manage/%entity_object/toggle"] = array(
+      'type' => MENU_CALLBACK,
+      'page callback' => 'cer_toggle_preset',
+      'page arguments' => array(5),
+      'load arguments' => array('cer'),
+      'access callback' => 'entity_access',
+      'access arguments' => array('update', 'cer'),
+      'file' => 'cer.admin.inc',
+      'file path' => drupal_get_path('module', 'cer'),
+    );
+
+    $items["{$this->path}/manage/%entity_object/invert"] = array(
+      'type' => MENU_CALLBACK,
+      'page callback' => 'cer_invert_preset',
+      'page arguments' => array(5),
+      'load arguments' => array('cer'),
+      'access callback' => 'entity_access',
+      'access arguments' => array('create', 'cer'),
+      'file' => 'cer.admin.inc',
+      'file path' => drupal_get_path('module', 'cer'),
+    );
+
     // Don't provide a page for cloning a preset.
     unset($items["{$this->path}/manage/%entity_object/clone"]);
 
@@ -42,10 +64,7 @@ class CerUIController extends EntityDefaultUIController {
       t('Right Field'),
       t('Bidirectional'),
       t('Status'),
-      array(
-        'data' => t('Operations'),
-        'colspan' => 3,
-      ),
+      t('Operations'),
     );
 
     return array_merge($header, $additional_header);
@@ -76,16 +95,50 @@ class CerUIController extends EntityDefaultUIController {
       $row[] = $col;
     }
 
-    $row[] = l(t('edit'), "{$this->path}/manage/{$id}");
+    $links = array(
+      'toggle' => array(
+        'title' => $entity->wrapper->cer_enabled->value() ? t('disable') : t('enable'),
+        'href' => "{$this->path}/manage/{$id}/toggle",
+        'query' => drupal_get_destination(),
+      ),
+      'edit' => array(
+        'title' => t('edit'),
+        'href' => "{$this->path}/manage/{$id}",
+      ),
+    );
 
+    if (! $entity->wrapper->cer_bidirectional->value()) {
+      $links['invert'] = array(
+        'title' => t('invert'),
+        'href' => "{$this->path}/manage/{$id}/invert",
+        'query' => drupal_get_destination(),
+      );
+    }
     if (entity_has_status($this->entityType, $entity, ENTITY_OVERRIDDEN)) {
-      $row[] = l(t('revert'), "{$this->path}/manage/{$id}/revert", array('query' => drupal_get_destination()));
+      $links['revert'] = array(
+        'title' => t('revert'),
+        'href' => "{$this->path}/manage/{$id}/revert",
+        'query' => drupal_get_destination(),
+      );
     }
     else {
-      $row[] = l(t('delete'), "{$this->path}/manage/{$id}/delete", array('query' => drupal_get_destination()));
+      $links['delete'] = array(
+        'title' => t('delete'),
+        'href' => "{$this->path}/manage/{$id}/delete",
+        'query' => drupal_get_destination(),
+      );
     }
+    $links['export'] = array(
+      'title' => t('export'),
+      'href' => "{$this->path}/manage/{$id}/export",
+    );
 
-    $row[] = l(t('export'), "{$this->path}/manage/{$id}/export");
+    $row[] = array(
+      'data' => array(
+        '#theme' => 'links__ctools_dropbutton',
+        '#links' => $links,
+      ),
+    );
 
     return $row;
   }
