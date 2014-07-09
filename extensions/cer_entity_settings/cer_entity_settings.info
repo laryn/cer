@@ -1,4 +1,6 @@
 name = "CER Entity Settings"
 core = "7.x"
 description = "Allows administrators and content authors to override CER settings for individual entities."
+
 dependencies[] = cer
+dependencies[] = entityreference

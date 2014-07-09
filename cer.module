@@ -193,29 +193,30 @@ function cer_processing_entity($op, $entity, $entity_type = NULL, array &$contex
     // so we have to do two separate queries to find all applicable presets,
     // then combine the results.
     $baseQuery = new EntityFieldQuery();
-    $baseQuery->entityCondition('entity_type', 'cer');
-    $baseQuery->fieldCondition('cer_enabled', 'value', TRUE);
+    $baseQuery
+      ->entityCondition('entity_type', 'cer')
+      ->fieldCondition('cer_enabled', 'value', TRUE)
+      // Allow modules to alter these queries if they need to (CER Entity Settings
+      // being a likely use case).
+      ->addTag('cer_presets')
+      ->addMetaData('entity', $entity)
+      ->addMetaData('operation', $op);
 
-    // Allow modules to alter these queries if they need to (CER Entity Settings
-    // being a likely use case).
-    $baseQuery->addTag('cer_presets');
-    $baseQuery->addMetaData('entity', $entity);
-    $baseQuery->addMetaData('operation', $op);
-
+    // Find presets where the entity is on the left side.
     $query = clone $baseQuery;
-    $query->fieldCondition('cer_left', 'path', $lineage, 'STARTS_WITH');
-    $result = $query->execute();
-    if (isset($result['cer'])) {
-      $presets = entity_load('cer', array_keys($result['cer']));
-    }
-    else {
-      $presets = array();
-    }
+    $result = $query
+      ->fieldCondition('cer_left', 'path', $lineage, 'STARTS_WITH')
+      ->execute();
 
+    $presets = isset($result['cer']) ? entity_load('cer', array_keys($result['cer'])) : array();
+
+    // Find bidirectional presets where the entity is on the right side.
     $query = clone $baseQuery;
-    $query->fieldCondition('cer_right', 'path', $lineage, 'STARTS_WITH');
-    $query->fieldCondition('cer_bidirectional', 'value', TRUE);
-    $result = $query->execute();
+    $result = $query
+      ->fieldCondition('cer_right', 'path', $lineage, 'STARTS_WITH')
+      ->fieldCondition('cer_bidirectional', 'value', TRUE)
+      ->execute();
+
     if (isset($result['cer'])) {
       foreach(entity_load('cer', array_keys($result['cer'])) as $preset) {
         $presets[] = $preset->invert();

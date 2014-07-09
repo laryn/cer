@@ -18,9 +18,9 @@ class FieldInstance {
 
   public $label;
 
-  public $parent;
+  protected $parent;
 
-  public $child;
+  protected $child;
 
   public function __construct($entity_type, $bundle, $field_name) {
     $this->entityType = $entity_type;
