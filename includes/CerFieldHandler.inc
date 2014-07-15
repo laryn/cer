@@ -139,6 +139,9 @@ class CerFieldHandler implements Countable, SeekableIterator {
     return ($this->field->cardinality == FIELD_CARDINALITY_UNLIMITED ? TRUE : ($this->field->cardinality > $this->count()));
   }
 
+  /**
+   * Saves changes to the entity and resets the iterator.
+   */
   protected function write() {
     $entity_type = $this->entity->type();
     $entityID = $this->entity->getIdentifier();
@@ -158,6 +161,16 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $this->__construct($this->field, $this->entity);
   }
 
+  /**
+   * Logs an error, optionally against a specific entity. If the cer_debug
+   * variable is set, the error will also be set as a message.
+   *
+   * @param string $message
+   *  The untranslated message to log.
+   *
+   * @param EntityDrupalWrapper $entity
+   *  The entity that has caused the error, if any.
+   */
   protected function logError($message, EntityDrupalWrapper $entity = NULL) {
     $variables = array(
       '!field_name' => $this->field->name,
@@ -207,7 +220,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
     else {
       $IDs[] = $this->value->raw();
     }
-    
+
     return array_unique(array_filter($IDs));
   }
 

@@ -1,7 +1,15 @@
 <?php
 
+/**
+ * Contains the controller class for CER's UI (i.e., preset management pages),
+ * used by Entity API.
+ */
+
 class CerUIController extends EntityDefaultUIController {
 
+  /**
+   * Overridden.
+   */
   public function hook_menu() {
     $items = parent::hook_menu();
 
@@ -41,6 +49,9 @@ class CerUIController extends EntityDefaultUIController {
     unset($item['title callback'], $item['title arguments']);
   }
 
+  /**
+   * Overridden.
+   */
   public function operationForm($form, &$form_state, $entity, $action) {
     switch ($action) {
       case 'delete':
@@ -51,6 +62,9 @@ class CerUIController extends EntityDefaultUIController {
     }
   }
 
+  /**
+   * Overridden.
+   */
   protected function overviewTableHeaders($conditions, $rows, $additional_header = array()) {
     $header = array(
       t('Enabled'),
@@ -64,6 +78,9 @@ class CerUIController extends EntityDefaultUIController {
     return array_merge($header, $additional_header);
   }
 
+  /**
+   * Overridden.
+   */
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
     $fields = field_attach_view($this->entityType, $entity, 'default');
 
@@ -89,6 +106,7 @@ class CerUIController extends EntityDefaultUIController {
       $row[] = $col;
     }
 
+    // I like drop buttons more than an inline set of links.
     $links = array(
       'toggle' => array(
         'title' => $entity->wrapper->cer_enabled->value() ? t('disable') : t('enable'),

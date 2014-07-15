@@ -83,8 +83,8 @@ function cer_get_field_collection_lineage_array(array $data, array $options, $pr
   list (, , $host_bundle) = entity_extract_IDs($data[0], $data[1]);
   array_unshift($options['lineage'], $data[0] . ":{$host_bundle}:{$collection->field_name}");
 
-  // If this field collection is hosted in another field collection, recurse upwards.
-  // Otherwise, we're done; return the lineage array.
+  // If this field collection is hosted in another field collection, recurse
+  // upward. Otherwise, we're done; return the lineage array.
   if ($data[0] == 'field_collection_item') {
     return cer_get_field_collection_lineage_array($data, $options, $property, $data_type, $info);
   }
@@ -107,6 +107,8 @@ function cer_get_field_collection_depth(array $data, array $options, $property, 
  * collection item.
  */
 function cer_get_field_collection_owner(array $data, array $options, $property, $data_type, array $info) {
+  // If the entity is a field collection item, recurse upward. Otherwise,
+  // return the wrapped entity.
   if ($data[0] == 'field_collection_item') {
     $data[0] = $data[1]->hostEntityType();
     $data[1] = $data[1]->hostEntity();

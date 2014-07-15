@@ -52,7 +52,13 @@ class CerPreset extends Entity {
     return t('@left !operator @right', $this->labelVariables());
   }
 
+  /**
+   * Gets variables used in the label. The only reason this is a separate method
+   * is because the variables are needed in other contexts, like the main
+   * preset management page.
+   */
   public function labelVariables() {
+    // I kinda doubt this is very performant, but for now it'll do.
     $fields = field_attach_view('cer', $this, 'default');
 
     return array(
