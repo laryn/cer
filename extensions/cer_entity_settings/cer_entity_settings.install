@@ -75,7 +75,7 @@ function cer_entity_settings_install() {
   $result = $query->entityCondition('entity_type', 'cer')->execute();
   if (isset($result['cer'])) {
     foreach (entity_load('cer', array_keys($result['cer'])) as $preset) {
-      cer_entity_settings_cer_insert($preset);
+      cer_entity_settings_cer_update($preset);
     }
   }
 }

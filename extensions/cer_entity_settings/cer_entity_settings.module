@@ -43,9 +43,11 @@ function cer_entity_settings_exit() {
 
   foreach ($queue as $entity_type => $entities) {
     foreach ($entities as $entity) {
+      // Clear out the stored settings.
       $entity->cer_settings->set(NULL);
 
       $entity = $entity->value();
+      // We don't use $entity->save() here in order to prevent an infinite loop.
       field_attach_presave($entity_type, $entity);
       field_attach_update($entity_type, $entity);
     }
@@ -71,6 +73,13 @@ function cer_entity_settings_ctools_plugin_directory($owner, $plugin_type) {
  * Implements hook_cer_insert().
  */
 function cer_entity_settings_cer_insert(CerPreset $preset) {
+  cer_entity_settings_cer_update($preset);
+}
+
+/**
+ * Implements hook_cer_update().
+ */
+function cer_entity_settings_cer_update(CerPreset $preset) {
   _cer_entity_settings_create_instance($preset->wrapper->cer_left->chain->value());
   _cer_entity_settings_create_instance($preset->wrapper->cer_right->chain->value());
 }
