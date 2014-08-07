@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * Implements hook_views_api().
+ */
+function cer_entity_settings_views_api() {
+  return array('api' => 3);
+}
+
+/**
  * Implements hook_query_TAG_alter().
  */
 function cer_entity_settings_query_cer_presets_alter(QueryAlterableInterface $query) {
@@ -9,13 +16,17 @@ function cer_entity_settings_query_cer_presets_alter(QueryAlterableInterface $qu
   $instance = field_info_instance($entity->type(), 'cer_settings', $entity->getBundle());
   if ($instance) {
     $IDs = array();
+
     foreach ($entity->cer_settings as $preset) {
       $IDs[] = $preset->getIdentifier();
     }
 
-    if ($IDs) {
-      $query->getMetaData('entity_field_query')->entityCondition('entity_id', $IDs, 'IN');
+    // If no presets were selected, guarantee an empty result set by selecting
+    // the non-existent preset ID 0.
+    if (empty($IDs)) {
+      $IDs[] = 0;
     }
+    $query->getMetaData('entity_field_query')->entityCondition('entity_id', $IDs, 'IN');
 
     if (! $entity->cer_store_settings->value()) {
       $queue = &drupal_static('cer_entity_settings_exit', array());
@@ -42,6 +53,14 @@ function cer_entity_settings_exit() {
 }
 
 /**
+ * Implements hook_cron().
+ */
+function cer_entity_settings_cron() {
+  _cer_entity_settings_flush_defunct_instances('cer_settings');
+  _cer_entity_settings_flush_defunct_instances('cer_store_settings');
+}
+
+/**
  * Implements hook_ctools_plugin_directory().
  */
 function cer_entity_settings_ctools_plugin_directory($owner, $plugin_type) {
@@ -57,17 +76,14 @@ function cer_entity_settings_cer_insert(CerPreset $preset) {
 }
 
 /**
- * Implements hook_cer_update().
+ * Instantiates the cer_settings and cer_store_settings fields at the endpoint
+ * of the given chain, if they aren't already there.
  */
-function cer_entity_settings_cer_update(CerPreset $preset) {
-  cer_entity_settings_cer_insert($preset);
-}
-
 function _cer_entity_settings_create_instance(FieldChain $chain) {
   $field = $chain->end();
 
   $instance = field_info_instance($field->entityType, 'cer_settings', $field->bundle);
-  if (! $instance) {
+  if (empty($instance)) {
     $instance = array(
       'bundle' => $field->bundle,
       'default_value' => NULL,
@@ -105,7 +121,10 @@ function _cer_entity_settings_create_instance(FieldChain $chain) {
       ),
     );
     field_create_instance($instance);
-    
+  }
+
+  $instance = field_info_instance($field->entityType, 'cer_store_settings', $field->bundle);
+  if (empty($instance)) {
     $instance = array(
       'bundle' => $field->bundle,
       'default_value' => array(
@@ -147,5 +166,37 @@ function _cer_entity_settings_create_instance(FieldChain $chain) {
       ),
     );
     field_create_instance($instance);
+  }
+}
+
+/**
+ * Deletes defunct instances of either the cer_settings or cer_store_settings
+ * fields. An instance of either field is considered defunct if there are no
+ * presets which refer the entity type and bundle on which it's instantiated.
+ */
+function _cer_entity_settings_flush_defunct_instances($field) {
+  $view = views_get_view('cer_endpoint_in_use');
+
+  $field = field_info_field($field);
+
+  // Loop through every instance of the field, executing the view for each one.
+  foreach ($field['bundles'] as $entity_type => $bundles) {
+    foreach ($bundles as $bundle) {
+      $view->set_exposed_input(array(
+        'left' => "{$entity_type}:{$bundle}:",
+        'right' => "{$entity_type}:{$bundle}:",
+      ));
+      $view->execute();
+
+      if (empty($view->result)) {
+        $instance = field_info_instance($entity_type, $field['field_name'], $bundle);
+
+        if ($instance) {
+          // Do NOT delete the field if this is the last instance of it. We
+          // clean up our own fields during uninstall.
+          field_delete_instance($instance, FALSE);
+        }
+      }
+    }
   }
 }

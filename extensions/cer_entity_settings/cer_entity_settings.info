@@ -4,3 +4,4 @@ description = "Allows administrators and content authors to override CER setting
 
 dependencies[] = cer
 dependencies[] = entityreference
+dependencies[] = views
