@@ -22,14 +22,14 @@ class CerPresetSelectionHandler implements EntityReference_SelectionHandler {
       $finder->execute();
 
       foreach ($finder->result['cer'] as $preset) {
-        $options['cer'][$preset->pid] = $preset->labelVariables('@right');
+        $options['cer'][$preset->pid] = $preset->label_variables['@right'];
       }
 
       foreach ($finder->result['cer__invert'] as $preset) {
-        $options['cer'][$preset->pid] = $preset->labelVariables('@left');
+        $options['cer'][$preset->pid] = $preset->label_variables['@left'];
       }
     }
-    
+
     return $options;
   }
 

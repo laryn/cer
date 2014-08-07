@@ -8,7 +8,7 @@ function cer_entity_info() {
     'cer' => array(
       'label' => t('CER Preset'),
       'entity class' => 'CerPreset',
-      'controller class' => 'EntityAPIControllerExportable',
+      'controller class' => 'CerPresetController',
       'base table' => 'cer_preset',
       'label callback' => 'entity_class_label',
       'module' => 'cer',
@@ -16,6 +16,7 @@ function cer_entity_info() {
       'entity keys' => array(
         'id' => 'pid',
         'name' => 'identifier', // This is the automatically generated export key.
+        'label' => 'identifier',  // The identifier will be the default label.
       ),
       'admin ui' => array(
         'path' => 'admin/config/content/cer',

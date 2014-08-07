@@ -10,7 +10,7 @@
  * Settings' selection handler).
  */
 class CerPresetFinder extends EntityFieldQuery {
-  
+
   public $result = array();
 
   protected $entity;

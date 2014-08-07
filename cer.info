@@ -16,6 +16,7 @@ files[] = includes/CerFieldChain.inc
 files[] = includes/CerFieldChainHandler.inc
 files[] = includes/CerFieldHandler.inc
 files[] = includes/CerPreset.inc
+files[] = includes/CerPresetController.inc
 files[] = includes/CerPresetFeaturesController.inc
 files[] = includes/CerPresetFinder.inc
 files[] = includes/CerPresetHandler.inc

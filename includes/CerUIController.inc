@@ -55,7 +55,7 @@ class CerUIController extends EntityDefaultUIController {
   public function operationForm($form, &$form_state, $entity, $action) {
     switch ($action) {
       case 'delete':
-        return confirm_form($form, t('Are you sure you want to delete this preset?'), $this->path, t('@left will no longer synchronize with @right.', $entity->labelVariables()));
+        return confirm_form($form, t('Are you sure you want to delete this preset?'), $this->path, t('@left will no longer synchronize with @right.', $entity->label_variables));
 
       default:
         return parent::operationForm($form, $form_state, $entity, $action);

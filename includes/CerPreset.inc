@@ -28,7 +28,7 @@ class CerPreset extends Entity {
   /**
    * @var integer
    * The exportable status of this preset.
-   */  
+   */
   public $status = 0x01;  // ENTITY_CUSTOM
 
   /**
@@ -49,28 +49,7 @@ class CerPreset extends Entity {
    * Overrides Entity::label().
    */
   public function label() {
-    return t('@left !operator @right', $this->labelVariables());
-  }
-
-  /**
-   * Gets variables used in the label. The only reason this is a separate method
-   * is because the variables are needed in other contexts, like the main
-   * preset management page.
-   */
-  public function labelVariables($key = NULL) {
-    // I kinda doubt this is very performant, but for now it'll do.
-    $fields = field_attach_view('cer', $this, 'default');
-
-    $variables = array(
-      '@left' =>
-        render($fields['cer_left'][0]),
-      '@right' =>
-        render($fields['cer_right'][0]),
-      '!operator' =>
-        $this->wrapper->cer_bidirectional->value() ? '<>' : '>',
-    );
-
-    return isset($key) ? $variables[$key] : $variables;
+    return isset($this->label_variables) ? t('@left !operator @right', $this->label_variables) : $this->defaultLabel();
   }
 
   /**
