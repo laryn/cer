@@ -57,11 +57,11 @@ class CerPreset extends Entity {
    * is because the variables are needed in other contexts, like the main
    * preset management page.
    */
-  public function labelVariables() {
+  public function labelVariables($key = NULL) {
     // I kinda doubt this is very performant, but for now it'll do.
     $fields = field_attach_view('cer', $this, 'default');
 
-    return array(
+    $variables = array(
       '@left' =>
         render($fields['cer_left'][0]),
       '@right' =>
@@ -69,6 +69,8 @@ class CerPreset extends Entity {
       '!operator' =>
         $this->wrapper->cer_bidirectional->value() ? '<>' : '>',
     );
+
+    return isset($key) ? $variables[$key] : $variables;
   }
 
   /**

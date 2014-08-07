@@ -18,36 +18,15 @@ class CerPresetSelectionHandler implements EntityReference_SelectionHandler {
     $options = array();
 
     if ($this->entity) {
-      $lineage = $this->entity->cer->lineage->value();
+      $finder = new CerPresetFinder($this->entity);
+      $finder->execute();
 
-      $baseQuery = new EntityFieldQuery();
-      $baseQuery
-        ->entityCondition('entity_type', 'cer')
-        ->fieldCondition('cer_enabled', 'value', TRUE);
-
-      $query = clone $baseQuery;
-      $result = $query
-        ->fieldCondition('cer_left', 'path', $lineage, 'STARTS_WITH')
-        ->execute();
-
-      if (isset($result['cer'])) {
-        foreach (entity_load('cer', array_keys($result['cer'])) as $preset) {
-          $variables = $preset->labelVariables();
-          $options['cer'][$preset->pid] = $variables['@right'];
-        }
+      foreach ($finder->result['cer'] as $preset) {
+        $options['cer'][$preset->pid] = $preset->labelVariables('@right');
       }
 
-      $query = clone $baseQuery;
-      $result = $query
-        ->fieldCondition('cer_bidirectional', 'value', TRUE)
-        ->fieldCondition('cer_right', 'path', $lineage, 'STARTS_WITH')
-        ->execute();
-
-      if (isset($result['cer'])) {
-        foreach (entity_load('cer', array_keys($result['cer'])) as $preset) {
-          $variables = $preset->labelVariables();
-          $options['cer'][$preset->pid] = $variables['@left'];
-        }
+      foreach ($finder->result['cer__invert'] as $preset) {
+        $options['cer'][$preset->pid] = $preset->labelVariables('@left');
       }
     }
     
