@@ -35,7 +35,7 @@ function cer_entity_settings_views_default_views() {
   $handler->display->display_options['filters']['cer_left_path']['id'] = 'cer_left_path';
   $handler->display->display_options['filters']['cer_left_path']['table'] = 'field_data_cer_left';
   $handler->display->display_options['filters']['cer_left_path']['field'] = 'cer_left_path';
-  $handler->display->display_options['filters']['cer_left_path']['operator'] = 'contains';
+  $handler->display->display_options['filters']['cer_left_path']['operator'] = 'starts';
   $handler->display->display_options['filters']['cer_left_path']['group'] = 1;
   $handler->display->display_options['filters']['cer_left_path']['exposed'] = TRUE;
   $handler->display->display_options['filters']['cer_left_path']['expose']['operator_id'] = 'cer_left_path_op';
@@ -50,7 +50,7 @@ function cer_entity_settings_views_default_views() {
   $handler->display->display_options['filters']['cer_right_path']['id'] = 'cer_right_path';
   $handler->display->display_options['filters']['cer_right_path']['table'] = 'field_data_cer_right';
   $handler->display->display_options['filters']['cer_right_path']['field'] = 'cer_right_path';
-  $handler->display->display_options['filters']['cer_right_path']['operator'] = 'contains';
+  $handler->display->display_options['filters']['cer_right_path']['operator'] = 'starts';
   $handler->display->display_options['filters']['cer_right_path']['group'] = 1;
   $handler->display->display_options['filters']['cer_right_path']['exposed'] = TRUE;
   $handler->display->display_options['filters']['cer_right_path']['expose']['operator_id'] = 'cer_right_path_op';

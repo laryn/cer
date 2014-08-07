@@ -57,9 +57,40 @@ function cer_entity_settings_exit() {
 /**
  * Implements hook_cron().
  */
-function cer_entity_settings_cron() {
-  _cer_entity_settings_flush_defunct_instances('cer_settings');
-  _cer_entity_settings_flush_defunct_instances('cer_store_settings');
+function cer_entity_settings_cron($field = NULL) {
+  // Delete defunct instances of the given field. An instance is considered
+  // defunct if there are no presets which refer the entity type and bundle
+  // on which it's instantiated.
+  if (isset($field)) {
+    $view = views_get_view('cer_endpoint_in_use');
+
+    $field = field_info_field($field);
+
+    // Loop through every instance of the field, executing the view for each one.
+    foreach ($field['bundles'] as $entity_type => $bundles) {
+      foreach ($bundles as $bundle) {
+        $view->set_exposed_input(array(
+          'left' => "{$entity_type}:{$bundle}:",
+          'right' => "{$entity_type}:{$bundle}:",
+        ));
+        $view->execute();
+
+        if (empty($view->result)) {
+          $instance = field_info_instance($entity_type, $field['field_name'], $bundle);
+
+          if ($instance) {
+            // Do NOT delete the field if this is the last instance of it. We
+            // clean up our own fields during uninstall.
+            field_delete_instance($instance, FALSE);
+          }
+        }
+      }
+    }
+  }
+  else {
+    call_user_func(__FUNCTION__, 'cer_settings');
+    call_user_func(__FUNCTION__, 'cer_store_settings');
+  }
 }
 
 /**
@@ -85,11 +116,11 @@ function cer_entity_settings_cer_update(CerPreset $preset) {
 }
 
 /**
- * Instantiates the cer_settings and cer_store_settings fields at the endpoint
- * of the given chain, if they aren't already there.
+ * Instantiates the cer_settings and cer_store_settings fields at the head of
+ * the given chain, if they aren't already there.
  */
 function _cer_entity_settings_create_instance(FieldChain $chain) {
-  $field = $chain->end();
+  $field = $chain->current();
 
   $instance = field_info_instance($field->entityType, 'cer_settings', $field->bundle);
   if (empty($instance)) {
@@ -175,37 +206,5 @@ function _cer_entity_settings_create_instance(FieldChain $chain) {
       ),
     );
     field_create_instance($instance);
-  }
-}
-
-/**
- * Deletes defunct instances of either the cer_settings or cer_store_settings
- * fields. An instance of either field is considered defunct if there are no
- * presets which refer the entity type and bundle on which it's instantiated.
- */
-function _cer_entity_settings_flush_defunct_instances($field) {
-  $view = views_get_view('cer_endpoint_in_use');
-
-  $field = field_info_field($field);
-
-  // Loop through every instance of the field, executing the view for each one.
-  foreach ($field['bundles'] as $entity_type => $bundles) {
-    foreach ($bundles as $bundle) {
-      $view->set_exposed_input(array(
-        'left' => "{$entity_type}:{$bundle}:",
-        'right' => "{$entity_type}:{$bundle}:",
-      ));
-      $view->execute();
-
-      if (empty($view->result)) {
-        $instance = field_info_instance($entity_type, $field['field_name'], $bundle);
-
-        if ($instance) {
-          // Do NOT delete the field if this is the last instance of it. We
-          // clean up our own fields during uninstall.
-          field_delete_instance($instance, FALSE);
-        }
-      }
-    }
   }
 }
