@@ -87,3 +87,11 @@ function cer_entity_settings_uninstall() {
   field_delete_field('cer_settings');
   field_delete_field('cer_store_settings');
 }
+
+/**
+ * Drops the cer_entity_settings database table.
+ */
+function cer_entity_settings_update_7001() {
+  db_drop_table('cer_entity_settings');
+  cer_entity_settings_install();
+}
