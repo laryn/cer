@@ -370,3 +370,7 @@ function cer_entity_property_info_alter(array &$info) {
 
 // Include property callback functions
 module_load_include('inc', 'cer', 'cer.properties');
+
+if (module_exists('field_collection')) {
+  module_load_include('inc', 'cer', 'cer.properties.field_collection');
+}
