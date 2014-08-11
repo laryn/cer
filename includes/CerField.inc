@@ -27,7 +27,7 @@ abstract class CerField extends FieldInstance {
   /**
    * @var array
    */
-  protected $settings;
+  protected $settings = array();
   
   /**
    * @var string
