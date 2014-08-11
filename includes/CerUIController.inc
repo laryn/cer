@@ -71,11 +71,13 @@ class CerUIController extends EntityDefaultUIController {
   }
 
   public function overviewFormSubmit($form, &$form_state) {
-    $IDs = array_keys($form_state['values']['table']);
+    foreach ($form_state['values']['table'] as $id => $values) {
+      $preset = entity_object_load($id, $this->entityType);
+      
+      $preset->wrapper->cer_enabled->set($values['cer_enabled'][LANGUAGE_NONE][0]['value']);
+      $preset->wrapper->cer_bidirectional->set($values['cer_bidirectional'][LANGUAGE_NONE][0]['value']);
+      $preset->wrapper->cer_weight->set($values['cer_weight'][LANGUAGE_NONE][0]['value']);
 
-    for ($i = 0; $i < sizeof($IDs); $i++) {
-      $preset = entity_object_load($IDs[$i], 'cer');
-      $preset->wrapper->cer_weight->set($i);
       $preset->save();
     }
 
@@ -87,9 +89,9 @@ class CerUIController extends EntityDefaultUIController {
       '#header' => array(
         t('Left Field'),
         t('Right Field'),
+        t('Status'),
         t('Enabled'),
         t('Bidirectional'),
-        t('Status'),
         t('Weight'),
         t('Operations'),
       ),
@@ -97,7 +99,7 @@ class CerUIController extends EntityDefaultUIController {
         array(
           'action' => 'order',
           'relationship' => 'sibling',
-          'group' => 'weight',
+          'group' => 'cer-weight',
         ),
       ),
       '#empty' => t('None.'),
@@ -129,32 +131,33 @@ class CerUIController extends EntityDefaultUIController {
   }
 
   protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
-    $fields = field_attach_view($this->entityType, $entity, 'default');
+    $render_fields = field_attach_view($this->entityType, $entity, 'default');
 
-    $fields['cer_left']['#label_display'] = 'inline';
-    $fields['cer_left']['#title'] = $entity->wrapper->cer_left->chain->value()->end()->fieldTypeLabel;
-    $row['cer_left'] = $fields['cer_left'];
+    $render_fields['cer_left']['#label_display'] = 'inline';
+    $render_fields['cer_left']['#title'] = $entity->wrapper->cer_left->chain->value()->end()->fieldTypeLabel;
+    $row['cer_left'] = $render_fields['cer_left'];
 
-    $fields['cer_right']['#label_display'] = 'inline';
-    $fields['cer_right']['#title'] = $entity->wrapper->cer_right->chain->value()->end()->fieldTypeLabel;
-    $row['cer_right'] = $fields['cer_right'];
-
-    $row['is_enabled']['#markup'] = $entity->wrapper->cer_enabled->value() ? '&#10003;' : '';
-
-    $row['is_bidirectional']['#markup'] = $entity->wrapper->cer_bidirectional->value() ? '&#10003;' : '';
+    $render_fields['cer_right']['#label_display'] = 'inline';
+    $render_fields['cer_right']['#title'] = $entity->wrapper->cer_right->chain->value()->end()->fieldTypeLabel;
+    $row['cer_right'] = $render_fields['cer_right'];
 
     $row['status'] = array(
       '#theme' => 'entity_status',
       '#status' => $entity->status,
     );
+    
+    $form_fields = $form_state = array();
+    field_attach_form($this->entityType, $entity, $form_fields, $form_state);
 
-    $row['weight'] = array(
-      '#type' => 'weight',
-      '#default_value' => $entity->wrapper->cer_weight->value(),
-      '#attributes' => array(
-        'class' => array('weight'),
-      ),
-    );
+    unset($form_fields['cer_enabled'][LANGUAGE_NONE]['#title']);
+    $row['cer_enabled'] = $form_fields['cer_enabled'];
+
+    unset($form_fields['cer_bidirectional'][LANGUAGE_NONE]['#title']);
+    $row['cer_bidirectional'] = $form_fields['cer_bidirectional'];
+
+    unset($form_fields['cer_weight'][LANGUAGE_NONE]['#title']);
+    $form_fields['cer_weight'][LANGUAGE_NONE]['#attributes']['class'][] = 'cer-weight';
+    $row['cer_weight'] = $form_fields['cer_weight'];
 
     // Add in any passed additional cols.
     foreach ($additional_cols as $key => $col) {
