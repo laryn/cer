@@ -8,6 +8,7 @@ dependencies[] = ctools
 dependencies[] = list
 dependencies[] = entity
 dependencies[] = field_object
+dependencies[] = table_element
 
 files[] = includes/CerEndPointIterator.inc
 files[] = includes/CerEntityContainerInterface.inc
