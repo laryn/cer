@@ -145,7 +145,7 @@ class CerUIController extends EntityDefaultUIController {
       '#theme' => 'entity_status',
       '#status' => $entity->status,
     );
-    
+
     $form_fields = $form_state = array();
     field_attach_form($this->entityType, $entity, $form_fields, $form_state);
 

@@ -89,6 +89,19 @@ function cer_entity_settings_uninstall() {
 }
 
 /**
+ * Implements hook_update_dependencies().
+ */
+function cer_entity_settings_update_dependencies() {
+  return array(
+    'cer_entity_settings' => array(
+      7001 => array(
+        'cer' => 7005,
+      ),
+    ),
+  );
+}
+
+/**
  * Drops the cer_entity_settings database table.
  */
 function cer_entity_settings_update_7001() {

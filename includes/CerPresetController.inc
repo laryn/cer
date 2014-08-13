@@ -10,6 +10,10 @@ class CerPresetController extends EntityAPIControllerExportable {
    */
   public function export($entity, $prefix = '') {
     $variables = get_object_vars($entity);
+    
+    // I really wish Entity API tried to notify the entity that it's being
+    // exported so that it could clean itself up first, but it doesn't. So
+    // we gotta do this bizness.
     unset($variables['pid'], $variables['wrapper'], $variables['status'], $variables['module'], $variables['label_variables'], $variables['uid']);
 
     return entity_var_json_export($variables, $prefix);
@@ -22,8 +26,10 @@ class CerPresetController extends EntityAPIControllerExportable {
     parent::attachLoad($queried_entities, $revision_id);
 
     foreach ($queried_entities as $preset) {
-      // Attach variables used to build the human-readable preset label.
-      // @see CerPreset::label() and CerPreset::defaultLabel()
+      // Attach variables used to build the human-readable preset label. These
+      // need to be attached after the Field API has done its magic (i.e.,
+      // during parent::attachLoad()), since the label depends on field values.
+      // @see CerPreset::label().
       $fields = field_attach_view('cer', $preset, 'default');
 
       $preset->label_variables = array(
