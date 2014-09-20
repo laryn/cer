@@ -148,6 +148,7 @@ class CerUIController extends EntityDefaultUIController {
 
     $form_fields = array();
     $form_state = form_state_defaults();
+    $form_state['build_info']['form_id'] = 'cer_overview_form';
     field_attach_form($this->entityType, $entity, $form_fields, $form_state);
 
     unset($form_fields['cer_enabled'][LANGUAGE_NONE]['#title']);
