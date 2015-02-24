@@ -20,3 +20,9 @@ projects[] = "views"
 projects[cer][download][type] = "git"
 projects[cer][download][url] = "http://git.drupal.org/project/cer.git"
 projects[cer][download][branch] = "7.x-3.x"
+
+# Fixes #2341403
+projects[entity][patch][] = https://www.drupal.org/files/issues/entity-label-2112755-25.patch
+
+# Fixes #2418225
+projects[field_collection][patch][] = https://www.drupal.org/files/issues/2385985_0.diff
