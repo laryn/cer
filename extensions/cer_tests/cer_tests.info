@@ -1,0 +1,30 @@
+name = CER Tests
+core = 7.x
+package = Other
+dependencies[] = cer
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = field_collection
+features[cer][] = node:page:field_author*user:user:field_my_pages
+features[cer][] = node:page:field_my_collection::field_collection_item:field_my_collection:field_author*user:user:field_my_collection::field_collection_item:field_my_collection:field_my_pages
+features[features_api][] = api:2
+features[field_base][] = cer_settings
+features[field_base][] = cer_store_settings
+features[field_base][] = field_author
+features[field_base][] = field_my_collection
+features[field_base][] = field_my_pages
+features[field_instance][] = field_collection_item-field_my_collection-cer_settings
+features[field_instance][] = field_collection_item-field_my_collection-cer_store_settings
+features[field_instance][] = field_collection_item-field_my_collection-field_author
+features[field_instance][] = field_collection_item-field_my_collection-field_my_pages
+features[field_instance][] = node-page-field_author
+features[field_instance][] = node-page-field_my_collection
+features[field_instance][] = user-user-field_my_collection
+features[field_instance][] = user-user-field_my_pages
+project path = sites/all/modules/cer/extensions
+
+# Don't show the test suite in the module list. It's only for special
+# people (i.e., folks who use Drush).
+hidden = true
+
+files[] = tests/CerBasicTestCase.test
