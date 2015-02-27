@@ -27,3 +27,5 @@ files[] = includes/fields/field_collection.inc
 files[] = includes/fields/node_reference.inc
 files[] = includes/fields/taxonomy_term_reference.inc
 files[] = includes/fields/user_reference.inc
+
+files[] = tests/CerBasicTestCase.test
