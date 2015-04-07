@@ -52,8 +52,10 @@ function cer_install() {
     _cer_hijack_cnr();
   }
 
-  array_map('field_create_field', _cer_field_definitions());
-  array_map('field_create_instance', _cer_field_instance_definitions());
+  $fields = _cer_field_definitions();
+  array_walk('field_create_field', $fields);
+  $instances = _cer_field_instance_definitions();
+  array_walk('field_create_instance', $instances);
 }
 
 /**
