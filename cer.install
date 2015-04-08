@@ -53,9 +53,9 @@ function cer_install() {
   }
 
   $fields = _cer_field_definitions();
-  array_walk('field_create_field', $fields);
+  array_walk($fields, 'field_create_field');
   $instances = _cer_field_instance_definitions();
-  array_walk('field_create_instance', $instances);
+  array_walk($instances, 'field_create_instance');
 }
 
 /**
