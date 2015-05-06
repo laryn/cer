@@ -156,12 +156,8 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $entityID = $this->entity->getIdentifier();
     $entity = $this->entity->value();
 
-    // Don't call $entity->save(), or we'll cause an infinite loop.
-    field_attach_presave($entity_type, $entity);
-    field_attach_update($entity_type, $entity);
-
-    // Issue #2225071
-    entity_get_controller($entity_type)->resetCache((array) $entityID);
+    $entity->cer_processed = TRUE;
+    entity_save($entity_type, $entity);
 
     // Reload the entity we just saved and cleared from the static cache.
     $entities = entity_load($entity_type, (array) $entityID);
