@@ -113,6 +113,7 @@ function theme_field_object_label(array $variables) {
  * Helper function. Builds a FieldHierarchy object for the widget builder.
  */
 function _field_object_build_hierarchy(array $field, array $instance, $entity_type, $entity) {
+  $arguments = func_get_args();
   $hierarchy = new FieldHierarchy();
 
   // The instance should define a function which returns an array of FieldChain
@@ -120,7 +121,6 @@ function _field_object_build_hierarchy(array $field, array $instance, $entity_ty
   $function = $instance['settings']['function'];
 
   if ($function && is_callable($function)) {
-    $arguments = func_get_args();
     $chains = (array) call_user_func_array($function, $arguments);
 
     array_walk($chains, array($hierarchy, 'addChain'));
