@@ -54,7 +54,7 @@ class CerProfile2Field extends CerField implements CerEntityContainerInterface {
   /**
    * Implements CerEntityContainerInterface::createInnerEntity().
    */
-  public function createInnerEntity(EntityDrupalWrapper $owner) {
+  public function createInnerEntity(EntityBackdropWrapper $owner) {
     $init = array(
       'user' => $owner->value(),
       'type' => $this->profileType,

@@ -1,7 +1,6 @@
 name = "Field Object"
 description = "Provides a field type that can refer to field instances."
-
-core = "7.x"
+backdrop = 1.x
 
 dependencies[] = options
 

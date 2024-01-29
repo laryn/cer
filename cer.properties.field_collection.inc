@@ -66,11 +66,11 @@ function cer_get_field_collection_owner(array $data, array $options, $property, 
   if ($data[0] == 'field_collection_item') {
     $data[0] = $data[1]->hostEntityType();
     $data[1] = $data[1]->hostEntity();
-    
+
     $self = __FUNCTION__;
     return $self($data, $options, $property, $data_type, $info);
   }
   else {
-    return new EntityDrupalWrapper($data[0], $data[1]);
+    return new EntityBackdropWrapper($data[0], $data[1]);
   }
 }

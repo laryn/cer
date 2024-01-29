@@ -17,7 +17,7 @@ function cer_unpack_field_chain($data, array $options, $property, $entity_type, 
  * Creates a parent struct for the lineage, depth, owner, and original properties.
  * All that these other callbacks really need is the entity type and object, so
  * that's what this returns.
- */ 
+ */
 function cer_get_cer_struct($entity, array $options, $property, $entity_type, array $info) {
   return array( $entity_type, $entity );
 }
@@ -39,12 +39,12 @@ function cer_get_entity_depth(array $data, array $options, $property, $data_type
 }
 
 /**
- * Gets the ultimate owner of the entity as an EntityDrupalWrapper. cer_entity_property_info_alter()
+ * Gets the ultimate owner of the entity as an EntityBackdropWrapper. cer_entity_property_info_alter()
  * overrides this callback for field collections, and for all other entity types the entity
  * owns itself.
  */
 function cer_get_entity_owner(array $data, array $options, $property, $data_type, array $info) {
-  return new EntityDrupalWrapper($data[0], $data[1]);
+  return new EntityBackdropWrapper($data[0], $data[1]);
 }
 
 /**
@@ -52,5 +52,5 @@ function cer_get_entity_owner(array $data, array $options, $property, $data_type
  * entity is returned.
  */
 function cer_get_entity_original(array $data, array $options, $property, $data_type, array $info) {
-  return new EntityDrupalWrapper($data[0], (isset($data[1]->original) ? $data[1]->original : $data[1]));
+  return new EntityBackdropWrapper($data[0], (isset($data[1]->original) ? $data[1]->original : $data[1]));
 }

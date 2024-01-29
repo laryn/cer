@@ -51,10 +51,27 @@ function cer_cer_fields_alter(array &$fields) {
 
 function _cer_collect_fields_of_type($field_type, $class) {
   $fields = array();
-
-  $result = db_query("SELECT fci.entity_type, fci.bundle, fci.field_name FROM {field_config_instance} fci INNER JOIN {field_config} fc ON fc.id = fci.field_id WHERE fc.type = :type AND fc.deleted = 0 AND fci.deleted = 0", array(':type' => $field_type));
+  /*
+  $result = db_query("
+    SELECT fci.entity_type, fci.bundle, fci.field_name
+    FROM {field_config_instance} fci
+    INNER JOIN {field_config} fc
+    ON fc.id = fci.field_id
+    WHERE fc.type = :type AND fc.deleted = 0 AND fci.deleted = 0
+    ", array(':type' => $field_type));
   foreach ($result as $r) {
     $fields["{$r->entity_type}:{$r->bundle}:{$r->field_name}"]['class'] = $class;
+  }
+  */
+  foreach (field_info_field_map() as $field_name => $field) {
+    if ($field['type'] == $field_type) {
+      $bundles = array_keys($field['bundles']);
+      foreach ($bundles as $entity_type) {
+        foreach ($field['bundles'][$entity_type] as $bundle) {
+          $fields["{$entity_type}:{$bundle}:{$field_name}"]['class'] = $class;
+        }
+      }
+    }
   }
 
   return $fields;

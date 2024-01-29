@@ -38,11 +38,36 @@ class CerPreset extends Entity {
   public $module = 'cer';
 
   /**
+   * Implements EntityInterface::id().
+   */
+  public function id()
+  {
+    return $this->identifier;
+  }
+
+  /**
+   * Implements EntityInterface::entityType().
+   */
+  public function entityType()
+  {
+    return 'cer';
+  }
+
+  /**
+   * Implements EntityInterface::uri().
+   */
+  public function uri()
+  {
+    return array(
+      'path' => 'admin/config/content/cer/manage/' . $this->identifier,
+    );
+  }
+  /**
    * Overrides Entity::__construct().
    */
   public function __construct(array $values = array()) {
     parent::__construct($values, 'cer');
-    $this->wrapper = new EntityDrupalWrapper('cer', $this);
+    $this->wrapper = new EntityBackdropWrapper('cer', $this);
   }
 
   /**

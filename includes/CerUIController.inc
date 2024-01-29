@@ -14,13 +14,13 @@ class CerUIController extends EntityDefaultUIController {
     $items["{$this->path}/list"]['title'] = t('Presets');
 
     $this->setTitle($items["{$this->path}/add"], t('Add preset'));
-    $this->setTitle($items["{$this->path}/import"], t('Import preset'));
+    //$this->setTitle($items["{$this->path}/import"], t('Import preset'));
 
-    $items["{$this->path}/manage/%entity_object/toggle"] = $this->createCallback('cer_toggle_preset', 'update');
-    $items["{$this->path}/manage/%entity_object/invert"] = $this->createCallback('cer_invert_preset', 'create');
+    $items["{$this->path}/manage/%entity_ui_object/toggle"] = $this->createCallback('cer_toggle_preset', 'update');
+    $items["{$this->path}/manage/%entity_ui_object/invert"] = $this->createCallback('cer_invert_preset', 'create');
 
     // Don't provide a page for cloning a preset.
-    unset($items["{$this->path}/manage/%entity_object/clone"]);
+    unset($items["{$this->path}/manage/%entity_ui_object/clone"]);
 
     return $items;
   }
@@ -34,7 +34,7 @@ class CerUIController extends EntityDefaultUIController {
       'access callback' => 'entity_access',
       'access arguments' => array($operation, 'cer'),
       'file' => 'cer.admin.inc',
-      'file path' => drupal_get_path('module', 'cer'),
+      'file path' => backdrop_get_path('module', 'cer'),
     );
   }
 
@@ -72,8 +72,8 @@ class CerUIController extends EntityDefaultUIController {
 
   public function overviewFormSubmit($form, &$form_state) {
     foreach ($form_state['values']['table'] as $id => $values) {
-      $preset = entity_object_load($id, $this->entityType);
-      
+      $preset = entity_ui_object_load($id, $this->entityType);
+
       $preset->wrapper->cer_enabled->set($values['cer_enabled'][LANGUAGE_NONE][0]['value']);
       $preset->wrapper->cer_bidirectional->set($values['cer_bidirectional'][LANGUAGE_NONE][0]['value']);
       $preset->wrapper->cer_weight->set($values['cer_weight'][LANGUAGE_NONE][0]['value']);
@@ -81,11 +81,12 @@ class CerUIController extends EntityDefaultUIController {
       $preset->save();
     }
 
-    drupal_set_message(t('The changes have been saved.'));
+    backdrop_set_message(t('The changes have been saved.'));
   }
 
   public function overviewTable($conditions = array()) {
     $render = array(
+      '#theme' => 'table',
       '#header' => array(
         t('Left Field'),
         t('Right Field'),
@@ -95,16 +96,10 @@ class CerUIController extends EntityDefaultUIController {
         t('Weight'),
         t('Operations'),
       ),
-      '#tabledrag' => array(
-        array(
-          'action' => 'order',
-          'relationship' => 'sibling',
-          'group' => 'cer-weight',
-        ),
-      ),
       '#empty' => t('None.'),
-      '#type' => 'table',
+      '#attributes' => array('id' => 'cer-overview-table'),
     );
+    backdrop_add_tabledrag('cer-overview-table', 'order', 'sibling', 'cer-weight');
 
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', $this->entityType);
@@ -117,16 +112,15 @@ class CerUIController extends EntityDefaultUIController {
     if ($this->overviewPagerLimit) {
       $query->pager($this->overviewPagerLimit);
     }
-    
+
     $query->fieldOrderBy('cer_weight', 'value');
 
     $results = $query->execute();
     $entities = isset($results['cer']) ? entity_load('cer', array_keys($results['cer'])) : array();
 
     foreach ($entities as $entity) {
-      $render[$entity->pid] = $this->overviewTableRow($conditions, $entity->pid, $entity);
+      $render['#rows'][$entity->pid] = $this->overviewTableRow($conditions, $entity->pid, $entity);
     }
-
     return $render;
   }
 
@@ -135,14 +129,14 @@ class CerUIController extends EntityDefaultUIController {
 
     $render_fields['cer_left']['#label_display'] = 'inline';
     $render_fields['cer_left']['#title'] = $entity->wrapper->cer_left->chain->value()->end()->fieldTypeLabel;
-    $row['cer_left'] = $render_fields['cer_left'];
+    $row['data']['cer_left']['data'] = $render_fields['cer_left'];
 
     $render_fields['cer_right']['#label_display'] = 'inline';
     $render_fields['cer_right']['#title'] = $entity->wrapper->cer_right->chain->value()->end()->fieldTypeLabel;
-    $row['cer_right'] = $render_fields['cer_right'];
+    $row['data']['cer_right']['data'] = $render_fields['cer_right'];
 
-    $row['status'] = array(
-      '#theme' => 'entity_status',
+    $row['data']['status']['data'] = array(
+      '#theme' => 'entity_ui_entity_status',
       '#status' => $entity->status,
     );
 
@@ -152,26 +146,25 @@ class CerUIController extends EntityDefaultUIController {
     field_attach_form($this->entityType, $entity, $form_fields, $form_state);
 
     unset($form_fields['cer_enabled'][LANGUAGE_NONE]['#title']);
-    $row['cer_enabled'] = $form_fields['cer_enabled'];
+    $row['data']['cer_enabled']['data'] = $form_fields['cer_enabled'];
 
     unset($form_fields['cer_bidirectional'][LANGUAGE_NONE]['#title']);
-    $row['cer_bidirectional'] = $form_fields['cer_bidirectional'];
+    $row['data']['cer_bidirectional']['data'] = $form_fields['cer_bidirectional'];
 
     unset($form_fields['cer_weight'][LANGUAGE_NONE]['#title']);
     $form_fields['cer_weight'][LANGUAGE_NONE]['#attributes']['class'][] = 'cer-weight';
-    $row['cer_weight'] = $form_fields['cer_weight'];
+    $row['data']['cer_weight']['data'] = $form_fields['cer_weight'];
 
     // Add in any passed additional cols.
     foreach ($additional_cols as $key => $col) {
-      $row[$key] = $col;
+      $row['data'][$key]['data'] = $col;
     }
 
-    // I like drop buttons more than an inline set of links.
     $links = array(
       'toggle' => array(
         'title' => $entity->wrapper->cer_enabled->value() ? t('disable') : t('enable'),
         'href' => "{$this->path}/manage/{$id}/toggle",
-        'query' => drupal_get_destination(),
+        'query' => backdrop_get_destination(),
       ),
       'edit' => array(
         'title' => t('edit'),
@@ -184,22 +177,22 @@ class CerUIController extends EntityDefaultUIController {
       $links['invert'] = array(
         'title' => t('invert'),
         'href' => "{$this->path}/manage/{$id}/invert",
-        'query' => drupal_get_destination(),
+        'query' => backdrop_get_destination(),
       );
     }
 
-    if (entity_has_status($this->entityType, $entity, ENTITY_OVERRIDDEN)) {
+    if (entity_plus_has_status($this->entityType, $entity, ENTITY_OVERRIDDEN)) {
       $links['revert'] = array(
         'title' => t('revert'),
         'href' => "{$this->path}/manage/{$id}/revert",
-        'query' => drupal_get_destination(),
+        'query' => backdrop_get_destination(),
       );
     }
     else {
       $links['delete'] = array(
         'title' => t('delete'),
         'href' => "{$this->path}/manage/{$id}/delete",
-        'query' => drupal_get_destination(),
+        'query' => backdrop_get_destination(),
       );
     }
     $links['export'] = array(
@@ -207,12 +200,15 @@ class CerUIController extends EntityDefaultUIController {
       'href' => "{$this->path}/manage/{$id}/export",
     );
 
-    $row['operations'] = array(
-      '#theme' => 'links__ctools_dropbutton',
-      '#links' => $links,
+    $row['data']['operations'] = array(
+      'data' => array(
+        '#type' => 'dropbutton',
+        '#links' =>
+        $links,
+      ),
     );
 
-    $row['#attributes']['class'][] = 'draggable';
+    $row['class'][] = 'draggable';
 
     return $row;
   }

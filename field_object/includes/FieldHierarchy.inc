@@ -95,7 +95,8 @@ class FieldHierarchy implements Countable {
 
   /**
    * @implements Countable::count().
-   */  
+   */
+  #[\ReturnTypeWillChange]
   public function count() {
     return sizeof($this->data);
   }

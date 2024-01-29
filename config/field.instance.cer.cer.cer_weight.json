@@ -1,0 +1,35 @@
+{
+    "_config_name": "field.instance.cer.cer.cer_weight",
+    "field_name": "cer_weight",
+    "entity_type": "cer",
+    "bundle": "cer",
+    "module": "cer",
+    "deleted": "0",
+    "default_value": [
+        {
+            "value": 0
+        }
+    ],
+    "description": "",
+    "display": {
+        "default": {
+            "label": "above",
+            "module": "list",
+            "settings": [],
+            "type": "list_default",
+            "weight": 4
+        }
+    },
+    "label": "Weight",
+    "required": 1,
+    "settings": {
+        "user_register_form": false
+    },
+    "widget": {
+        "active": 1,
+        "module": "options",
+        "settings": [],
+        "type": "options_select",
+        "weight": 4
+    }
+}

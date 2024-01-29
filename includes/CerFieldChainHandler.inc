@@ -22,7 +22,7 @@ class CerFieldChainHandler {
   protected $chain;
 
   /**
-   * @var EntityDrupalWrapper
+   * @var EntityBackdropWrapper
    */
   protected $entity;
 
@@ -31,7 +31,7 @@ class CerFieldChainHandler {
    */
   protected $handlers;
 
-  public function __construct(CerFieldChain $chain, EntityDrupalWrapper $entity) {
+  public function __construct(CerFieldChain $chain, EntityBackdropWrapper $entity) {
     $this->chain = $chain;
     $this->entity = $entity;
 
@@ -73,7 +73,7 @@ class CerFieldChainHandler {
   /**
    * Adds a reference to the given entity.
    */
-  public function add(EntityDrupalWrapper $entity) {
+  public function add(EntityBackdropWrapper $entity) {
     $owner = $this->entity;
 
     foreach ($this->chain as $field) {
@@ -98,7 +98,7 @@ class CerFieldChainHandler {
     $field->getHandler($owner)->add($entity);
   }
 
-  public function delete(EntityDrupalWrapper $entity) {
+  public function delete(EntityBackdropWrapper $entity) {
     foreach ($this->handlers as $handler) {
       $handler->delete($entity);
     }

@@ -1,7 +1,9 @@
 name = "CER Commerce"
-core = "7.x"
+backdrop = 1.x
 description = "Provides a CER plugin for Commerce's Product Reference fields."
 dependencies[] = cer
 dependencies[] = commerce_product_reference
 
 files[] = commerce_product_reference.inc
+
+hidden = 1;

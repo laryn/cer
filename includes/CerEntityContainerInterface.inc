@@ -16,9 +16,9 @@ interface CerEntityContainerInterface {
   /**
    * Creates an embedded entity.
    *
-   * @return EntityDrupalWrapper
+   * @return EntityBackdropWrapper
    *  The newly created embedded entity, in a metadata wrapper.
    */
-  public function createInnerEntity(EntityDrupalWrapper $owner);
+  public function createInnerEntity(EntityBackdropWrapper $owner);
 
 }

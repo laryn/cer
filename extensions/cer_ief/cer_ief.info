@@ -1,5 +1,5 @@
 name = "CER Inline Entity Form"
-core = "7.x"
+backdrop = 1.x
 description = "Provides an option to hide CER fields on Inline Entity Forms."
 dependencies[] = cer
 dependencies[] = inline_entity_form

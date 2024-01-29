@@ -29,11 +29,48 @@ function cer_entity_info() {
     ),
   );
 
-  if (variable_get('cer_enable_field_ui', FALSE)) {
+  if (config_get('cer.settings', 'cer_enable_field_ui')) {
     $info['cer']['bundles']['cer']['admin']['path'] = $info['cer']['admin ui']['path'];
   }
 
   return $info;
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function cer_config_info()
+{
+  $prefixes['cer.settings'] = array(
+    'label' => t('Corresponding Entity References'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function cer_autoload_info() {
+  return array(
+    'CerUIController' => 'includes/CerUIController.inc',
+    'CerPresetHandler' => 'includes/CerPresetHandler.inc',
+    'CerPresetFinder' => 'includes/CerPresetFinder.inc',
+    'CerPresetFeaturesController' => 'includes/CerPresetFeaturesController.inc',
+    'CerPresetController' => 'includes/CerPresetController.inc',
+    'CerPreset' => 'includes/CerPreset.inc',
+    'CerFieldHandler' => 'includes/CerFieldHandler.inc',
+    'CerFieldChainHandler' => 'includes/CerFieldChainHandler.inc',
+    'CerFieldChain' => 'includes/CerFieldChain.inc',
+    'CerField' => 'includes/CerField.inc',
+    'CerEntityContainerInterface' => 'includes/CerEntityContainerInterface.inc',
+    'CerEndPointIterator' => 'includes/CerEndPointIterator.inc',
+    'CerEntityReferenceField' => 'includes/fields/entity_reference.inc',
+    'CerFieldCollectionField' => 'includes/fields/field_collection.inc',
+    'CerNodeReferenceField' => 'includes/fields/node_reference.inc',
+    'CerTaxonomyTermReferenceField' => 'includes/fields/taxonomy_term_reference.inc',
+    'CerUserReferenceField' => 'includes/fields/user_reference.inc',
+  );
 }
 
 /**
@@ -53,7 +90,7 @@ function cer_menu() {
   return array(
     "{$prefix}/update" => array(
       'title' => 'Bulk Update',
-      'page callback' => 'drupal_get_form',
+      'page callback' => 'backdrop_get_form',
       'page arguments' => array('cer_bulk_update_form'),
       'access arguments' => array('administer cer settings'),
       'file' => 'cer.admin.inc',
@@ -117,11 +154,11 @@ function cer_node_insert(StdClass $node) {
   // This tricky bug can easily rear its ugly head if you have an Entity Reference field,
   // referencing nodes, and a node access module enabled.
   //
-  // Entity Reference's bundled selection handlers will use either EntityFieldQuery or 
-  // Views, both of which are affected by node access grants (and rightfully so). 
-  // However, when creating a node, core invokes hook_node_save() *before* it writes the 
-  // grants to the database, which can cause EntityFieldQuery (or Views, unless 
-  // configured to disable SQL rewriting) to return no results if the user isn't the 
+  // Entity Reference's bundled selection handlers will use either EntityFieldQuery or
+  // Views, both of which are affected by node access grants (and rightfully so).
+  // However, when creating a node, core invokes hook_node_save() *before* it writes the
+  // grants to the database, which can cause EntityFieldQuery (or Views, unless
+  // configured to disable SQL rewriting) to return no results if the user isn't the
   // superuser. Since CER asks the field backend to validate the reference, this can
   // cause the reference to not be validated, and the cross-reference to fail.
   //
@@ -167,7 +204,7 @@ function cer_entity_delete($entity, $type) {
 /**
  * Process a entity's corresponding entity references.
  *
- * @param string $op 
+ * @param string $op
  *  The operation being performed on the entity (insert, update, or delete).
  *
  * @param object $entity
@@ -203,7 +240,7 @@ function cer_processing_entity($op, $entity, $entity_type = NULL, array &$contex
     }
   }
 
-  if ($entity instanceof EntityDrupalWrapper) {
+  if ($entity instanceof EntityBackdropWrapper) {
     // Under certain circumstances, the cer struct may not be known to Entity
     // API. So check for that before doing any actual processing. If it's not
     // known yet, rebuild the property info cache and re-instantiate the
@@ -213,7 +250,7 @@ function cer_processing_entity($op, $entity, $entity_type = NULL, array &$contex
     }
     catch (EntityMetadataWrapperException $e) {
       entity_property_info_cache_clear();
-      $entity = new EntityDrupalWrapper($entity->type(), $entity->value());
+      $entity = new EntityBackdropWrapper($entity->type(), $entity->value());
     }
 
     $finder = new CerPresetFinder($entity);
@@ -232,11 +269,11 @@ function cer_processing_entity($op, $entity, $entity_type = NULL, array &$contex
   }
   elseif ($entity_type) {
     if (is_numeric($entity)) {
-      $entity = entity_object_load($entity, $entity_type);
+      $entity = entity_ui_object_load($entity, $entity_type);
     }
 
     if (is_object($entity) && empty($entity->cer_processed)) {
-      cer_processing_entity($op, new EntityDrupalWrapper($entity_type, $entity), NULL, $context);
+      cer_processing_entity($op, new EntityBackdropWrapper($entity_type, $entity), NULL, $context);
     }
   }
 }
@@ -251,19 +288,19 @@ function cer_batch_update_existing_finished($success, $results, $operations) {
     if (isset($results['errors'])) {
       $type = 'warning';
       foreach ($results['errors'] as $e) {
-        drupal_set_message($e->getMessage(), 'error');
+        backdrop_set_message($e->getMessage(), 'error');
       }
     }
     else {
       $type = 'status';
     }
-    drupal_set_message($message, $type);
+    backdrop_set_message($message, $type);
   }
   else {
     // An error occurred. $operations contains the operations that remained unprocessed.
     $error_operation = reset($operations);
     $message = 'An error occurred while processing ' . $error_operation[0] . ' with arguments:' . print_r($error_operation[0], TRUE);
-    drupal_set_message($message, 'error');
+    backdrop_set_message($message, 'error');
   }
 }
 
@@ -402,7 +439,7 @@ function cer_entity_property_info_alter(array &$info) {
   );
 
   // Field collections are special. Because they live inside other entities (to
-  // potentially infinite levels of recursion), their CER property callbacks must be 
+  // potentially infinite levels of recursion), their CER property callbacks must be
   // able to recurse upwards through the chain of embedding.
   if (module_exists('field_collection')) {
     $struct = &$info['field_collection_item']['properties']['cer']['property info'];

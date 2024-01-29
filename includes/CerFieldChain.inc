@@ -13,7 +13,7 @@ class CerFieldChain extends FieldChain {
    *
    * @return CerFieldChainHandler
    */
-  public function getHandler(EntityDrupalWrapper $entity) {
+  public function getHandler(EntityBackdropWrapper $entity) {
     return new CerFieldChainHandler($this, $entity);
   }
 
@@ -29,7 +29,7 @@ class CerFieldChain extends FieldChain {
   /**
    * Returns a Features export pipe for this chain, including every field and
    * field instance in it.
-   */  
+   */
   public function export() {
     $pipe = array();
 
@@ -83,9 +83,8 @@ class CerFieldChain extends FieldChain {
     foreach (array_reverse(explode('::', $identifier)) as $field) {
       $chain->addField(CerField::getPlugin($field));
     }
-    
+
     return $chain;
   }
 
-} 
- 
+}

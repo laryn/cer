@@ -10,7 +10,7 @@ class CerPresetSelectionHandler implements EntityReference_SelectionHandler {
 
   public function __construct($entity_type, $entity) {
     if ($entity_type && $entity) {
-      $this->entity = new EntityDrupalWrapper($entity_type, $entity);
+      $this->entity = new EntityBackdropWrapper($entity_type, $entity);
     }
   }
 

@@ -4,12 +4,12 @@
  * @file
  * Contains CerFieldHandler.
  */
- 
+
 /**
  * @class
  * Handles low-level operations for a single field on a single entity. Exposes
  * methods to add, delete and check for references. This will also iterate over
- * the references, returning each one as an EntityDrupalWrapper object.
+ * the references, returning each one as an EntityBackdropWrapper object.
  */
 class CerFieldHandler implements Countable, SeekableIterator {
 
@@ -19,7 +19,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
   protected $field;
 
   /**
-   * @var EntityDrupalWrapper
+   * @var EntityBackdropWrapper
    */
   protected $entity;
 
@@ -32,13 +32,13 @@ class CerFieldHandler implements Countable, SeekableIterator {
    * @var integer
    */
   protected $delta = 0;
-  
+
   /**
    * @var boolean
    */
   protected $isMultiValue;
 
-  public function __construct(CerField $field, EntityDrupalWrapper $entity) {
+  public function __construct(CerField $field, EntityBackdropWrapper $entity) {
     $this->field = $field;
     $this->entity = $entity;
     $this->value = $entity->{ $field->name };
@@ -50,10 +50,10 @@ class CerFieldHandler implements Countable, SeekableIterator {
   /**
    * Adds a reference to $entity, validating it first.
    *
-   * @param EntityDrupalWrapper $entity
+   * @param EntityBackdropWrapper $entity
    *  The wrapped entity to reference.
    */
-  public function add(EntityDrupalWrapper $entity) {
+  public function add(EntityBackdropWrapper $entity) {
     if ($this->validate($entity)) {
       $this->write();
     }
@@ -62,10 +62,10 @@ class CerFieldHandler implements Countable, SeekableIterator {
   /**
    * Deletes all references to $entity.
    *
-   * @param EntityDrupalWrapper $entity
+   * @param EntityBackdropWrapper $entity
    *  The wrapped entity to dereference.
    */
-  public function delete(EntityDrupalWrapper $entity) {
+  public function delete(EntityBackdropWrapper $entity) {
     $entityID = $entity->getIdentifier();
 
     if ($this->isMultiValue) {
@@ -88,12 +88,12 @@ class CerFieldHandler implements Countable, SeekableIterator {
    * which owns the field to do its normal validation logic. If validation
    * fails, the error(s) are logged.
    *
-   * @param EntityDrupalWrapper $entity
+   * @param EntityBackdropWrapper $entity
    *  The wrapped entity to validate.
    *
    * @return boolean
    */
-  protected function validate(EntityDrupalWrapper $entity) {
+  protected function validate(EntityBackdropWrapper $entity) {
     // Before we do anything else, check that the field has enough space to add the
     // reference. If there isn't, bail out so we don't blindly overwrite existing
     // field data.
@@ -157,7 +157,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $entity = $this->entity->value();
 
     $entity->cer_processed = TRUE;
-    entity_save($entity_type, $entity);
+    entity_plus_save($entity_type, $entity);
 
     // Reload the entity we just saved and cleared from the static cache.
     $entities = entity_load($entity_type, (array) $entityID);
@@ -173,10 +173,10 @@ class CerFieldHandler implements Countable, SeekableIterator {
    * @param string $message
    *  The untranslated message to log.
    *
-   * @param EntityDrupalWrapper $entity
+   * @param EntityBackdropWrapper $entity
    *  The entity that has caused the error, if any.
    */
-  protected function logError($message, EntityDrupalWrapper $entity = NULL) {
+  protected function logError($message, EntityBackdropWrapper $entity = NULL) {
     $variables = array(
       '!field_name' => $this->field->name,
       '!field_type' => $this->field->fieldTypeLabel,
@@ -186,39 +186,23 @@ class CerFieldHandler implements Countable, SeekableIterator {
     $variables['!this_type'] = $this->entity->type();
     $variables['!this_label'] = $this->entity->label();
 
-    // If the entity has a URI, provide a link to it. Otherwise, its "link"
-    // will just be an unlinked label. Entity API doesn't reliably expose a url
-    // property on entities, and there doesn't appear to be a way to check for
-    // it without risking an EntityMetadataWrapperException. So I need to use
-    // this clunky BS instead...ugh.
     $this_uri = entity_uri($this->entity->type(), $this->entity->value());
-    if (isset($this_uri)) {
-      $variables['!this_url'] = url($this_uri['path'], $this_uri['options']);
-      $variables['!this_link'] = l($this->entity->label(), $this_uri['path'], $this_uri['options']);
-    }
-    else {
-      $variables['!this_link'] = $this->entity->label();
-    }
+    $variables['!this_url'] = url($this_uri['path'], $this_uri['options']);
+    $variables['!this_link'] = l($this->entity->label(), $this_uri['path'], $this_uri['options']);
 
     if ($entity) {
       $variables['!that_type'] = $entity->type();
       $variables['!that_label'] = $entity->label();
 
-      // If the entity has a URI, link to it.
       $that_uri = entity_uri($entity->type(), $entity->value());
-      if (isset($that_uri)) {
-        $variables['!that_url'] = url($that_uri['path'], $that_uri['options']);
-        $variables['!that_link'] = l($entity->label(), $that_uri['path'], $that_uri['options']);
-      }
-      else {
-        $variables['!that_link'] = $entity->label();
-      }
+      $variables['!that_url'] = url($that_uri['path'], $that_uri['options']);
+      $variables['!that_link'] = l($entity->label(), $that_uri['path'], $that_uri['options']);
     }
 
     watchdog('cer', $message, $variables, WATCHDOG_ERROR);
 
-    if (variable_get('cer_debug', FALSE)) {
-      drupal_set_message(t($message, $variables), 'error');
+    if (state_get('cer_debug', FALSE)) {
+      backdrop_set_message(t($message, $variables), 'error');
     }
   }
 
@@ -287,7 +271,7 @@ class CerFieldHandler implements Countable, SeekableIterator {
   public function next() {
     $this->delta++;
   }
-  
+
   /**
    * Implements Iterator::rewind().
    */
@@ -303,4 +287,3 @@ class CerFieldHandler implements Countable, SeekableIterator {
   }
 
 }
- 

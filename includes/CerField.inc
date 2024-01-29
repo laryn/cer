@@ -28,7 +28,7 @@ abstract class CerField extends FieldInstance {
    * @var array
    */
   protected $settings = array();
-  
+
   /**
    * @var string
    */
@@ -69,7 +69,7 @@ abstract class CerField extends FieldInstance {
    *
    * @return CerFieldHandler
    */
-  public function getHandler(EntityDrupalWrapper $entity) {
+  public function getHandler(EntityBackdropWrapper $entity) {
     return new $this->plugin['handler']($this, $entity);
   }
 
@@ -103,7 +103,7 @@ abstract class CerField extends FieldInstance {
    * The aggregated result of hook_cer_fields() is statically cached.
    */
   public static function getPluginInfo($identifier = NULL) {
-    $info = &drupal_static(__METHOD__);
+    $info = &backdrop_static(__METHOD__);
 
     if (! isset($info)) {
       $info = module_invoke_all('cer_fields');
@@ -120,7 +120,7 @@ abstract class CerField extends FieldInstance {
             'CerFieldHandler',
         );
       }
-      drupal_alter('cer_fields', $info);
+      backdrop_alter('cer_fields', $info);
     }
 
     return ($identifier ? (isset($info[$identifier]) ? $info[$identifier] : NULL) : $info);
@@ -141,9 +141,9 @@ abstract class CerField extends FieldInstance {
    * weird and serious problems. Throwing an exception will head that off at the pass.
    */
   public static function getPlugin($identifier) {
-    $instances = &drupal_static(__METHOD__);
-    
-    if (! isset($instances[$identifier])) {
+    $instances = &backdrop_static(__METHOD__);
+
+    if (!isset($instances[$identifier])) {
       $info = self::getPluginInfo($identifier);
       if ($info) {
         $instances[$identifier] = new $info['class']($info);

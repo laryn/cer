@@ -27,7 +27,7 @@ function cer_form(array $form, array &$form_state, CerPreset $preset, $do = 'edi
 function cer_form_submit(array &$form, array &$form_state) {
   $preset = entity_ui_form_submit_build_entity($form, $form_state)->save();
 
-  drupal_set_message(t('The preset has been saved.'));
+  backdrop_set_message(t('The preset has been saved.'));
   $form_state['redirect'] = 'admin/config/content/cer';
 }
 
@@ -51,7 +51,7 @@ function cer_update_right(array &$form, array &$form_state) {
     $form['cer_right'][LANGUAGE_NONE]['#options'] = $options;
   }
   else {
-    drupal_set_message(t('There are no fields which can correspond with your selection.'), 'warning');
+    backdrop_set_message(t('There are no fields which can correspond with your selection.'), 'warning');
   }
 
   return $form['cer_right'];
@@ -62,10 +62,10 @@ function cer_update_right(array &$form, array &$form_state) {
  * is defined by CerUIController::hook_menu().
  */
 function cer_toggle_preset(CerPreset $preset) {
-  $preset->wrapper->cer_enabled->set(! $preset->wrapper->cer_enabled->value());
+  $preset->wrapper->cer_enabled->set(!$preset->wrapper->cer_enabled->value());
   $preset->save();
 
-  drupal_goto(isset($_GET['destination']) ? $_GET['destination'] : 'admin/config/content/cer');
+  backdrop_goto(isset($_GET['destination']) ? $_GET['destination'] : 'admin/config/content/cer');
 }
 
 /**
@@ -76,7 +76,7 @@ function cer_invert_preset(CerPreset $original) {
   $original->invert()->save();
   $original->delete();
 
-  drupal_goto(isset($_GET['destination']) ? $_GET['destination'] : 'admin/config/content/cer');
+  backdrop_goto(isset($_GET['destination']) ? $_GET['destination'] : 'admin/config/content/cer');
 }
 
 /**

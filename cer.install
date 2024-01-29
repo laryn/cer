@@ -49,316 +49,16 @@ function cer_schema() {
  * Implements hook_install().
  */
 function cer_install() {
-  field_info_cache_clear();
-  $fields = _cer_field_definitions();
-  array_walk($fields, 'field_create_field');
-  $instances = _cer_field_instance_definitions();
-  array_walk($instances, 'field_create_instance');
-
   if (module_exists('corresponding_node_references')) {
     _cer_hijack_cnr();
   }
 }
 
 /**
- * Contains the default field definitions for presets.
- */
-function _cer_field_definitions() {
-  $field_bases = array();
-
-  $field_bases[] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'cer_bidirectional',
-    'foreign keys' => array(),
-    'indexes' => array(
-      'value' => array(
-        0 => 'value',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'list',
-    'settings' => array(
-      'allowed_values' => array(
-        0 => 0,
-        1 => 1,
-      ),
-      'allowed_values_function' => '',
-    ),
-    'translatable' => 0,
-    'type' => 'list_boolean',
-  );
-
-  $field_bases[] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'cer_enabled',
-    'foreign keys' => array(),
-    'indexes' => array(
-      'value' => array(
-        0 => 'value',
-      ),
-    ),
-    'locked' => 1,
-    'module' => 'list',
-    'settings' => array(
-      'allowed_values' => array(
-        0 => 0,
-        1 => 1,
-      ),
-      'allowed_values_function' => '',
-    ),
-    'translatable' => 0,
-    'type' => 'list_boolean',
-  );
-
-  $field_bases[] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'cer_weight',
-    'foreign keys' => array(),
-    'indexes' => array(
-      'value' => array(
-        0 => 'value',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'list',
-    'settings' => array(
-      'allowed_values' => array(),
-      'allowed_values_function' => 'cer_weight_options',
-    ),
-    'translatable' => 0,
-    'type' => 'list_integer',
-  );
-
-  $field_bases[] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'cer_left',
-    'foreign keys' => array(
-      'field_instance' => array(
-        'columns' => array(
-          'fiid' => 'id',
-        ),
-        'table' => 'field_config_instance',
-      ),
-    ),
-    'indexes' => array(),
-    'locked' => 1,
-    'module' => 'field_object',
-    'settings' => array(),
-    'translatable' => 0,
-    'type' => 'field_object',
-  );
-
-  $field_bases[] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'cer_right',
-    'foreign keys' => array(
-      'field_instance' => array(
-        'columns' => array(
-          'fiid' => 'id',
-        ),
-        'table' => 'field_config_instance',
-      ),
-    ),
-    'indexes' => array(),
-    'locked' => 1,
-    'module' => 'field_object',
-    'settings' => array(),
-    'translatable' => 0,
-    'type' => 'field_object',
-  );
-
-  return $field_bases;
-}
-
-/**
- * Contains the default field instance definitions for presets.
- */
-function _cer_field_instance_definitions() {
-  $field_instances = array();
-
-  $field_instances[] = array(
-    'bundle' => 'cer',
-    'default_value' => array(
-      0 => array(
-        'value' => 1,
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 1,
-      ),
-    ),
-    'entity_type' => 'cer',
-    'field_name' => 'cer_bidirectional',
-    'label' => 'Bidirectional',
-    'required' => 0,
-    'settings' => array(),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'display_label' => 1,
-      ),
-      'type' => 'options_onoff',
-      'weight' => 3,
-    ),
-  );
-
-  $field_instances[] = array(
-    'bundle' => 'cer',
-    'default_value' => array(
-      0 => array(
-        'value' => 1,
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'cer',
-    'field_name' => 'cer_enabled',
-    'label' => 'Enabled',
-    'required' => 0,
-    'settings' => array(),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'display_label' => 1,
-      ),
-      'type' => 'options_onoff',
-      'weight' => 2,
-    ),
-  );
-
-  $field_instances[] = array(
-    'bundle' => 'cer',
-    'default_value' => array(
-      0 => array(
-        'value' => 0,
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 4,
-      ),
-    ),
-    'entity_type' => 'cer',
-    'field_name' => 'cer_weight',
-    'label' => 'Weight',
-    'required' => 1,
-    'settings' => array(),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 4,
-    ),
-  );
-
-  $field_instances[] = array(
-    'bundle' => 'cer',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => NULL,
-        'settings' => array(),
-        'type' => 'field_object_default',
-        'weight' => 5,
-      ),
-    ),
-    'entity_type' => 'cer',
-    'field_name' => 'cer_left',
-    'label' => 'Left Field',
-    'required' => 1,
-    'settings' => array(
-      'function' => 'CerFieldChain::collectAll',
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 0,
-    ),
-  );
-
-  $field_instances[] = array(
-    'bundle' => 'cer',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => NULL,
-        'settings' => array(),
-        'type' => 'field_object_default',
-        'weight' => 6,
-      ),
-    ),
-    'entity_type' => 'cer',
-    'field_name' => 'cer_right',
-    'label' => 'Right Field',
-    'required' => 1,
-    'settings' => array(
-      'function' => 'CerFieldChain::collectAll',
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 1,
-    ),
-  );
-
-  return $field_instances;
-}
-
-/**
  * Implements hook_uninstall().
  */
 function cer_uninstall() {
-  variable_del('cer_debug');
+  state_del('cer_debug');
 
   // Delete fields created by cer_install()
   field_delete_field('cer_left');
@@ -383,53 +83,22 @@ function _cer_hijack_cnr() {
   array_walk($cnr, '_cer_rebuild_preset');
 
   module_disable(array('corresponding_node_references'));
-  drupal_set_message(t('Rebuilt CNR presets.'));
+  backdrop_set_message(t('Rebuilt CNR presets.'));
 }
 
 /**
- * Rename table to shorten module name.
+ * Implements hook_update_last_removed.
  */
-function cer_update_7001() {
-  if (db_table_exists('corresponding_entity_references')) {
-    db_rename_table('corresponding_entity_references', 'cer');
-  }
+function cer_update_last_removed() {
+  return 7005;
 }
 
 /**
- * Creates the {cer_preset} table to store CerPreset entities, and rebuilds
- * legacy presets.
+ * Update D7 variable to config for CER.
  */
-function cer_update_7005() {
-  // Register new classes with the autoloader.
-  registry_rebuild();
-
-  // Create the table for preset entities.
-  $tables = cer_schema();
-  db_create_table('cer_preset', $tables['cer_preset']);
-
-  // Install Field Reference, which powers the cer_left and cer_right fields.
-  if (! module_exists('field_object')) {
-    module_enable(array('field_object'));
-  }
-
-  // Create preset entities' fields.
-  cer_install();
-
-  // Convert legacy presets to entities, including 1.x, 2.x and the older
-  // 3.x schemas.
-  $old = db_select('cer')->fields('cer')->execute()->fetchAll();
-  $old = array_merge($old, module_invoke_all('cer_default_presets'));
-  array_walk($old, '_cer_rebuild_preset');
-
-  // So long, legacy table...
-  db_drop_table('cer');
-
-  // Delete defunct status variable maintained by CTools.
-  variable_del('default_cer');
-
-  if (module_exists('corresponding_node_references')) {
-    _cer_hijack_cnr();
-  }
+function cer_update_1000() {
+  $config_set('cer.settings', 'cer_enable_field_ui', update_variable_get('cer_enable_field_ui', FALSE));
+  update_variable_del('cer_enable_field_ui');
 }
 
 /**
@@ -466,7 +135,7 @@ function _cer_rebuild_preset($old) {
     $variables = array(
       '%key' => "{$old->a}*{$old->b}",
     );
-    return drupal_set_message(t('Could not rebuild preset %key because it refers to invalid fields.', $variables), 'error');
+    return backdrop_set_message(t('Could not rebuild preset %key because it refers to invalid fields.', $variables), 'error');
   }
 
   $preset = new CerPreset();

@@ -56,6 +56,17 @@ function field_object_field_formatter_info() {
 }
 
 /**
+ * Implements hook_autoload_info().
+ */
+function field_object_autoload_info() {
+  return array(
+    'FieldHierarchy' => 'includes/FieldHierarchy.inc',
+    'FieldChain' => 'includes/FieldChain.inc',
+    'FieldInstance' => 'includes/FieldInstance.inc',
+  );
+}
+
+/**
  * Implements hook_field_is_empty().
  */
 function field_object_field_is_empty(array $item, array $field) {

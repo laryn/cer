@@ -1,0 +1,37 @@
+{
+    "_config_name": "field.instance.cer.cer.cer_enabled",
+    "field_name": "cer_enabled",
+    "entity_type": "cer",
+    "bundle": "cer",
+    "module": "cer",
+    "deleted": "0",
+    "default_value": [
+        {
+            "value": 1
+        }
+    ],
+    "description": "",
+    "display": {
+        "default": {
+            "label": "above",
+            "module": "list",
+            "settings": [],
+            "type": "list_default",
+            "weight": 0
+        }
+    },
+    "label": "Enabled",
+    "required": 0,
+    "settings": {
+        "user_register_form": false
+    },
+    "widget": {
+        "active": 1,
+        "module": "options",
+        "settings": {
+            "display_label": 1
+        },
+        "type": "options_onoff",
+        "weight": 2
+    }
+}

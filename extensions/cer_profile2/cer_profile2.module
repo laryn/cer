@@ -48,8 +48,8 @@ function cer_profile2_get_profile2_depth(array $data, array $options, $property,
 /**
  * Entity API getter callback. Returns the user account which owns a Profile2.
  *
- * @return EntityDrupalWrapper.
+ * @return EntityBackdropWrapper.
  */
 function cer_profile2_get_profile2_owner(array $data, array $options, $property, $data_type, array $info) {
-  return new EntityDrupalWrapper('user', $data[1]->user());
+  return new EntityBackdropWrapper('user', $data[1]->user());
 }

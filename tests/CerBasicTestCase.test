@@ -1,6 +1,6 @@
 <?php
 
-class CerBasicTestCase extends DrupalWebTestCase {
+class CerBasicTestCase extends BackdropWebTestCase {
 
   /**
    * A user account under which the tests will be conducted.
@@ -75,9 +75,9 @@ class CerBasicTestCase extends DrupalWebTestCase {
     $preset->wrapper->cer_enabled->set(TRUE);
     $preset->save();
 
-    $this->author = $this->drupalCreateUser();
+    $this->author = $this->backdropCreateUser();
 
-    $this->node = $this->drupalCreateNode(array(
+    $this->node = $this->backdropCreateNode(array(
       'field_author' => array(
         LANGUAGE_NONE => array(
           array('target_id' => $this->author->uid),
@@ -102,7 +102,7 @@ class CerBasicTestCase extends DrupalWebTestCase {
   }
 
   public function testUpdateChangeTarget() {
-    $target = $this->drupalCreateUser();
+    $target = $this->backdropCreateUser();
 
     $this->node->field_author[LANGUAGE_NONE][0]['target_id'] = $target->uid;
     node_save($this->node);
@@ -110,7 +110,7 @@ class CerBasicTestCase extends DrupalWebTestCase {
     // The original author should no longer reference the node.
     $this->assertEqual(0, $this->reload('user', $this->author)->field_pages->count());
 
-    /** @var EntityDrupalWrapper $target */
+    /** @var EntityBackdropWrapper $target */
     $target = $this->reload('user', $target);
     $this->assertEqual(1, $target->field_pages->count());
     $this->assertEqual($this->node->nid, $target->field_pages[0]->nid->value());
@@ -122,7 +122,7 @@ class CerBasicTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * @return EntityDrupalWrapper
+   * @return EntityBackdropWrapper
    */
   protected function reload($entity_type, $entity) {
     list ($id) = entity_extract_IDs($entity_type, $entity);

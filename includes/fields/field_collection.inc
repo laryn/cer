@@ -24,9 +24,9 @@ class CerFieldCollectionField extends CerField implements CerEntityContainerInte
   /**
    * Implements CerEntityContainerInterface::createInnerEntity().
    */
-  public function createInnerEntity(EntityDrupalWrapper $owner) {
+  public function createInnerEntity(EntityBackdropWrapper $owner) {
     // Create an empty field collection item.
-    $collection = new EntityDrupalWrapper('field_collection_item', entity_create('field_collection_item', array('field_name' => $this->name)));
+    $collection = new EntityBackdropWrapper('field_collection_item', entity_create('field_collection_item', array('field_name' => $this->name)));
     $collection->host_entity->set( $owner );
     $collection->save(TRUE);
 

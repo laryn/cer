@@ -29,7 +29,7 @@ function cer_entity_settings_query_cer_presets_alter(QueryAlterableInterface $qu
     $query->getMetaData('entity_field_query')->entityCondition('entity_id', $IDs, 'IN');
 
     if (! $entity->cer_store_settings->value()) {
-      $queue = &drupal_static('cer_entity_settings_exit', array());
+      $queue = &backdrop_static('cer_entity_settings_exit', array());
       $queue[ $entity->type() ][ $entity->getIdentifier() ] = $entity;
     }
   }
@@ -39,7 +39,7 @@ function cer_entity_settings_query_cer_presets_alter(QueryAlterableInterface $qu
  * Implements hook_exit().
  */
 function cer_entity_settings_exit() {
-  $queue = drupal_static(__FUNCTION__, array());
+  $queue = backdrop_static(__FUNCTION__, array());
 
   foreach ($queue as $entity_type => $entities) {
     foreach ($entities as $entity) {
@@ -48,7 +48,7 @@ function cer_entity_settings_exit() {
 
       $entity = $entity->value();
       $entity->cer_processed = TRUE;
-      entity_save($entity_type, $entity);
+      entity_plus_save($entity_type, $entity);
     }
   }
 }
@@ -93,9 +93,9 @@ function cer_entity_settings_cron($field = NULL) {
 }
 
 /**
- * Implements hook_ctools_plugin_directory().
+ * Implements hook_plugin_manager_directory().
  */
-function cer_entity_settings_ctools_plugin_directory($owner, $plugin_type) {
+function cer_entity_settings_plugin_manager_directory($owner, $plugin_type) {
   return "plugins/{$owner}/{$plugin_type}";
 }
 

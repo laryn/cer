@@ -1,0 +1,28 @@
+{
+    "_config_name": "field.field.cer_weight",
+    "field_name": "cer_weight",
+    "type": "list_integer",
+    "module": "cer",
+    "active": "1",
+    "locked": "0",
+    "cardinality": "1",
+    "translatable": "0",
+    "deleted": "0",
+    "entity_types": [],
+    "foreign keys": [],
+    "indexes": {
+        "value": [
+            "value"
+        ]
+    },
+    "settings": {
+        "allowed_values": [],
+        "allowed_values_function": "cer_weight_options"
+    },
+    "storage": {
+        "type": "field_sql_storage",
+        "module": "field_sql_storage",
+        "active": "1",
+        "settings": []
+    }
+}

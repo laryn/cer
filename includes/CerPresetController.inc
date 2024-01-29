@@ -3,14 +3,14 @@
 /**
  * The controller class for CerPreset entities.
  */
-class CerPresetController extends EntityAPIControllerExportable {
+class CerPresetController extends EntityPlusControllerExportable {
 
   /**
    * Overridden.
    */
   public function export($entity, $prefix = '') {
     $variables = get_object_vars($entity);
-    
+
     // I really wish Entity API tried to notify the entity that it's being
     // exported so that it could clean itself up first, but it doesn't. So we
     // gotta do this bizness.

@@ -15,7 +15,7 @@ class CerPresetFinder extends EntityFieldQuery {
 
   protected $entity;
 
-  public function __construct(EntityDrupalWrapper $entity = NULL) {
+  public function __construct(EntityBackdropWrapper $entity = NULL) {
     $this->entity = $entity;
 
     $this
@@ -39,7 +39,7 @@ class CerPresetFinder extends EntityFieldQuery {
       ->fieldCondition('cer_bidirectional', 'value', TRUE)
       ->fieldCondition('cer_right', 'path', $lineage, 'STARTS_WITH')
       ->_load(parent::execute());
-      
+
     $result = $this->result['cer'];
     foreach ($this->result['cer__invert'] as $preset) {
       $result[] = $preset->invert();

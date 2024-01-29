@@ -7,7 +7,7 @@
 
 /**
  * @class
- * Contains the logic for performing CER operations on a single entity, 
+ * Contains the logic for performing CER operations on a single entity,
  * using a single preset.
  */
 class CerPresetHandler {
@@ -16,14 +16,14 @@ class CerPresetHandler {
    * @var CerFieldChain
    */
   protected $left;
-  
+
   /**
    * @var CerFieldChain
    */
   protected $right;
 
   /**
-   * @var EntityDrupalWrapper
+   * @var EntityBackdropWrapper
    */
   protected $entity;
 
@@ -32,7 +32,7 @@ class CerPresetHandler {
    */
   protected $refIDs;
 
-  public function __construct(CerPreset $preset, EntityDrupalWrapper $entity) {
+  public function __construct(CerPreset $preset, EntityBackdropWrapper $entity) {
     $this->left = $preset->wrapper->cer_left->chain->value();
     $this->right = $preset->wrapper->cer_right->chain->value();
     $this->entity = $entity;
@@ -104,7 +104,7 @@ class CerPresetHandler {
       $this->right->getHandler( $ref )->delete( $this->entity->cer->owner );
     }
   }
-  
+
   /**
    * Loads referenced entities. This might seem like a convenience method, but it
    * is a critical part CER's core logic.
@@ -113,7 +113,7 @@ class CerPresetHandler {
    *  Array of entity IDs to load.
    *
    * @return array
-   *  The requested entities, wrapped by EntityDrupalWrapper. If nothing could be
+   *  The requested entities, wrapped by EntityBackdropWrapper. If nothing could be
    *  loaded, an empty array is returned.
    */
   protected function load(array $IDs) {
@@ -140,9 +140,9 @@ class CerPresetHandler {
     $result = $query->execute();
     if (isset($result[$entity_type])) {
       $result[$entity_type] = entity_load($entity_type, array_keys($result[$entity_type]));
-      
+
       foreach ($result[$entity_type] as $id => $entity) {
-        $result[$entity_type][$id] = new EntityDrupalWrapper($entity_type, $entity);
+        $result[$entity_type][$id] = new EntityBackdropWrapper($entity_type, $entity);
       }
 
       return $result[$entity_type];
@@ -152,4 +152,4 @@ class CerPresetHandler {
     }
   }
 
-} 
+}
