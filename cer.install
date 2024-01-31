@@ -97,7 +97,7 @@ function cer_update_last_removed() {
  * Update D7 variable to config for CER.
  */
 function cer_update_1000() {
-  $config_set('cer.settings', 'cer_enable_field_ui', update_variable_get('cer_enable_field_ui', FALSE));
+  config_set('cer.settings', 'cer_enable_field_ui', update_variable_get('cer_enable_field_ui', FALSE));
   update_variable_del('cer_enable_field_ui');
 }
 
