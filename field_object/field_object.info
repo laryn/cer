@@ -3,7 +3,3 @@ description = "Provides a field type that can refer to field instances."
 backdrop = 1.x
 
 dependencies[] = options
-
-files[] = includes/FieldChain.inc
-files[] = includes/FieldHierarchy.inc
-files[] = includes/FieldInstance.inc

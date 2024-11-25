@@ -14,8 +14,7 @@ class CerUIController extends EntityDefaultUIController {
     $items["{$this->path}/list"]['title'] = t('Presets');
 
     $this->setTitle($items["{$this->path}/add"], t('Add preset'));
-    //$this->setTitle($items["{$this->path}/import"], t('Import preset'));
-
+    // $this->setTitle($items["{$this->path}/import"], t('Import preset'));
     $items["{$this->path}/manage/%entity_ui_object/toggle"] = $this->createCallback('cer_toggle_preset', 'update');
     $items["{$this->path}/manage/%entity_ui_object/invert"] = $this->createCallback('cer_invert_preset', 'create');
 
@@ -146,10 +145,16 @@ class CerUIController extends EntityDefaultUIController {
     field_attach_form($this->entityType, $entity, $form_fields, $form_state);
 
     unset($form_fields['cer_enabled'][LANGUAGE_NONE]['#title']);
-    $row['data']['cer_enabled']['data'] = $form_fields['cer_enabled'];
+    // $row['data']['cer_enabled']['data'] = $form_fields['cer_enabled'];
+    $row['data']['cer_enabled']['data'] = array(
+      '#markup' => $entity->wrapper->cer_enabled->value() ? t('Yes') : t('No'),
+    );
 
     unset($form_fields['cer_bidirectional'][LANGUAGE_NONE]['#title']);
-    $row['data']['cer_bidirectional']['data'] = $form_fields['cer_bidirectional'];
+    // $row['data']['cer_bidirectional']['data'] = $form_fields['cer_bidirectional'];
+    $row['data']['cer_bidirectional']['data'] = array(
+      '#markup' => $entity->wrapper->cer_bidirectional->value() ? t('Yes') : t('No'),
+    );
 
     unset($form_fields['cer_weight'][LANGUAGE_NONE]['#title']);
     $form_fields['cer_weight'][LANGUAGE_NONE]['#attributes']['class'][] = 'cer-weight';
@@ -161,14 +166,14 @@ class CerUIController extends EntityDefaultUIController {
     }
 
     $links = array(
+      'edit' => array(
+        'title' => t('edit'),
+        'href' => "{$this->path}/manage/{$id}",
+      ),
       'toggle' => array(
         'title' => $entity->wrapper->cer_enabled->value() ? t('disable') : t('enable'),
         'href' => "{$this->path}/manage/{$id}/toggle",
         'query' => backdrop_get_destination(),
-      ),
-      'edit' => array(
-        'title' => t('edit'),
-        'href' => "{$this->path}/manage/{$id}",
       ),
     );
 
@@ -203,8 +208,7 @@ class CerUIController extends EntityDefaultUIController {
     $row['data']['operations'] = array(
       'data' => array(
         '#type' => 'dropbutton',
-        '#links' =>
-        $links,
+        '#links' => $links,
       ),
     );
 
