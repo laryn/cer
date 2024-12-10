@@ -1,3 +1,4 @@
+type = module
 name = "CER Commerce"
 backdrop = 1.x
 description = "Provides a CER plugin for Commerce's Product Reference fields."

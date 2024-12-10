@@ -1,3 +1,4 @@
+type = module
 name = Corresponding Entity References
 description = CER syncs the entity references between entity types which have an entityreference to each other.
 backdrop = 1.x

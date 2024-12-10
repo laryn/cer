@@ -1,3 +1,4 @@
+type = module
 name = "CER Entity Settings"
 backdrop = 1.x
 description = "Allows administrators and content authors to override CER settings for individual entities."

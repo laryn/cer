@@ -1,3 +1,4 @@
+type = module
 name = "CER Profile2"
 backdrop = 1.x
 description = "Allows CER to relate user references to Profile2 fields."

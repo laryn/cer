@@ -1,3 +1,4 @@
+type = module
 name = "Field Object"
 description = "Provides a field type that can refer to field instances."
 backdrop = 1.x
